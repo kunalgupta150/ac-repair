@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - AC CARE</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fc;
+            margin: 0;
+            padding: 30px;
+            color: #102b50;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 3px 14px #0000000d;
+        }
+        .back {
+            color: #1758d5;
+            text-decoration: none;
+        }
+        .booking-card {
+            border: 1px solid #dce3ee;
+            border-radius: 10px;
+            padding: 18px;
+            margin: 16px 0;
+        }
+        .primary-btn {
+            background: #1758d5;
+            color: white;
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        #upiPaymentPanel {
+            display: none;
+            margin-top: 25px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 24px;
+        }
+        #upiQr {
+            display: block;
+            width: 250px;
+            max-width: 100%;
+            height: auto;
+            margin: 18px auto;
+        }
+        input {
+            width: min(100%, 400px);
+            box-sizing: border-box;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        #upiPaymentMessage {
+            overflow-wrap: anywhere;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <a class="back" href="dashboard.html">← Back to Dashboard</a>
+        <h1>UPI Payments</h1>
+        <p>Select a completed service to view its payment details.</p>
+
+        <div id="customerPaymentBookings">
+            Loading your completed bookings...
+        </div>
+
+        <section id="upiPaymentPanel">
+            <h2>Scan to Pay</h2>
+            <p>Booking: <strong id="upiBookingReference"></strong></p>
+            <h2 id="upiPaymentAmount">₹0.00</h2>
+
+            <img
+                id="upiQr"
+                src="../assets/images/ac-care-upi-qr.jpeg"
+                alt="AC CARE UPI payment QR code"
+            >
+
+            <p>After paying, enter your UPI transaction reference.</p>
+            <p>Your payment remains pending until verified.</p>
+
+            <form id="upiReferenceForm">
+                <input
+                    type="hidden"
+                    id="upiDatabaseBookingId"
+                >
+
+                <label for="upiTransactionReference">
+                    UPI transaction reference
+                </label><br>
+
+                <input
+                    type="text"
+                    id="upiTransactionReference"
+                    maxlength="100"
+                    required
+                    placeholder="Enter transaction reference"
+                ><br>
+
+                <button class="primary-btn" type="submit">
+                    Submit Payment Reference
+                </button>
+            </form>
+
+            <p id="upiPaymentMessage" role="status"></p>
+        </section>
+    </main>
+
+    <script src="../assets/js/script.js"></script>
+</body>
+</html>

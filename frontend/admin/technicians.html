@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Technicians - AC CARE Admin</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 245px;
+            height: 100vh;
+            background: #06285c;
+            color: white;
+            padding: 24px 14px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            padding-left: 15px;
+        }
+
+        .logo span {
+            color: #5d8cff;
+        }
+
+        .tagline {
+            color: #c5d2e8;
+            font-size: 10px;
+            margin: 5px 0 30px 15px;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 5px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #2864dc;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 245px;
+            padding: 25px 30px;
+            min-height: 100vh;
+        }
+
+
+        /* ================= TOPBAR ================= */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 {
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .page-title p {
+            color: #69758a;
+            font-size: 13px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-top {
+            position: relative;
+        }
+
+        .search-top input {
+            width: 230px;
+            height: 40px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            padding: 0 40px 0 14px;
+            outline: none;
+            background: white;
+            font-size: 12px;
+        }
+
+        .search-top span {
+            position: absolute;
+            right: 13px;
+            top: 12px;
+            color: #718096;
+        }
+
+
+        /* ================= PROFILE ================= */
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 7px 12px;
+            border-radius: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .profile-image {
+            width: 37px;
+            height: 37px;
+            background: #dce8ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-info strong {
+            font-size: 12px;
+        }
+
+        .profile-info small {
+            display: block;
+            color: #788398;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+
+        /* ================= PAGE ACTIONS ================= */
+
+        .page-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .technician-search {
+            position: relative;
+        }
+
+        .technician-search input {
+            width: 300px;
+            height: 40px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            background: white;
+            padding: 0 15px;
+            outline: none;
+            font-size: 12px;
+        }
+
+        .add-btn {
+            background: #2864dc;
+            color: white;
+            border: none;
+            padding: 11px 17px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .add-btn:hover {
+            background: #1d51ba;
+        }
+
+
+        /* ================= STATISTICS ================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e3e8f0;
+            border-radius: 9px;
+            padding: 20px;
+            min-height: 115px;
+        }
+
+        .stat-card p {
+            color: #68758b;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card h2 {
+            font-size: 26px;
+            margin-bottom: 6px;
+        }
+
+        .stat-card small {
+            color: #1b9a59;
+            font-size: 10px;
+        }
+
+        .stat-card small.gray {
+            color: #788398;
+        }
+
+
+        /* ================= CARD ================= */
+
+        .card {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 9px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .results {
+            font-size: 11px;
+            color: #748095;
+        }
+
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        th {
+            background: #f7f9fc;
+            color: #69758a;
+            font-size: 10px;
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e5e9f0;
+        }
+
+        td {
+            padding: 14px 13px;
+            font-size: 11px;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+
+        /* ================= TECHNICIAN ================= */
+
+        .technician {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .technician-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #e5edff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2864dc;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .technician-name {
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .technician-email {
+            color: #7a8497;
+            font-size: 9px;
+            margin-top: 3px;
+        }
+
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 5px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .available {
+            background: #d9f5e4;
+            color: #168447;
+        }
+
+        .busy {
+            background: #fff1c9;
+            color: #a36a00;
+        }
+
+        .offline {
+            background: #f0f1f4;
+            color: #68758b;
+        }
+
+
+        /* ================= RATING ================= */
+
+        .rating {
+            color: #e69a00;
+            font-weight: bold;
+        }
+
+
+        /* ================= ACTION BUTTONS ================= */
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .view-btn,
+        .edit-btn {
+            border: 1px solid #d5dce8;
+            background: white;
+            padding: 6px 9px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 9px;
+        }
+
+        .view-btn {
+            color: #2864dc;
+        }
+
+        .edit-btn {
+            color: #4c5870;
+        }
+
+        .view-btn:hover {
+            background: #2864dc;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #eef2f8;
+        }
+
+
+        /* ================= MOBILE ================= */
+
+        .mobile-menu {
+            display: none;
+        }
+
+        .mobile-menu button {
+            background: #2864dc;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1100px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+
+        @media (max-width: 950px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+            }
+
+            .search-top input {
+                width: 170px;
+            }
+
+        }
+
+
+        @media (max-width: 750px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.show {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .mobile-menu {
+                display: block;
+                margin-bottom: 15px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-top input {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .page-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .technician-search input {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+<style>
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.technician-modal {
+    width: 90%;
+    max-width: 600px;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 25px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.modal-close {
+    border: none;
+    background: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #555;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.technician-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.modal-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eaf2ff;
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.technician-profile h3 {
+    margin: 0 0 5px;
+}
+
+.technician-profile p {
+    margin: 0;
+    color: #777;
+}
+
+.technician-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.detail-item {
+    padding: 15px;
+    background: #f8f9fb;
+    border-radius: 10px;
+}
+
+.detail-item span {
+    display: block;
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 6px;
+}
+
+.detail-item strong {
+    font-size: 15px;
+}
+
+@media (max-width: 600px) {
+    .technician-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+
+<body>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            ❄ AC <span>CARE</span>
+        </div>
+
+        <div class="tagline">
+            Cool Comfort, Our Priority
+        </div>
+
+
+        <ul class="menu">
+
+            <li>
+                <a href="dashboard.html">
+                    <span class="menu-icon">⌂</span>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="customers.html">
+                    <span class="menu-icon">♙</span>
+                    Customers
+                </a>
+            </li>
+
+            <li>
+                <a href="technicians.html" class="active">
+                    <span class="menu-icon">♟</span>
+                    Technicians
+                </a>
+            </li>
+
+            <li>
+                <a href="services.html">
+                    <span class="menu-icon">⚙</span>
+                    Services
+                </a>
+            </li>
+
+            <li>
+                <a href="bookings.html">
+                    <span class="menu-icon">▤</span>
+                    Bookings
+                </a>
+            </li>
+
+            <li>
+                <a href="payments.html">
+                    <span class="menu-icon">₹</span>
+                    Payments
+                </a>
+            </li>
+
+            <li>
+                <a href="reviews.html">
+                    <span class="menu-icon">☆</span>
+                    Reviews
+                </a>
+            </li>
+
+            <li>
+                <a href="reports.html">
+                    <span class="menu-icon">▥</span>
+                    Reports
+                </a>
+            </li>
+
+            <li>
+                <a href="notifications.html">
+                    <span class="menu-icon">♧</span>
+                    Notifications
+                </a>
+            </li>
+
+            <li>
+                <a href="settings.html">
+                    <span class="menu-icon">⚙</span>
+                    Settings
+                </a>
+            </li>
+
+            <li>
+                <a href="../login.html" onclick="logout()">
+                    <span class="menu-icon">↪</span>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- MOBILE MENU -->
+
+        <div class="mobile-menu">
+
+            <button onclick="toggleSidebar()">
+                ☰ Menu
+            </button>
+
+        </div>
+
+
+        <!-- ================= TOPBAR ================= -->
+
+        <div class="topbar">
+
+
+            <div class="page-title">
+
+                <h1>
+                    Technicians
+                </h1>
+
+                <p>
+                    Manage your AC CARE service technicians
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+
+                <div class="search-top">
+
+                    <input
+                        type="text"
+                        id="topSearch"
+                        placeholder="Search..."
+                        onkeyup="searchTechnicians()"
+                    >
+
+                    <span>⌕</span>
+
+                </div>
+
+
+                <div class="profile">
+
+                    <div class="profile-image">
+                        👤
+                    </div>
+
+                    <div class="profile-info">
+
+                        <strong>
+                            Kunal Gupta
+                        </strong>
+
+                        <small>
+                            Administrator
+                        </small>
+
+                    </div>
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= ACTIONS ================= -->
+
+        <div class="page-actions">
+
+
+            <div class="technician-search">
+
+                <input
+                    type="text"
+                    id="technicianSearch"
+                    placeholder="Search technician by name, email or phone..."
+                    onkeyup="searchTechnicians()"
+                >
+
+            </div>
+
+
+            <button
+                class="add-btn"
+                onclick="addTechnician()"
+            >
+                + Add Technician
+            </button>
+
+        </div>
+
+
+        <!-- ================= STATISTICS ================= -->
+
+        <section class="stats">
+
+
+            <div class="stat-card">
+
+                <p>
+                    Total Technicians
+                </p>
+
+                <h2>
+                    42
+                </h2>
+
+                <small>
+                    ↑ 4 new this month
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Available
+                </p>
+
+                <h2>
+                    24
+                </h2>
+
+                <small>
+                    Ready for new jobs
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Currently Busy
+                </p>
+
+                <h2>
+                    13
+                </h2>
+
+                <small class="gray">
+                    Working on assigned jobs
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Average Rating
+                </p>
+
+                <h2>
+                    4.8 ★
+                </h2>
+
+                <small>
+                    Based on customer reviews
+                </small>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= TECHNICIAN TABLE ================= -->
+
+        <section class="card">
+
+
+            <div class="card-header">
+
+                <h2>
+                    Technician List
+                </h2>
+
+                <span
+                    class="results"
+                    id="resultsCount"
+                >
+                    Showing 6 technicians
+                </span>
+
+            </div>
+
+
+            <div class="table-container">
+
+
+                <table id="technicianTable">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                TECHNICIAN
+                            </th>
+
+                            <th>
+                                PHONE
+                            </th>
+
+                            <th>
+                                SPECIALIZATION
+                            </th>
+
+                            <th>
+                                ASSIGNED JOBS
+                            </th>
+
+                            <th>
+                                RATING
+                            </th>
+
+                            <th>
+                                STATUS
+                            </th>
+
+                            <th>
+                                ACTION
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="techniciansTableBody">
+
+                           <tr>
+                               <td colspan="7" style="text-align:center; padding:30px;">
+                               Loading technicians...
+                               </td>
+                            </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+async function loadTechnicians() {
+
+    try {
+
+        const response = await fetch("http://localhost:5000/api/technicians");
+        const result = await response.json();
+
+        if (!result.success) {
+            alert("Failed to load technicians.");
+            return;
+        }
+
+        const technicians = result.data;
+
+        // Update statistics
+        document.querySelector(".stat-card:nth-child(1) .stat-value").textContent =
+            technicians.length;
+
+        document.querySelector(".stat-card:nth-child(2) .stat-value").textContent =
+            technicians.filter(t => t.status === "Available").length;
+
+        document.querySelector(".stat-card:nth-child(3) .stat-value").textContent =
+            technicians.filter(t => t.status === "Busy").length;
+
+        // Update technician table
+        const tbody = document.querySelector("#technicianTable tbody");
+
+        tbody.innerHTML = "";
+
+        technicians.forEach(function(technician) {
+
+            let statusText = technician.status;
+
+            // Database uses Inactive, UI can show Offline
+            if (statusText === "Inactive") {
+                statusText = "Offline";
+            }
+
+            let statusClass = technician.status.toLowerCase();
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${technician.full_name}</td>
+
+                <td>${technician.phone}</td>
+
+                <td>${technician.specialization || "-"}</td>
+
+                <td>${technician.experience} Years</td>
+
+                <td>${technician.assigned_jobs || 0}</td>
+
+
+                <td>
+                    <span class="status ${statusClass}">
+                        ${statusText}
+                    </span>
+                </td>
+
+                <td>
+                    <button onclick="viewTechnician('${technician.full_name}')">
+                        View
+                    </button>
+
+                    <button onclick="editTechnician('${technician.full_name}')">
+                        Edit
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        document.getElementById("resultsCount").textContent =
+            "Showing " + technicians.length + " technicians";
+
+    } catch (error) {
+
+        console.error("Technicians loading error:", error);
+
+        alert("Unable to connect to server.");
+
+    }
+}
+
+
+// Search technicians
+function searchTechnicians() {
+
+    const topSearch =
+        document.getElementById("topSearch").value.toLowerCase();
+
+    const technicianSearch =
+        document.getElementById("technicianSearch").value.toLowerCase();
+
+    const searchValue = technicianSearch || topSearch;
+
+    const rows =
+        document.querySelectorAll("#technicianTable tbody tr");
+
+    let visibleCount = 0;
+
+    rows.forEach(function(row) {
+
+        const text = row.textContent.toLowerCase();
+
+        if (text.includes(searchValue)) {
+
+            row.style.display = "";
+            visibleCount++;
+
+        } else {
+
+            row.style.display = "none";
+
+        }
+
+    });
+
+    document.getElementById("resultsCount").textContent =
+        "Showing " + visibleCount + " technicians";
+}
+
+
+// View technician
+function viewTechnician(name) {
+
+    alert("Technician Profile: " + name);
+
+}
+
+
+// Edit technician
+function editTechnician(name) {
+
+    alert("Edit technician: " + name);
+
+}
+
+
+// Add technician
+function addTechnician() {
+
+    document.getElementById("addTechnicianForm").reset();
+
+    document.getElementById("addStatus").value = "Available";
+
+    document.getElementById("addTechnicianModal").style.display = "flex";
+}
+
+
+function closeAddTechnicianModal() {
+
+    document.getElementById("addTechnicianModal").style.display = "none";
+
+}
+
+
+// Toggle sidebar
+function toggleSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+
+    sidebar.classList.toggle("show");
+
+}
+
+
+// Logout
+function logout() {
+
+    localStorage.removeItem("loggedInUser");
+
+}
+
+
+// Load technicians when page opens
+document.addEventListener("DOMContentLoaded", function() {
+
+    loadTechnicians();
+
+});
+
+</script>
+
+<script>
+const techniciansTableBody = document.getElementById("techniciansTableBody");
+
+async function loadTechnicians() {
+    try {
+        const response = await fetch("http://localhost:5000/api/technicians");
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || "Failed to load technicians");
+        }
+
+        techniciansTableBody.innerHTML = "";
+
+        if (result.data.length === 0) {
+            techniciansTableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align:center; padding:30px;">
+                        No technicians found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        result.data.forEach(technician => {
+
+            let statusClass = "available";
+
+            if (technician.status === "Busy") {
+                statusClass = "busy";
+            } else if (technician.status === "Inactive") {
+                statusClass = "offline";
+            }
+
+            const initials = technician.full_name
+                .split(" ")
+                .map(name => name.charAt(0))
+                .join("")
+                .substring(0, 2)
+                .toUpperCase();
+
+            techniciansTableBody.innerHTML += `
+                <tr>
+                    <td>
+                        <div class="technician">
+                            <div class="technician-avatar">
+                                ${initials}
+                            </div>
+
+                            <div>
+                                <div class="technician-name">
+                                    ${technician.full_name}
+                                </div>
+
+                                <div class="technician-email">
+                                    ${technician.email}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>${technician.phone}</td>
+
+                    <td>${technician.specialization || "—"}</td>
+
+                    <td>${technician.assigned_jobs || 0}</td>
+
+                    <td>${technician.rating ? technician.rating : "—"}</td>
+
+                    <td>
+                        <span class="status ${statusClass}">
+                            ${technician.status}
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="action-buttons">
+                            <button
+                                class="view-btn"
+                                onclick="viewTechnician(${technician.id})">
+                                View
+                            </button>
+
+                            <button
+                                class="edit-btn"
+                                onclick="editTechnician(${technician.id})">
+                                Edit
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+        console.error("Technicians loading error:", error);
+
+        techniciansTableBody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align:center; padding:30px; color:red;">
+                    Failed to load technicians.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+async function viewTechnician(id) {
+
+    try {
+
+        const response = await fetch(
+            `http://localhost:5000/api/technicians/${id}`
+        );
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to load technician.");
+            return;
+        }
+
+        const technician = result.technician;
+
+        document.getElementById("modalTechnicianName").textContent =
+            technician.full_name;
+
+        document.getElementById("modalTechnicianEmail").textContent =
+            technician.email;
+
+        document.getElementById("modalPhone").textContent =
+            technician.phone;
+
+        document.getElementById("modalSpecialization").textContent =
+            technician.specialization || "—";
+
+        document.getElementById("modalExperience").textContent =
+            `${technician.experience || 0} years`;
+
+        document.getElementById("modalStatus").textContent =
+            technician.status;
+
+        document.getElementById("modalAssignedJobs").textContent =
+            technician.assigned_jobs || 0;
+
+        document.getElementById("modalRating").textContent =
+            technician.rating || "—";
+
+        const initials = technician.full_name
+            .split(" ")
+            .map(name => name.charAt(0))
+            .join("")
+            .substring(0, 2)
+            .toUpperCase();
+
+        document.getElementById("modalAvatar").textContent = initials;
+
+        document.getElementById("technicianModal").style.display = "flex";
+
+    } catch (error) {
+
+        console.error("View technician error:", error);
+
+        alert("Unable to load technician details.");
+
+    }
+}
+
+function closeTechnicianModal() {
+    document.getElementById("technicianModal").style.display = "none";
+}
+
+window.addEventListener("click", function(event) {
+
+    const modal = document.getElementById("technicianModal");
+
+    if (event.target === modal) {
+        closeTechnicianModal();
+    }
+
+});
+
+async function editTechnician(id) {
+
+    try {
+
+        const response = await fetch(
+            `http://localhost:5000/api/technicians/${id}`
+        );
+
+        const result = await response.json();
+
+        if (!result.success) {
+            alert(result.message || "Failed to load technician.");
+            return;
+        }
+
+        const technician = result.technician;
+
+        document.getElementById("editTechnicianId").value =
+            technician.id;
+
+        document.getElementById("editFullName").value =
+            technician.full_name;
+
+        document.getElementById("editPhone").value =
+            technician.phone;
+
+        document.getElementById("editEmail").value =
+            technician.email;
+
+        document.getElementById("editSpecialization").value =
+            technician.specialization || "";
+
+        document.getElementById("editExperience").value =
+            technician.experience || 0;
+
+        document.getElementById("editStatus").value =
+            technician.status;
+
+        document.getElementById("editTechnicianModal").style.display =
+            "flex";
+
+    } catch (error) {
+
+        console.error("Edit technician error:", error);
+
+        alert("Unable to load technician details.");
+
+    }
+}
+document.getElementById("editTechnicianForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const id = document.getElementById("editTechnicianId").value;
+
+        const technicianData = {
+
+            full_name:
+                document.getElementById("editFullName").value.trim(),
+
+            phone:
+                document.getElementById("editPhone").value.trim(),
+
+            email:
+                document.getElementById("editEmail").value.trim(),
+
+            specialization:
+                document.getElementById("editSpecialization").value.trim(),
+
+            experience:
+                document.getElementById("editExperience").value,
+
+            status:
+                document.getElementById("editStatus").value
+
+        };
+
+        try {
+
+            const response = await fetch(
+                `http://localhost:5000/api/technicians/${id}`,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(technicianData)
+                }
+            );
+
+            const result = await response.json();
+
+            if (!result.success) {
+                alert(result.message || "Failed to update technician.");
+                return;
+            }
+
+            alert("Technician updated successfully!");
+
+            closeEditTechnicianModal();
+
+            loadTechnicians();
+
+        } catch (error) {
+
+            console.error("Update technician error:", error);
+
+            alert("Unable to update technician.");
+
+        }
+
+    });
+    function closeEditTechnicianModal() {
+
+    document.getElementById("editTechnicianModal").style.display =
+        "none";
+
+}
+
+loadTechnicians();
+// ================= ADD TECHNICIAN =================
+
+
+</script>
+<!-- Technician Details Modal -->
+<div id="technicianModal" class="modal-overlay">
+    <div class="technician-modal">
+
+        <div class="modal-header">
+            <h2>Technician Details</h2>
+            <button class="modal-close" onclick="closeTechnicianModal()">
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <div class="technician-profile">
+                <div class="modal-avatar" id="modalAvatar">
+                    --
+                </div>
+
+                <div>
+                    <h3 id="modalTechnicianName">Loading...</h3>
+                    <p id="modalTechnicianEmail">Loading...</p>
+                </div>
+            </div>
+
+            <div class="technician-details-grid">
+
+                <div class="detail-item">
+                    <span>Phone</span>
+                    <strong id="modalPhone">—</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Specialization</span>
+                    <strong id="modalSpecialization">—</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Experience</span>
+                    <strong id="modalExperience">—</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Status</span>
+                    <strong id="modalStatus">—</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Assigned Jobs</span>
+                    <strong id="modalAssignedJobs">0</strong>
+                </div>
+
+                <div class="detail-item">
+                    <span>Rating</span>
+                    <strong id="modalRating">—</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<!-- Edit Technician Modal -->
+<div id="editTechnicianModal" class="modal-overlay">
+
+    <div class="technician-modal">
+
+        <div class="modal-header">
+            <h2>Edit Technician</h2>
+
+            <button class="modal-close" onclick="closeEditTechnicianModal()">
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <form id="editTechnicianForm">
+
+                <input type="hidden" id="editTechnicianId">
+
+                <div style="margin-bottom:15px;">
+                    <label>Full Name</label>
+                    <input
+                        type="text"
+                        id="editFullName"
+                        required
+                        style="width:100%; padding:11px; margin-top:6px; border:1px solid #ddd; border-radius:8px;"
+                    >
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label>Phone</label>
+                    <input
+                        type="text"
+                        id="editPhone"
+                        required
+                        style="width:100%; padding:11px; margin-top:6px; border:1px solid #ddd; border-radius:8px;"
+                    >
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label>Email</label>
+                    <input
+                        type="email"
+                        id="editEmail"
+                        required
+                        style="width:100%; padding:11px; margin-top:6px; border:1px solid #ddd; border-radius:8px;"
+                    >
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label>Specialization</label>
+                    <input
+                        type="text"
+                        id="editSpecialization"
+                        required
+                        style="width:100%; padding:11px; margin-top:6px; border:1px solid #ddd; border-radius:8px;"
+                    >
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label>Experience (Years)</label>
+                    <input
+                        type="number"
+                        id="editExperience"
+                        min="0"
+                        required
+                        style="width:100%; padding:11px; margin-top:6px; border:1px solid #ddd; border-radius:8px;"
+                    >
+                </div>
+
+                <div style="margin-bottom:20px;">
+                    <label>Status</label>
+
+                    <select
+                        id="editStatus"
+                        required
+                        style="width:100%; padding:11px; margin-top:6px; border:1px solid #ddd; border-radius:8px;"
+                    >
+                        <option value="Available">Available</option>
+                        <option value="Busy">Busy</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+
+                    <button
+                        type="button"
+                        onclick="closeEditTechnicianModal()"
+                        style="padding:11px 20px; border:1px solid #ddd; background:#fff; border-radius:8px; cursor:pointer;"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        style="padding:11px 20px; border:none; background:#2563eb; color:white; border-radius:8px; cursor:pointer;"
+                    >
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ================= ADD TECHNICIAN MODAL ================= -->
+
+<div id="addTechnicianModal" class="modal-overlay">
+
+    <div class="technician-modal">
+
+        <div class="modal-header">
+            <h2>Add Technician</h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeAddTechnicianModal()">
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body">
+
+            <form id="addTechnicianForm">
+
+                <div class="form-group">
+                    <label for="addFullName">Full Name</label>
+                    <input
+                        type="text"
+                        id="addFullName"
+                        placeholder="Enter technician name"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="addPhone">Phone</label>
+                    <input
+                        type="tel"
+                        id="addPhone"
+                        placeholder="Enter phone number"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="addEmail">Email</label>
+                    <input
+                        type="email"
+                        id="addEmail"
+                        placeholder="Enter email address"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="addSpecialization">Specialization</label>
+
+                    <select id="addSpecialization" required>
+                        <option value="">Select specialization</option>
+                        <option value="AC Repair">AC Repair</option>
+                        <option value="AC Cleaning">AC Cleaning</option>
+                        <option value="Gas Refill">Gas Refill</option>
+                        <option value="Installation">Installation</option>
+                        <option value="Maintenance">Maintenance</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="addExperience">Experience (Years)</label>
+
+                    <input
+                        type="number"
+                        id="addExperience"
+                        placeholder="Enter years of experience"
+                        min="0"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="addStatus">Status</label>
+
+                    <select id="addStatus" required>
+                        <option value="Available">Available</option>
+                        <option value="Busy">Busy</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="addPassword">Password</label>
+
+                    <input
+                        type="password"
+                        id="addPassword"
+                        placeholder="Enter technician password"
+                        required>
+                </div>
+
+                <div class="modal-actions">
+
+                    <button
+                        type="button"
+                        class="cancel-btn"
+                        onclick="closeAddTechnicianModal()">
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="save-btn">
+                        Add Technician
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const addTechnicianForm =
+        document.getElementById("addTechnicianForm");
+
+    if (!addTechnicianForm) {
+        console.error("Add Technician form not found.");
+        return;
+    }
+
+    addTechnicianForm.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        const technicianData = {
+            full_name: document.getElementById("addFullName").value.trim(),
+            phone: document.getElementById("addPhone").value.trim(),
+            email: document.getElementById("addEmail").value.trim(),
+            specialization: document.getElementById("addSpecialization").value,
+            experience: Number(
+                document.getElementById("addExperience").value
+            ),
+            status: document.getElementById("addStatus").value,
+            password: document.getElementById("addPassword").value
+        };
+
+        console.log("Sending technician:", technicianData);
+
+        try {
+
+            const response = await fetch(
+                "http://localhost:5000/api/technicians",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(technicianData)
+                }
+            );
+
+            const result = await response.json();
+
+            console.log("Server response:", result);
+
+            if (!response.ok || !result.success) {
+                alert(result.message || "Failed to add technician.");
+                return;
+            }
+
+            alert("Technician added successfully!");
+
+            closeAddTechnicianModal();
+
+            addTechnicianForm.reset();
+
+            document.getElementById("addStatus").value = "Available";
+
+            await loadTechnicians();
+
+        } catch (error) {
+
+            console.error("Add technician error:", error);
+
+            alert("Cannot connect to server.");
+        }
+
+    });
+
+});
+</script>
+</body>
+
+</html>

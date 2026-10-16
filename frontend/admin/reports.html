@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reports - AC CARE Admin</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 245px;
+            height: 100vh;
+            background: #06285c;
+            color: white;
+            padding: 24px 14px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            padding-left: 15px;
+        }
+
+        .logo span {
+            color: #5d8cff;
+        }
+
+        .tagline {
+            color: #c5d2e8;
+            font-size: 10px;
+            margin: 5px 0 30px 15px;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 5px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #2864dc;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 245px;
+            padding: 25px 30px;
+            min-height: 100vh;
+        }
+
+        /* ================= TOPBAR ================= */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 {
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .page-title p {
+            color: #69758a;
+            font-size: 13px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-top {
+            position: relative;
+        }
+
+        .search-top input {
+            width: 230px;
+            height: 40px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            padding: 0 40px 0 14px;
+            outline: none;
+            background: white;
+            font-size: 12px;
+        }
+
+        .search-top span {
+            position: absolute;
+            right: 13px;
+            top: 12px;
+            color: #718096;
+        }
+
+        /* ================= PROFILE ================= */
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 7px 12px;
+            border-radius: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .profile-image {
+            width: 37px;
+            height: 37px;
+            background: #dce8ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-info strong {
+            font-size: 12px;
+        }
+
+        .profile-info small {
+            display: block;
+            color: #788398;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        /* ================= FILTER BAR ================= */
+
+        .filter-card {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 9px;
+            padding: 18px;
+            margin-bottom: 22px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-title {
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        select {
+            height: 40px;
+            min-width: 150px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            background: white;
+            padding: 0 12px;
+            outline: none;
+            font-size: 11px;
+            color: #4f5b70;
+        }
+
+        .generate-btn {
+            height: 40px;
+            padding: 0 18px;
+            border: none;
+            border-radius: 7px;
+            background: #2864dc;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .generate-btn:hover {
+            background: #1d51bd;
+        }
+
+        /* ================= STATISTICS ================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e3e8f0;
+            border-radius: 9px;
+            padding: 20px;
+        }
+
+        .stat-card p {
+            color: #68758b;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card h2 {
+            font-size: 25px;
+            margin-bottom: 7px;
+        }
+
+        .stat-card small {
+            color: #1b9a59;
+            font-size: 10px;
+        }
+
+        /* ================= GRID ================= */
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-bottom: 22px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 9px;
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .card-header span {
+            color: #7a8497;
+            font-size: 10px;
+        }
+
+        /* ================= BAR CHART ================= */
+
+        .chart {
+            height: 240px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 15px;
+            border-bottom: 1px solid #dfe4ec;
+            padding: 10px 5px 0;
+        }
+
+        .bar-wrapper {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            flex: 1;
+        }
+
+        .bar {
+            width: 32px;
+            background: #2864dc;
+            border-radius: 5px 5px 0 0;
+            min-height: 10px;
+            transition: 0.3s;
+        }
+
+        .bar:hover {
+            opacity: 0.75;
+        }
+
+        .bar-label {
+            font-size: 9px;
+            color: #7a8497;
+            margin-top: 8px;
+        }
+
+        .bar-value {
+            font-size: 8px;
+            color: #536075;
+            margin-bottom: 5px;
+        }
+
+        /* ================= PROGRESS ================= */
+
+        .progress-item {
+            margin-bottom: 20px;
+        }
+
+        .progress-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-top span {
+            font-size: 10px;
+        }
+
+        .progress-top strong {
+            font-size: 10px;
+        }
+
+        .progress {
+            height: 9px;
+            background: #edf0f5;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #2864dc;
+            border-radius: 10px;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 700px;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f7f9fc;
+            color: #69758a;
+            font-size: 9px;
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e5e9f0;
+        }
+
+        td {
+            padding: 14px 13px;
+            font-size: 10px;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 5px;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .excellent {
+            background: #d9f5e4;
+            color: #168447;
+        }
+
+        .good {
+            background: #e5edff;
+            color: #2864dc;
+        }
+
+        .average {
+            background: #fff1c9;
+            color: #a36a00;
+        }
+
+        /* ================= DOWNLOAD ================= */
+
+        .download-btn {
+            border: 1px solid #d5dce8;
+            background: white;
+            color: #2864dc;
+            padding: 7px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 8px;
+        }
+
+        .download-btn:hover {
+            background: #2864dc;
+            color: white;
+        }
+
+        /* ================= MOBILE ================= */
+
+        .mobile-menu {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .mobile-menu button {
+            background: #2864dc;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1100px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 750px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.show {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-top input {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            select,
+            .generate-btn {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            ❄ AC <span>CARE</span>
+        </div>
+
+        <div class="tagline">
+            Cool Comfort, Our Priority
+        </div>
+
+
+        <ul class="menu">
+
+            <li>
+                <a href="dashboard.html">
+                    <span class="menu-icon">⌂</span>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="customers.html">
+                    <span class="menu-icon">♙</span>
+                    Customers
+                </a>
+            </li>
+
+            <li>
+                <a href="technicians.html">
+                    <span class="menu-icon">♟</span>
+                    Technicians
+                </a>
+            </li>
+
+            <li>
+                <a href="services.html">
+                    <span class="menu-icon">⚙</span>
+                    Services
+                </a>
+            </li>
+
+            <li>
+                <a href="bookings.html">
+                    <span class="menu-icon">▤</span>
+                    Bookings
+                </a>
+            </li>
+
+            <li>
+                <a href="payments.html">
+                    <span class="menu-icon">₹</span>
+                    Payments
+                </a>
+            </li>
+
+            <li>
+                <a href="reviews.html">
+                    <span class="menu-icon">☆</span>
+                    Reviews
+                </a>
+            </li>
+
+            <li>
+                <a href="reports.html" class="active">
+                    <span class="menu-icon">▥</span>
+                    Reports
+                </a>
+            </li>
+
+            <li>
+                <a href="notifications.html">
+                    <span class="menu-icon">♧</span>
+                    Notifications
+                </a>
+            </li>
+
+            <li>
+                <a href="settings.html">
+                    <span class="menu-icon">⚙</span>
+                    Settings
+                </a>
+            </li>
+
+            <li>
+                <a href="../login.html" onclick="logout()">
+                    <span class="menu-icon">↪</span>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- MOBILE MENU -->
+
+        <div class="mobile-menu">
+
+            <button onclick="toggleSidebar()">
+                ☰ Menu
+            </button>
+
+        </div>
+
+
+        <!-- ================= TOPBAR ================= -->
+
+        <div class="topbar">
+
+
+            <div class="page-title">
+
+                <h1>
+                    Reports
+                </h1>
+
+                <p>
+                    Analyze AC CARE business performance
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+                <div class="search-top">
+
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                    >
+
+                    <span>
+                        ⌕
+                    </span>
+
+                </div>
+
+
+                <div class="profile">
+
+                    <div class="profile-image">
+                        👤
+                    </div>
+
+                    <div class="profile-info">
+
+                        <strong>
+                            Kunal Gupta
+                        </strong>
+
+                        <small>
+                            Administrator
+                        </small>
+
+                    </div>
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= FILTER ================= -->
+
+        <section class="filter-card">
+
+            <div class="filter-row">
+
+                <span class="filter-title">
+                    Report Period
+                </span>
+
+                <select id="period">
+
+                    <option value="month">
+                        This Month
+                    </option>
+
+                    <option value="last-month">
+                        Last Month
+                    </option>
+
+                    <option value="quarter">
+                        This Quarter
+                    </option>
+
+                    <option value="year">
+                        This Year
+                    </option>
+
+                </select>
+
+
+                <select id="reportType">
+
+                    <option value="business">
+                        Business Report
+                    </option>
+
+                    <option value="booking">
+                        Booking Report
+                    </option>
+
+                    <option value="revenue">
+                        Revenue Report
+                    </option>
+
+                    <option value="technician">
+                        Technician Report
+                    </option>
+
+                </select>
+
+
+                <button
+                    class="generate-btn"
+                    onclick="generateReport()"
+                >
+                    Generate Report
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= STATISTICS ================= -->
+
+        <section class="stats">
+
+
+            <div class="stat-card">
+
+                <p>
+                    Total Revenue
+                </p>
+
+                
+<h2 id="reportRevenue">Loading...</h2>
+
+                <small>
+                    +12.5% from last month
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Total Bookings
+                </p>
+
+                
+<h2 id="reportBookings">Loading...</h2>
+
+                <small>
+                    +8.4% from last month
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Completed Jobs
+                </p>
+
+                
+<h2 id="reportCompleted">Loading...</h2>
+
+                <small>
+                    94.6% completion rate
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Customer Satisfaction
+                </p>
+
+                
+<h2 id="reportPayouts">Loading...</h2>
+
+                <small>
+                    Excellent performance
+                </small>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= CHARTS ================= -->
+
+        <section class="report-grid">
+
+
+            <!-- REVENUE CHART -->
+
+            
+<div class="chart" id="monthlyRevenueChart">
+    <p style="color:#69758a; font-size:12px;">
+        Loading monthly revenue...
+    </p>
+</div>
+                <div class="chart">
+
+
+                    <div class="bar-wrapper">
+
+                        <span class="bar-value">
+                            ₹31K
+                        </span>
+
+                        <div
+                            class="bar"
+                            style="height: 35%;"
+                        ></div>
+
+                        <span class="bar-label">
+                            Jan
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-wrapper">
+
+                        <span class="bar-value">
+                            ₹36K
+                        </span>
+
+                        <div
+                            class="bar"
+                            style="height: 42%;"
+                        ></div>
+
+                        <span class="bar-label">
+                            Feb
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-wrapper">
+
+                        <span class="bar-value">
+                            ₹39K
+                        </span>
+
+                        <div
+                            class="bar"
+                            style="height: 48%;"
+                        ></div>
+
+                        <span class="bar-label">
+                            Mar
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-wrapper">
+
+                        <span class="bar-value">
+                            ₹42K
+                        </span>
+
+                        <div
+                            class="bar"
+                            style="height: 54%;"
+                        ></div>
+
+                        <span class="bar-label">
+                            Apr
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-wrapper">
+
+                        <span class="bar-value">
+                            ₹45K
+                        </span>
+
+                        <div
+                            class="bar"
+                            style="height: 62%;"
+                        ></div>
+
+                        <span class="bar-label">
+                            May
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-wrapper">
+
+                        <span class="bar-value">
+                            ₹49K
+                        </span>
+
+                        <div
+                            class="bar"
+                            style="height: 70%;"
+                        ></div>
+
+                        <span class="bar-label">
+                            Jun
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-wrapper">
+
+                        <span class="bar-value">
+                            ₹51K
+                        </span>
+
+                        <div
+                            class="bar"
+                            style="height: 78%;"
+                        ></div>
+
+                        <span class="bar-label">
+                            Jul
+                        </span>
+
+                    </div>
+
+
+                    <div class="bar-wrapper">
+
+                        <span class="bar-value">
+                            ₹58K
+                        </span>
+
+                        <div
+                            class="bar"
+                            style="height: 90%;"
+                        ></div>
+
+                        <span class="bar-label">
+                            Aug
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- BOOKING PERFORMANCE -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Booking Performance
+                    </h2>
+
+                    <span>
+                        This Month
+                    </span>
+
+                </div>
+
+
+                <div class="progress-item">
+
+                    <div class="progress-top">
+
+                        <span>
+                            Completed
+                        </span>
+
+                        <strong>
+                            94.6%
+                        </strong>
+
+                    </div>
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-fill"
+                            style="width:94.6%;"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="progress-item">
+
+                    <div class="progress-top">
+
+                        <span>
+                            On Time
+                        </span>
+
+                        <strong>
+                            88.2%
+                        </strong>
+
+                    </div>
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-fill"
+                            style="width:88.2%;"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="progress-item">
+
+                    <div class="progress-top">
+
+                        <span>
+                            Customer Satisfaction
+                        </span>
+
+                        <strong>
+                            94%
+                        </strong>
+
+                    </div>
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-fill"
+                            style="width:94%;"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="progress-item">
+
+                    <div class="progress-top">
+
+                        <span>
+                            Technician Efficiency
+                        </span>
+
+                        <strong>
+                            91%
+                        </strong>
+
+                    </div>
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-fill"
+                            style="width:91%;"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="progress-item">
+
+                    <div class="progress-top">
+
+                        <span>
+                            Payment Success
+                        </span>
+
+                        <strong>
+                            96%
+                        </strong>
+
+                    </div>
+
+                    <div class="progress">
+
+                        <div
+                            class="progress-fill"
+                            style="width:96%;"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= SERVICE PERFORMANCE ================= -->
+
+        <section class="card" style="margin-bottom:22px;">
+
+            <div class="card-header">
+
+                <h2>
+                    Service Performance
+                </h2>
+
+                <span>
+                    August 2026
+                </span>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                SERVICE
+                            </th>
+
+                            <th>
+                                BOOKINGS
+                            </th>
+
+                            <th>
+                                COMPLETED
+                            </th>
+
+                            <th>
+                                REVENUE
+                            </th>
+
+                            <th>
+                                RATING
+                            </th>
+
+                            <th>
+                                PERFORMANCE
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        <tr>
+
+                            <td>
+                                AC Service
+                            </td>
+
+                            <td>
+                                168
+                            </td>
+
+                            <td>
+                                161
+                            </td>
+
+                            <td>
+                                ₹1,17,600
+                            </td>
+
+                            <td>
+                                4.8 ★
+                            </td>
+
+                            <td>
+
+                                <span class="status excellent">
+                                    Excellent
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                AC Repair
+                            </td>
+
+                            <td>
+                                126
+                            </td>
+
+                            <td>
+                                118
+                            </td>
+
+                            <td>
+                                ₹1,56,400
+                            </td>
+
+                            <td>
+                                4.6 ★
+                            </td>
+
+                            <td>
+
+                                <span class="status excellent">
+                                    Excellent
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Gas Refill
+                            </td>
+
+                            <td>
+                                92
+                            </td>
+
+                            <td>
+                                87
+                            </td>
+
+                            <td>
+                                ₹1,28,800
+                            </td>
+
+                            <td>
+                                4.7 ★
+                            </td>
+
+                            <td>
+
+                                <span class="status good">
+                                    Good
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                AC Installation
+                            </td>
+
+                            <td>
+                                66
+                            </td>
+
+                            <td>
+                                62
+                            </td>
+
+                            <td>
+                                ₹79,850
+                            </td>
+
+                            <td>
+                                4.5 ★
+                            </td>
+
+                            <td>
+
+                                <span class="status good">
+                                    Good
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= REPORT DOWNLOAD ================= -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    Available Reports
+                </h2>
+
+                <span>
+                    Export reports
+                </span>
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                REPORT
+                            </th>
+
+                            <th>
+                                PERIOD
+                            </th>
+
+                            <th>
+                                GENERATED
+                            </th>
+
+                            <th>
+                                FORMAT
+                            </th>
+
+                            <th>
+                                ACTION
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        <tr>
+
+                            <td>
+                                Monthly Business Report
+                            </td>
+
+                            <td>
+                                August 2026
+                            </td>
+
+                            <td>
+                                31 Aug 2026
+                            </td>
+
+                            <td>
+                                PDF
+                            </td>
+
+                            <td>
+
+                                <button
+                                    class="download-btn"
+                                    onclick="downloadReport('Monthly Business Report')"
+                                >
+                                    Download
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Revenue Report
+                            </td>
+
+                            <td>
+                                August 2026
+                            </td>
+
+                            <td>
+                                31 Aug 2026
+                            </td>
+
+                            <td>
+                                Excel
+                            </td>
+
+                            <td>
+
+                                <button
+                                    class="download-btn"
+                                    onclick="downloadReport('Revenue Report')"
+                                >
+                                    Download
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>
+                                Booking Report
+                            </td>
+
+                            <td>
+                                August 2026
+                            </td>
+
+                            <td>
+                                31 Aug 2026
+                            </td>
+
+                            <td>
+                                PDF
+                            </td>
+
+                            <td>
+
+                                <button
+                                    class="download-btn"
+                                    onclick="downloadReport('Booking Report')"
+                                >
+                                    Download
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+
+        function toggleSidebar() {
+
+            document
+                .getElementById("sidebar")
+                .classList.toggle("show");
+
+        }
+
+
+        function generateReport() {
+
+            const period =
+                document.getElementById(
+                    "period"
+                ).value;
+
+            const type =
+                document.getElementById(
+                    "reportType"
+                ).value;
+
+
+            const periodName =
+                document.getElementById(
+                    "period"
+                )
+                .options[
+                    document.getElementById(
+                        "period"
+                    ).selectedIndex
+                ].text;
+
+
+            const typeName =
+                document.getElementById(
+                    "reportType"
+                )
+                .options[
+                    document.getElementById(
+                        "reportType"
+                    ).selectedIndex
+                ].text;
+
+
+            alert(
+                typeName +
+                " for " +
+                periodName +
+                " is being generated."
+            );
+
+        }
+
+
+        function downloadReport(reportName) {
+
+            alert(
+                reportName +
+                " download will be connected to the backend later."
+            );
+
+        }
+
+
+        function logout() {
+
+            localStorage.removeItem(
+                "loggedInUser"
+            );
+
+        }
+
+    </script>
+
+
+<script>
+async function loadReports() {
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/admin/reports"
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || data.success !== true) {
+            throw new Error(data.message || "Unable to load reports.");
+        }
+
+        const bookings = data.bookings || {};
+        const payments = data.payments || {};
+
+        const money = value =>
+            "₹" + Number(value || 0).toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+        document.getElementById("reportRevenue").textContent =
+            money(payments.totalRevenue);
+
+        document.getElementById("reportBookings").textContent =
+            Number(bookings.totalBookings || 0).toLocaleString("en-IN");
+
+        document.getElementById("reportCompleted").textContent =
+            Number(bookings.completedBookings || 0).toLocaleString("en-IN");
+
+        document.getElementById("reportPayouts").textContent =
+            money(payments.technicianPayoutsRecorded);
+
+        console.log("AC CARE Reports:", data);
+
+    } catch (error) {
+        console.error("Reports loading error:", error);
+        alert("Could not load reports. Check that the backend is running.");
+    }
+}
+
+async function loadMonthlyRevenue() {
+    const chart = document.getElementById("monthlyRevenueChart");
+
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/admin/reports/monthly-revenue"
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || data.success !== true) {
+            throw new Error(
+                data.message || "Unable to load monthly revenue."
+            );
+        }
+
+        const revenueByMonth = new Map(
+            (data.monthlyRevenue || []).map(item => [
+                item.monthKey,
+                Number(item.revenue || 0)
+            ])
+        );
+
+        const months = [];
+        const now = new Date();
+
+        // Build the current month and previous seven months.
+        for (let i = 7; i >= 0; i--) {
+            const date = new Date(
+                now.getFullYear(),
+                now.getMonth() - i,
+                1
+            );
+
+            const monthKey =
+                date.getFullYear() + "-" +
+                String(date.getMonth() + 1).padStart(2, "0");
+
+            months.push({
+                monthKey,
+                monthLabel: date.toLocaleString("en-IN", {
+                    month: "short"
+                }),
+                revenue: revenueByMonth.get(monthKey) || 0
+            });
+        }
+
+        const maxRevenue = Math.max(
+            ...months.map(month => month.revenue),
+            1
+        );
+
+        chart.innerHTML = months.map(month => {
+            const height = month.revenue > 0
+                ? Math.max(5, (month.revenue / maxRevenue) * 85)
+                : 0;
+
+            const formattedRevenue =
+                "₹" + month.revenue.toLocaleString("en-IN", {
+                    maximumFractionDigits: 2
+                });
+
+            return `
+                <div class="bar-wrapper">
+                    <span class="bar-value">
+                        ${formattedRevenue}
+                    </span>
+
+                    <div
+                        class="bar"
+                        style="height:${height}%;"
+                        title="${month.monthLabel}: ${formattedRevenue}"
+                    ></div>
+
+                    <span class="bar-label">
+                        ${month.monthLabel}
+                    </span>
+                </div>
+            `;
+        }).join("");
+
+    } catch (error) {
+        console.error("Monthly revenue chart error:", error);
+
+        chart.innerHTML = `
+            <p style="color:#c0392b; font-size:12px;">
+                Unable to load monthly revenue.
+            </p>
+        `;
+    }
+}
+document.addEventListener("DOMContentLoaded", () => {
+    loadReports();
+    loadMonthlyRevenue();
+});</script>
+</body>
+
+</html>

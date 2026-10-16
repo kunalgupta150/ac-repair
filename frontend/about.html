@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - AC CARE</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .about-hero {
+            background: #082b5c;
+            color: white;
+            text-align: center;
+            padding: 75px 20px;
+        }
+        .about-hero h1 { font-size: 42px; margin: 0 0 15px; }
+        .about-hero p { max-width: 650px; margin: auto; line-height: 1.8; }
+        .about-section { max-width: 1100px; margin: 45px auto; padding: 0 22px; }
+        .about-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 22px; }
+        .about-card { background: white; border: 1px solid #e0e7f0; border-radius: 12px; padding: 25px; }
+        .about-card h3 { color: #0b3266; }
+        .about-card p { color: #607086; line-height: 1.7; }
+        .about-cta { text-align: center; background: #edf4ff; padding: 40px 20px; }
+        .about-cta a { display: inline-block; background: #2864dc; color: white; padding: 13px 25px; border-radius: 7px; text-decoration: none; margin-top: 10px; }
+        .about-footer { text-align: center; background: #082b5c; color: white; padding: 20px; }
+        @media(max-width:600px) { .about-hero h1 { font-size: 32px; } }
+    </style>
+</head>
+<body>
+    <header style="display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;padding:18px 5%;background:white;">
+        <a href="index.html" style="font-size:25px;font-weight:bold;color:#082b5c;text-decoration:none;">❄️ AC CARE</a>
+        <nav style="display:flex;gap:18px;flex-wrap:wrap;">
+            <a href="index.html">Home</a>
+            <a href="services.html">Services</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact Us</a>
+            <a href="booking.html">Book Service</a>
+        </nav>
+    </header>
+
+    <section class="about-hero">
+        <h1>About AC CARE</h1>
+        <p>Cool Comfort, Our Priority. We help customers keep their air conditioners running smoothly through convenient repair, cleaning and maintenance services.</p>
+    </section>
+
+    <section class="about-section">
+        <h2 style="text-align:center;">Who We Are</h2>
+        <p style="text-align:center;max-width:800px;margin:18px auto 35px;line-height:1.9;color:#607086;">
+            AC CARE is an air-conditioning service platform designed to make booking and managing AC services easier. Customers can request services, track bookings and stay updated, while administrators coordinate service requests and technicians.
+        </p>
+
+        <div class="about-grid">
+            <article class="about-card">
+                <h3>🎯 Our Mission</h3>
+                <p>To make AC repair and maintenance convenient, organised and accessible for customers.</p>
+            </article>
+            <article class="about-card">
+                <h3>🌟 Our Vision</h3>
+                <p>To provide a simple and dependable way for customers to manage their air-conditioning service needs.</p>
+            </article>
+            <article class="about-card">
+                <h3>🤝 Why Choose Us?</h3>
+                <p>Easy booking, clear service updates and an organised process for managing service requests.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="about-cta">
+        <h2>Need AC Service?</h2>
+        <p>Book a service request through AC CARE.</p>
+        <a href="booking.html">Book a Service</a>
+    </section>
+
+    <footer class="about-footer">
+        <p>© 2026 AC CARE. Cool Comfort, Our Priority.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Dashboard - AC CARE</title>
+
+    <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+</head>
+
+<body class="dashboard-body">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="dashboard-sidebar">
+
+    <div class="dashboard-logo">
+        ❄️ <span>AC CARE</span>
+    </div>
+
+    <p class="sidebar-label">MAIN MENU</p>
+
+
+    <a href="dashboard.html"
+       class="sidebar-link active">
+
+        🏠
+        <span>Dashboard</span>
+
+    </a>
+
+
+    <a href="../booking.html"
+       class="sidebar-link">
+
+        🔧
+        <span>Book Service</span>
+
+    </a>
+
+
+    <a href="bookings.html"
+       class="sidebar-link">
+
+        📋
+        <span>My Bookings</span>
+
+    </a>
+
+
+    <a href="track-service.html?id=YOUR_BOOKING_ID"
+   class="table-button">Track</a>
+
+    <a href="#"
+       class="sidebar-link">
+
+        🕐
+        <span>Service History</span>
+
+    </a>
+
+<a href="payments.html" class="sidebar-link">
+    💳 <span>Payments</span>
+</a>>
+
+    <a href="#"
+       class="sidebar-link">
+
+        ⭐
+        <span>Reviews</span>
+
+    </a>    
+
+
+    <p class="sidebar-label account-label">
+        ACCOUNT
+    </p>
+
+
+    <a href="profile.html"
+       class="sidebar-link">
+
+        👤
+        <span>Profile</span>
+
+    </a>
+
+
+    <a href="../index.html"
+       class="sidebar-link">
+
+        🚪
+        <span>Logout</span>
+
+    </a>
+
+
+    <!-- SUPPORT CARD -->
+
+    <div class="support-card">
+
+        <div class="support-icon">
+            🎧
+        </div>
+
+        <h3>Need Help?</h3>
+
+        <p>
+            Our support team is available 24/7.
+        </p>
+
+        <a href="../contact.html">
+            Contact Support
+        </a>
+
+    </div>
+
+</aside>
+
+
+
+<!-- ================= MAIN CONTENT ================= -->
+
+<main class="dashboard-main">
+
+
+    <!-- TOP HEADER -->
+
+    <header class="dashboard-header">
+
+        <button class="menu-button">
+            ☰
+        </button>
+
+
+        <div class="dashboard-search">
+
+            <input
+                type="text"
+                placeholder="Search here...">
+
+            🔍
+
+        </div>
+
+
+        <div class="dashboard-user">
+
+            <div class="notification">
+                🔔
+                <span>2</span>
+            </div>
+
+
+            <div class="user-avatar">
+                K
+            </div>
+
+
+            <div class="user-info">
+
+                <strong id="customerName">Customer</strong>
+
+                <small>Customer</small>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- DASHBOARD TITLE -->
+
+    <section class="dashboard-title">
+
+        <div>
+
+            <h1>Dashboard</h1>
+
+            <p>
+                Welcome back, <span id="welcomeCustomerName">Customer</span>! Here's your service overview.
+            </p>
+
+        </div>
+
+
+        <div class="date-selector">
+            📅 Today, 02 Sep 2026
+        </div>
+
+    </section>
+
+
+
+    <!-- STAT CARDS -->
+
+    <section class="dashboard-stats">
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon blue">
+                📋
+            </div>
+
+            <div>
+
+                <span>Total Bookings</span>
+
+                <h2 id="totalBookings">0</h2>
+
+                <a href="bookings.html">
+                    View all →
+                </a>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon orange">
+                🕐
+            </div>
+
+            <div>
+
+                <span>Pending</span>
+
+                <h2 id="pendingBookings">0</h2>
+
+                <a href="bookings.html">
+                    View details →
+                </a>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon green">
+                ✓
+            </div>
+
+            <div>
+
+                <span>Completed</span>
+
+                <h2 id="completedBookings">0</h2>
+
+                <a href="#">
+                    View history →
+                </a>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon purple">
+                ₹
+            </div>
+
+            <div>
+
+                <span>Total Spent</span>
+
+                <h2 id="totalSpent">₹0</h2>
+
+                <a href="#">
+                    View payments →
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- CONTENT GRID -->
+
+    <section class="dashboard-grid">
+
+
+        <!-- RECENT BOOKINGS -->
+
+        <div class="dashboard-panel">
+
+            <div class="panel-header">
+
+                <h2>Recent Bookings</h2>
+
+                <a href="bookings.html">
+                    View All
+                </a>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table class="dashboard-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Booking ID</th>
+                            <th>Service</th>
+                            <th>Date</th>
+                            <th>Technician</th>
+                            <th>Status</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>AC10245</td>
+
+                            <td>AC Repair</td>
+
+                            <td>02 Sep 2026</td>
+
+                            <td>Amit Sharma</td>
+
+                            <td>
+                                <span class="status pending">
+                                    Pending
+                                </span>
+                            </td>
+
+                            <td>
+                                <a href="track-service.html"
+                                   class="table-button">
+                                    Track
+                                </a>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>AC10230</td>
+
+                            <td>AC Cleaning</td>
+
+                            <td>28 Aug 2026</td>
+
+                            <td>Rahul Verma</td>
+
+                            <td>
+                                <span class="status completed">
+                                    Completed
+                                </span>
+                            </td>
+
+                            <td>
+                                <a href="#"
+                                   class="table-button">
+                                    View
+                                </a>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>AC10220</td>
+
+                            <td>Gas Refill</td>
+
+                            <td>20 Aug 2026</td>
+
+                            <td>Sameer Khan</td>
+
+                            <td>
+                                <span class="status completed">
+                                    Completed
+                                </span>
+                            </td>
+
+                            <td>
+                                <a href="#"
+                                   class="table-button">
+                                    View
+                                </a>
+                            </td>
+
+                        </tr>
+
+
+                        <tr>
+
+                            <td>AC10210</td>
+
+                            <td>Installation</td>
+
+                            <td>15 Aug 2026</td>
+
+                            <td>Amit Sharma</td>
+
+                            <td>
+                                <span class="status completed">
+                                    Completed
+                                </span>
+                            </td>
+
+                            <td>
+                                <a href="#"
+                                   class="table-button">
+                                    View
+                                </a>
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- QUICK BOOKING -->
+
+        <div class="dashboard-panel quick-booking">
+
+            <div class="panel-header">
+
+                <h2>Need AC Service?</h2>
+
+            </div>
+
+
+            <div class="quick-booking-content">
+
+                <div class="quick-icon">
+                    ❄️
+                </div>
+
+                <h3>
+                    Book a professional technician
+                </h3>
+
+                <p>
+                    Get reliable AC repair and maintenance
+                    service at your doorstep.
+                </p>
+
+                <a href="../booking.html"
+                   class="primary-btn">
+
+                    Book a Service
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- BOTTOM CARDS -->
+
+    <section class="dashboard-grid">
+
+
+        <div class="dashboard-panel">
+
+            <div class="panel-header">
+
+                <h2>Service Summary</h2>
+
+            </div>
+
+
+            <div class="summary-list">
+
+                <div>
+
+                    <span>AC Repair</span>
+
+                    <strong>2 Services</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>AC Cleaning</span>
+
+                    <strong>1 Service</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>Gas Refill</span>
+
+                    <strong>1 Service</strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>Installation</span>
+
+                    <strong>1 Service</strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="dashboard-panel">
+
+            <div class="panel-header">
+
+                <h2>Need Assistance?</h2>
+
+            </div>
+
+
+            <div class="assistance-box">
+
+                <p>
+                    Have a problem with your AC service?
+                </p>
+
+                <a href="../contact.html"
+                   class="secondary-btn">
+
+                    Contact Support
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+<!-- AC CARE UPI PAYMENT SECTION -->
+
+<script src="../assets/js/script.js"></script>
+
+</body>
+
+</html>

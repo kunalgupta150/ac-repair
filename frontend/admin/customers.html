@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customers - AC CARE Admin</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 245px;
+            height: 100vh;
+            background: #06285c;
+            color: white;
+            padding: 24px 14px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            padding-left: 15px;
+        }
+
+        .logo span {
+            color: #5d8cff;
+        }
+
+        .tagline {
+            color: #c5d2e8;
+            font-size: 10px;
+            margin: 5px 0 30px 15px;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 5px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #2864dc;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 245px;
+            padding: 25px 30px;
+            min-height: 100vh;
+        }
+
+        /* ================= TOP BAR ================= */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            gap: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .page-title p {
+            color: #69758a;
+            font-size: 13px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-top {
+            position: relative;
+        }
+
+        .search-top input {
+            width: 230px;
+            height: 40px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            padding: 0 40px 0 14px;
+            outline: none;
+            background: white;
+            font-size: 12px;
+        }
+
+        .search-top span {
+            position: absolute;
+            right: 13px;
+            top: 12px;
+            color: #718096;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 7px 12px;
+            border-radius: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .profile-image {
+            width: 37px;
+            height: 37px;
+            background: #dce8ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-info strong {
+            font-size: 12px;
+        }
+
+        .profile-info small {
+            display: block;
+            color: #788398;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        /* ================= PAGE ACTION ================= */
+
+        .page-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .customer-search {
+            position: relative;
+        }
+
+        .customer-search input {
+            width: 280px;
+            height: 40px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            background: white;
+            padding: 0 15px;
+            outline: none;
+            font-size: 12px;
+        }
+
+        .add-btn {
+            background: #2864dc;
+            color: white;
+            border: none;
+            padding: 11px 17px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .add-btn:hover {
+            background: #1d51ba;
+        }
+
+        /* ================= STAT CARDS ================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e3e8f0;
+            border-radius: 9px;
+            padding: 20px;
+            min-height: 115px;
+        }
+
+        .stat-card p {
+            color: #68758b;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card h2 {
+            font-size: 26px;
+            margin-bottom: 6px;
+        }
+
+        .stat-card small {
+            color: #1b9a59;
+            font-size: 10px;
+        }
+
+        /* ================= CARD ================= */
+
+        .card {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 9px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .results {
+            font-size: 11px;
+            color: #748095;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th {
+            background: #f7f9fc;
+            color: #69758a;
+            font-size: 10px;
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e5e9f0;
+        }
+
+        td {
+            padding: 14px 13px;
+            font-size: 11px;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ================= CUSTOMER ================= */
+
+        .customer {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .customer-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #e5edff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2864dc;
+            font-weight: bold;
+        }
+
+        .customer-name {
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .customer-email {
+            color: #7a8497;
+            font-size: 9px;
+            margin-top: 3px;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 5px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+
+        .active-status {
+            background: #d9f5e4;
+            color: #168447;
+        }
+
+        .inactive-status {
+            background: #f0f1f4;
+            color: #68758b;
+        }
+
+        /* ================= ACTION BUTTONS ================= */
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .view-btn,
+        .edit-btn {
+            border: 1px solid #d5dce8;
+            background: white;
+            padding: 6px 9px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 9px;
+        }
+
+        .view-btn {
+            color: #2864dc;
+        }
+
+        .edit-btn {
+            color: #4c5870;
+        }
+
+        .view-btn:hover {
+            background: #2864dc;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #eef2f8;
+        }
+
+        /* ================= MOBILE ================= */
+
+        .mobile-menu {
+            display: none;
+        }
+
+        .mobile-menu button {
+            background: #2864dc;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 950px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+            }
+
+            .search-top input {
+                width: 170px;
+            }
+
+        }
+
+        @media (max-width: 750px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.show {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .mobile-menu {
+                display: block;
+                margin-bottom: 15px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-top input {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .page-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .customer-search input {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            ❄ AC <span>CARE</span>
+        </div>
+
+        <div class="tagline">
+            Cool Comfort, Our Priority
+        </div>
+
+
+        <ul class="menu">
+
+            <li>
+                <a href="dashboard.html">
+                    <span class="menu-icon">⌂</span>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="customers.html" class="active">
+                    <span class="menu-icon">♙</span>
+                    Customers
+                </a>
+            </li>
+
+            <li>
+                <a href="technicians.html">
+                    <span class="menu-icon">♟</span>
+                    Technicians
+                </a>
+            </li>
+
+            <li>
+                <a href="services.html">
+                    <span class="menu-icon">⚙</span>
+                    Services
+                </a>
+            </li>
+
+            <li>
+                <a href="bookings.html">
+                    <span class="menu-icon">▤</span>
+                    Bookings
+                </a>
+            </li>
+
+            <li>
+                <a href="payments.html">
+                    <span class="menu-icon">₹</span>
+                    Payments
+                </a>
+            </li>
+
+            <li>
+                <a href="reviews.html">
+                    <span class="menu-icon">☆</span>
+                    Reviews
+                </a>
+            </li>
+
+            <li>
+                <a href="reports.html">
+                    <span class="menu-icon">▥</span>
+                    Reports
+                </a>
+            </li>
+
+            <li>
+                <a href="notifications.html">
+                    <span class="menu-icon">♧</span>
+                    Notifications
+                </a>
+            </li>
+
+            <li>
+                <a href="settings.html">
+                    <span class="menu-icon">⚙</span>
+                    Settings
+                </a>
+            </li>
+
+            <li>
+                <a href="../login.html" onclick="logout()">
+                    <span class="menu-icon">↪</span>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <div class="mobile-menu">
+
+            <button onclick="toggleSidebar()">
+                ☰ Menu
+            </button>
+
+        </div>
+
+
+        <!-- ================= TOPBAR ================= -->
+
+        <div class="topbar">
+
+
+            <div class="page-title">
+
+                <h1>
+                    Customers
+                </h1>
+
+                <p>
+                    Manage all registered AC CARE customers
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+
+                <div class="search-top">
+
+                    <input
+                        type="text"
+                        id="topSearch"
+                        placeholder="Search..."
+                        onkeyup="searchCustomers()"
+                    >
+
+                    <span>⌕</span>
+
+                </div>
+
+
+                <div class="profile">
+
+                    <div class="profile-image">
+                        👤
+                    </div>
+
+                    <div class="profile-info">
+
+                        <strong>
+                            Kunal Gupta
+                        </strong>
+
+                        <small>
+                            Administrator
+                        </small>
+
+                    </div>
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= PAGE ACTIONS ================= -->
+
+        <div class="page-actions">
+
+
+            <div class="customer-search">
+
+                <input
+                    type="text"
+                    id="customerSearch"
+                    placeholder="Search customer by name, email or phone..."
+                    onkeyup="searchCustomers()"
+                >
+
+            </div>
+
+
+            <button
+                class="add-btn"
+                onclick="addCustomer()"
+            >
+                + Add Customer
+            </button>
+
+        </div>
+
+
+        <!-- ================= STATISTICS ================= -->
+
+        <section class="stats">
+
+
+            <div class="stat-card">
+
+                <p>
+                    Total Customers
+                </p>
+
+                <h2 id="totalCustomers">
+                  0
+                </h2>
+
+                <small>
+                    ↑ 12.5% this month
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Active Customers
+                </p>
+
+                <h2 id="activeCustomers">
+                  0
+                </h2>
+
+                <small>
+                    94.2% of total customers
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    New Customers
+                </p>
+
+                <h2 id="newCustomers">
+                 0
+                </h2>
+
+                <small>
+                    ↑ 8.4% this month
+                </small>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= CUSTOMER TABLE ================= -->
+
+        <section class="card">
+
+
+            <div class="card-header">
+
+                <h2>
+                    Customer List
+                </h2>
+
+                <span
+                    class="results"
+                    id="resultsCount"
+                >
+                    Showing 6 customers
+                </span>
+
+            </div>
+
+
+            <div class="table-container">
+
+
+                <table id="customerTable">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                CUSTOMER
+                            </th>
+
+                            <th>
+                                PHONE
+                            </th>
+
+                            <th>
+                                LOCATION
+                            </th>
+
+                            <th>
+                                TOTAL BOOKINGS
+                            </th>
+
+                            <th>
+                                LAST SERVICE
+                            </th>
+
+                            <th>
+                                STATUS
+                            </th>
+
+                            <th>
+                                ACTION
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="customersTableBody">
+
+                       <tr>
+                           <td colspan="7"
+                            style="text-align:center; padding:30px;">
+                            Loading customers...
+                            </td>
+                       </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+let allCustomers = [];
+
+/* ==============================
+   LOAD CUSTOMERS
+================================ */
+
+document.addEventListener("DOMContentLoaded", function () {
+    loadCustomers();
+});
+
+
+async function loadCustomers() {
+
+    const tableBody =
+        document.getElementById("customersTableBody");
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/admin/customers"
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || "Failed to load customers."
+            );
+        }
+
+        allCustomers = result.customers || [];
+
+        displayCustomers(allCustomers);
+
+        updateCustomerStats(allCustomers);
+
+    } catch (error) {
+
+        console.error("Customer loading error:", error);
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7"
+                    style="text-align:center; padding:30px;">
+                    Cannot connect to server.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
+/* ==============================
+   DISPLAY CUSTOMERS
+================================ */
+
+function displayCustomers(customers) {
+
+    const tableBody =
+        document.getElementById("customersTableBody");
+
+    tableBody.innerHTML = "";
+
+    if (customers.length === 0) {
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7"
+                    style="text-align:center; padding:30px;">
+                    No customers registered yet.
+                </td>
+            </tr>
+        `;
+
+        document.getElementById("resultsCount").textContent =
+            "Showing 0 customers";
+
+        return;
+    }
+
+
+    customers.forEach(function (customer) {
+
+        const row = document.createElement("tr");
+
+        const name = customer.full_name || "Customer";
+
+        /* Initials */
+        const initials = name
+            .split(" ")
+            .map(word => word.charAt(0))
+            .join("")
+            .substring(0, 2)
+            .toUpperCase();
+
+
+        /* Last service */
+        let lastService = "—";
+
+        if (customer.last_service) {
+
+            lastService =
+                new Date(customer.last_service)
+                .toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                });
+        }
+
+
+        /* Total bookings */
+        const totalBookings =
+            customer.total_bookings || 0;
+
+
+        row.innerHTML = `
+
+            <td>
+                <div class="customer">
+
+                    <div class="customer-avatar">
+                        ${initials}
+                    </div>
+
+                    <div>
+                        <div class="customer-name">
+                            ${name}
+                        </div>
+
+                        <div class="customer-email">
+                            ${customer.email || "—"}
+                        </div>
+                    </div>
+
+                </div>
+            </td>
+
+
+            <td>
+                ${customer.phone || "—"}
+            </td>
+
+
+            <td>
+                ${customer.address || "—"}
+            </td>
+
+
+            <td>
+                ${totalBookings}
+            </td>
+
+
+            <td>
+                ${lastService}
+            </td>
+
+
+            <td>
+                <span class="status active-status">
+                    Active
+                </span>
+            </td>
+
+
+            <td>
+
+                <div class="action-buttons">
+
+                    <button
+                        class="view-btn"
+                        onclick="viewCustomer(${customer.id})">
+                        View
+                    </button>
+
+                    <button
+                        class="edit-btn"
+                        onclick="editCustomer(${customer.id})">
+                        Edit
+                    </button>
+
+                </div>
+
+            </td>
+        `;
+
+
+        tableBody.appendChild(row);
+
+    });
+
+
+    document.getElementById("resultsCount").textContent =
+        "Showing " + customers.length + " customers";
+}
+
+
+/* ==============================
+   CUSTOMER STATISTICS
+================================ */
+
+function updateCustomerStats(customers) {
+
+    const total =
+        customers.length;
+
+    const active =
+        customers.length;
+
+    const newCustomers =
+        customers.filter(function (customer) {
+
+            if (!customer.created_at) {
+                return false;
+            }
+
+            const created =
+                new Date(customer.created_at);
+
+            const now =
+                new Date();
+
+            return (
+                created.getMonth() === now.getMonth() &&
+                created.getFullYear() === now.getFullYear()
+            );
+
+        }).length;
+
+
+    document.getElementById("totalCustomers").textContent =
+        total;
+
+    document.getElementById("activeCustomers").textContent =
+        active;
+
+    document.getElementById("newCustomers").textContent =
+        newCustomers;
+}
+
+
+/* ==============================
+   SEARCH CUSTOMERS
+================================ */
+
+function searchCustomers() {
+
+    const searchInput =
+        document.getElementById("customerSearch");
+
+    const topSearch =
+        document.getElementById("topSearch");
+
+    const searchValue =
+        (
+            searchInput?.value ||
+            topSearch?.value ||
+            ""
+        ).toLowerCase().trim();
+
+
+    const filteredCustomers =
+        allCustomers.filter(function (customer) {
+
+            return (
+                (customer.full_name || "")
+                    .toLowerCase()
+                    .includes(searchValue)
+
+                ||
+
+                (customer.email || "")
+                    .toLowerCase()
+                    .includes(searchValue)
+
+                ||
+
+                (customer.phone || "")
+                    .toLowerCase()
+                    .includes(searchValue)
+
+                ||
+
+                (customer.address || "")
+                    .toLowerCase()
+                    .includes(searchValue)
+            );
+
+        });
+
+
+    displayCustomers(filteredCustomers);
+}
+
+
+/* ==============================
+   VIEW CUSTOMER
+================================ */
+
+async function viewCustomer(id) {
+
+    try {
+
+        const response = await fetch(
+            `http://localhost:5000/api/admin/customers/${id}`
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || "Failed to load customer."
+            );
+        }
+
+        const customer = result.customer;
+        const bookings = result.bookings || [];
+
+        let bookingHTML = "";
+
+        if (bookings.length === 0) {
+
+            bookingHTML = `
+                <div style="
+                    padding:20px;
+                    text-align:center;
+                    color:#777;
+                    background:#f8f9fc;
+                    border-radius:8px;
+                ">
+                    No bookings found for this customer.
+                </div>
+            `;
+
+        } else {
+
+            bookingHTML = bookings.map(function (booking) {
+
+                return `
+                    <div style="
+                        border:1px solid #e5e7eb;
+                        border-radius:8px;
+                        padding:15px;
+                        margin-bottom:10px;
+                    ">
+
+                        <strong>
+                            ${booking.booking_id}
+                        </strong>
+
+                        <div style="margin-top:8px;">
+                            Service:
+                            ${booking.service_name}
+                        </div>
+
+                        <div>
+                            Technician:
+                            ${booking.technician_name}
+                        </div>
+
+                        <div>
+                            Status:
+                            ${booking.status}
+                        </div>
+
+                        <div>
+                            Amount:
+                            ₹${booking.total_amount}
+                        </div>
+
+                    </div>
+                `;
+
+            }).join("");
+
+        }
+
+
+        const modal = document.createElement("div");
+
+        modal.id = "customerDetailsModal";
+
+        modal.style.cssText = `
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.45);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            z-index:9999;
+            padding:20px;
+        `;
+
+
+        modal.innerHTML = `
+
+            <div style="
+                background:white;
+                width:600px;
+                max-width:100%;
+                max-height:90vh;
+                overflow-y:auto;
+                border-radius:12px;
+                padding:25px;
+                box-shadow:0 10px 40px rgba(0,0,0,0.2);
+            ">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    margin-bottom:20px;
+                ">
+
+                    <h2 style="margin:0;">
+                        Customer Details
+                    </h2>
+
+                    <button
+                        onclick="closeCustomerDetails()"
+                        style="
+                            border:none;
+                            background:#f1f3f5;
+                            width:32px;
+                            height:32px;
+                            border-radius:50%;
+                            cursor:pointer;
+                            font-size:18px;
+                        ">
+                        ×
+                    </button>
+
+                </div>
+
+
+                <div style="
+                    background:#f5f8ff;
+                    padding:18px;
+                    border-radius:10px;
+                    margin-bottom:20px;
+                ">
+
+                    <h3 style="margin-top:0;">
+                        ${customer.full_name}
+                    </h3>
+
+                    <p>
+                        <strong>Email:</strong>
+                        ${customer.email}
+                    </p>
+
+                    <p>
+                        <strong>Phone:</strong>
+                        ${customer.phone}
+                    </p>
+
+                    <p>
+                        <strong>Address:</strong>
+                        ${customer.address || "—"}
+                    </p>
+
+                    <p>
+                        <strong>Total Bookings:</strong>
+                        ${bookings.length}
+                    </p>
+
+                </div>
+
+
+                <h3>
+                    Booking History
+                </h3>
+
+                ${bookingHTML}
+
+
+                <div style="
+                    text-align:right;
+                    margin-top:20px;
+                ">
+
+                    <button
+                        onclick="closeCustomerDetails()"
+                        style="
+                            padding:10px 18px;
+                            border:1px solid #ddd;
+                            background:white;
+                            border-radius:6px;
+                            cursor:pointer;
+                        ">
+                        Close
+                    </button>
+
+                </div>
+
+            </div>
+        `;
+
+
+        document.body.appendChild(modal);
+
+
+    } catch (error) {
+
+        console.error(
+            "View customer error:",
+            error
+        );
+
+        alert(
+            "Unable to load customer details."
+        );
+
+    }
+}
+
+
+function closeCustomerDetails() {
+
+    const modal =
+        document.getElementById(
+            "customerDetailsModal"
+        );
+
+    if (modal) {
+        modal.remove();
+    }
+
+}
+/* ==============================
+   EDIT CUSTOMER
+================================ */
+
+async function editCustomer(id) {
+
+    const customer =
+        allCustomers.find(c => c.id == id);
+
+    if (!customer) {
+        alert("Customer not found.");
+        return;
+    }
+
+
+    const modal = document.createElement("div");
+
+    modal.id = "editCustomerModal";
+
+    modal.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 20px;
+    `;
+
+
+    modal.innerHTML = `
+
+        <div style="
+            background: white;
+            width: 500px;
+            max-width: 100%;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        ">
+
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            ">
+
+                <h2 style="margin: 0;">
+                    Edit Customer
+                </h2>
+
+                <button
+                    onclick="closeEditCustomer()"
+                    style="
+                        border: none;
+                        background: #f1f3f5;
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 18px;
+                    ">
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="editCustomerForm">
+
+                <label>Full Name</label>
+
+                <input
+                    type="text"
+                    id="editFullName"
+                    value="${customer.full_name || ""}"
+                    required
+                    style="
+                        width:100%;
+                        padding:11px;
+                        margin:7px 0 15px;
+                        border:1px solid #ddd;
+                        border-radius:6px;
+                        box-sizing:border-box;
+                    "
+                >
+
+
+                <label>Phone</label>
+
+                <input
+                    type="text"
+                    id="editPhone"
+                    value="${customer.phone || ""}"
+                    required
+                    style="
+                        width:100%;
+                        padding:11px;
+                        margin:7px 0 15px;
+                        border:1px solid #ddd;
+                        border-radius:6px;
+                        box-sizing:border-box;
+                    "
+                >
+
+
+                <label>Email</label>
+
+                <input
+                    type="email"
+                    id="editEmail"
+                    value="${customer.email || ""}"
+                    required
+                    style="
+                        width:100%;
+                        padding:11px;
+                        margin:7px 0 15px;
+                        border:1px solid #ddd;
+                        border-radius:6px;
+                        box-sizing:border-box;
+                    "
+                >
+
+
+                <label>Address</label>
+
+                <input
+                    type="text"
+                    id="editAddress"
+                    value="${customer.address || ""}"
+                    style="
+                        width:100%;
+                        padding:11px;
+                        margin:7px 0 20px;
+                        border:1px solid #ddd;
+                        border-radius:6px;
+                        box-sizing:border-box;
+                    "
+                >
+
+
+                <div style="
+                    display:flex;
+                    justify-content:flex-end;
+                    gap:10px;
+                ">
+
+                    <button
+                        type="button"
+                        onclick="closeEditCustomer()"
+                        style="
+                            padding:10px 18px;
+                            border:1px solid #ddd;
+                            background:white;
+                            border-radius:6px;
+                            cursor:pointer;
+                        ">
+                        Cancel
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        style="
+                            padding:10px 18px;
+                            border:none;
+                            background:#2864d7;
+                            color:white;
+                            border-radius:6px;
+                            cursor:pointer;
+                        ">
+                        Save Changes
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    `;
+
+
+    document.body.appendChild(modal);
+
+
+    document
+        .getElementById("editCustomerForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            const updatedCustomer = {
+
+                full_name:
+                    document.getElementById("editFullName").value.trim(),
+
+                phone:
+                    document.getElementById("editPhone").value.trim(),
+
+                email:
+                    document.getElementById("editEmail").value.trim(),
+
+                address:
+                    document.getElementById("editAddress").value.trim()
+
+            };
+
+
+            try {
+
+                const response = await fetch(
+                    `http://localhost:5000/api/admin/customers/${id}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify(updatedCustomer)
+                    }
+                );
+
+
+                const result = await response.json();
+
+
+                if (!response.ok || !result.success) {
+
+                    throw new Error(
+                        result.message ||
+                        "Failed to update customer."
+                    );
+
+                }
+
+
+                alert("Customer updated successfully!");
+
+
+                closeEditCustomer();
+
+
+                await loadCustomers();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Edit customer error:",
+                    error
+                );
+
+                alert(error.message);
+
+            }
+
+        });
+
+}
+
+
+function closeEditCustomer() {
+
+    const modal =
+        document.getElementById(
+            "editCustomerModal"
+        );
+
+    if (modal) {
+        modal.remove();
+    }
+
+}
+
+
+/* ==============================
+   ADD CUSTOMER
+================================ */
+
+function addCustomer() {
+
+    alert(
+        "Add Customer functionality will be connected next."
+    );
+}
+
+
+/* ==============================
+   SIDEBAR
+================================ */
+
+function toggleSidebar() {
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    if (sidebar) {
+        sidebar.classList.toggle("show");
+    }
+}
+
+
+/* ==============================
+   LOGOUT
+================================ */
+
+function logout() {
+
+    localStorage.removeItem("loggedInUser");
+
+    window.location.href =
+        "../login.html";
+}
+
+</script>
+
+</body>
+
+</html>

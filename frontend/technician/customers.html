@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My Customers - AC CARE</title>
+
+    <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+    <style>
+
+        .customer-page {
+            padding: 30px;
+        }
+
+        .customer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .customer-header h1 {
+            margin: 0;
+            color: #16213e;
+        }
+
+        .customer-header p {
+            margin-top: 8px;
+            color: #777;
+        }
+
+        .customer-search {
+            width: 280px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .customer-table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        .customer-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .customer-table th {
+            text-align: left;
+            padding: 15px;
+            background: #f5f7fb;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .customer-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .customer-table tr:hover {
+            background: #fafbff;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: #16213e;
+        }
+
+        .customer-phone {
+            color: #555;
+        }
+
+        .customer-email {
+            color: #666;
+        }
+
+        .booking-count {
+            font-weight: 600;
+        }
+
+        .completed-count {
+            color: #198754;
+            font-weight: 600;
+        }
+
+        .no-customers {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+
+        @media (max-width: 768px) {
+
+            .customer-page {
+                padding: 20px;
+            }
+
+            .customer-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .customer-search {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="dashboard-sidebar">
+
+    <div class="dashboard-logo">
+        ❄️ <span>AC CARE</span>
+    </div>
+
+    <p class="sidebar-label">
+        MAIN MENU
+    </p>
+
+
+    <a href="dashboard.html"
+       class="sidebar-link">
+
+        🏠
+        <span>Dashboard</span>
+
+    </a>
+
+
+    <a href="jobs.html"
+       class="sidebar-link">
+
+        🔧
+        <span>Service Requests</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        📅
+        <span>Today's Jobs</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        ✓
+        <span>Completed Jobs</span>
+
+    </a>
+
+
+    <a href="customers.html"
+       class="sidebar-link active">
+
+        👥
+        <span>Customers</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        ₹
+        <span>Earnings</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        ⭐
+        <span>Reviews</span>
+
+    </a>
+
+
+    <p class="sidebar-label account-label">
+        ACCOUNT
+    </p>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        👤
+        <span>Profile</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link"
+       onclick="technicianLogout(); return false;">
+
+        <span>Logout</span>
+
+    </a>
+
+
+    <div class="support-card">
+
+        <div class="support-icon">
+            🎧
+        </div>
+
+        <h3>Need Help?</h3>
+
+        <p>
+            Contact AC CARE support team.
+        </p>
+
+        <a href="../contact.html">
+            Contact Support
+        </a>
+
+    </div>
+
+</aside>
+
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="dashboard-main">
+
+
+    <header class="dashboard-header">
+
+        <button class="menu-button">
+            ☰
+        </button>
+
+
+        <div class="dashboard-search">
+
+            <input
+                type="text"
+                id="headerSearch"
+                placeholder="Search customers...">
+
+            🔍
+
+        </div>
+
+
+        <div class="dashboard-user">
+
+            <div class="notification">
+                🔔
+                <span>3</span>
+            </div>
+
+
+            <div class="user-avatar technician-avatar"
+                 id="technicianInitial">
+
+                T
+
+            </div>
+
+
+            <div class="user-info">
+
+                <strong id="technicianName">
+                    Technician
+                </strong>
+
+                <small>
+                    Technician
+                </small>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ================= CUSTOMER CONTENT ================= -->
+
+    <section class="customer-page">
+
+
+        <div class="customer-header">
+
+            <div>
+
+                <h1>
+                    My Customers
+                </h1>
+
+                <p>
+                    View customers assigned to your service jobs.
+                </p>
+
+            </div>
+
+
+            <input
+                type="text"
+                id="customerSearch"
+                class="customer-search"
+                placeholder="Search customers...">
+
+        </div>
+
+
+
+        <div class="customer-table-container">
+
+            <table class="customer-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Customer
+                        </th>
+
+                        <th>
+                            Phone
+                        </th>
+
+                        <th>
+                            Email
+                        </th>
+
+                        <th>
+                            Total Bookings
+                        </th>
+
+                        <th>
+                            Completed
+                        </th>
+
+                        <th>
+                            Last Service
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="customerTableBody">
+
+                    <tr>
+
+                        <td colspan="6"
+                            class="loading">
+
+                            Loading customers...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+
+<script src="../assets/js/script.js"></script>
+
+
+<script>
+
+// ==========================================
+// VARIABLES
+// ==========================================
+
+let technicianCustomers = [];
+
+
+// ==========================================
+// LOAD TECHNICIAN INFORMATION
+// ==========================================
+
+async function loadTechnicianInformation() {
+
+    const technicianId =
+        localStorage.getItem("technicianId");
+
+
+    if (!technicianId) {
+
+        alert(
+            "Technician session not found. Please login again."
+        );
+
+        window.location.href =
+            "../login.html";
+
+        return null;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `http://localhost:5000/api/technicians/${technicianId}`
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok || !result.success) {
+
+            throw new Error(
+                result.message ||
+                "Failed to load technician information."
+            );
+
+        }
+
+
+        const technician =
+            result.technician;
+
+
+        document.getElementById(
+            "technicianName"
+        ).textContent =
+            technician.full_name;
+
+
+        document.getElementById(
+            "technicianInitial"
+        ).textContent =
+            technician.full_name
+                .charAt(0)
+                .toUpperCase();
+
+
+        return technicianId;
+
+    } catch (error) {
+
+        console.error(
+            "Technician information error:",
+            error
+        );
+
+        return technicianId;
+    }
+
+}
+
+
+// ==========================================
+// LOAD CUSTOMERS
+// ==========================================
+
+async function loadCustomers() {
+
+    const technicianId =
+        localStorage.getItem("technicianId");
+
+
+    if (!technicianId) {
+
+        alert(
+            "Technician session not found. Please login again."
+        );
+
+        window.location.href =
+            "../login.html";
+
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `http://localhost:5000/api/technicians/${technicianId}/customers`
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok || !result.success) {
+
+            throw new Error(
+                result.message ||
+                "Failed to load customers."
+            );
+
+        }
+
+
+        technicianCustomers =
+            result.customers || [];
+
+
+        displayCustomers(
+            technicianCustomers
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Customers error:",
+            error
+        );
+
+
+        document.getElementById(
+            "customerTableBody"
+        ).innerHTML = `
+
+            <tr>
+
+                <td colspan="6"
+                    class="no-customers">
+
+                    Failed to load customers.
+
+                    <br><br>
+
+                    Please refresh the page.
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+}
+
+
+// ==========================================
+// DISPLAY CUSTOMERS
+// ==========================================
+
+function displayCustomers(customers) {
+
+    const tableBody =
+        document.getElementById(
+            "customerTableBody"
+        );
+
+
+    if (!customers.length) {
+
+        tableBody.innerHTML = `
+
+            <tr>
+
+                <td colspan="6"
+                    class="no-customers">
+
+                    No customers found.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+    }
+
+
+    tableBody.innerHTML =
+        customers.map(
+            function (customer) {
+
+                return `
+
+                    <tr>
+
+                        <td>
+
+                            <div class="customer-name">
+
+                                ${customer.full_name}
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="customer-phone">
+
+                                ${customer.phone || "-"}
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="customer-email">
+
+                                ${customer.email || "-"}
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="booking-count">
+
+                                ${customer.total_bookings}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="completed-count">
+
+                                ${customer.completed_bookings}
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            ${formatDate(
+                                customer.last_service
+                            )}
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+// ==========================================
+// SEARCH CUSTOMERS
+// ==========================================
+
+function searchCustomers(searchValue) {
+
+    const search =
+        searchValue
+            .toLowerCase()
+            .trim();
+
+
+    const filteredCustomers =
+        technicianCustomers.filter(
+            function (customer) {
+
+                return (
+
+                    String(
+                        customer.full_name || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+
+                    ||
+
+                    String(
+                        customer.phone || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+
+                    ||
+
+                    String(
+                        customer.email || ""
+                    )
+                    .toLowerCase()
+                    .includes(search)
+
+                );
+
+            }
+        );
+
+
+    displayCustomers(
+        filteredCustomers
+    );
+
+}
+
+
+// ==========================================
+// FORMAT DATE
+// ==========================================
+
+function formatDate(date) {
+
+    if (!date) {
+        return "-";
+    }
+
+
+    const value =
+        String(date).substring(
+            0,
+            10
+        );
+
+
+    const parts =
+        value.split("-");
+
+
+    if (parts.length !== 3) {
+        return value;
+    }
+
+
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+
+}
+
+
+// ==========================================
+// LOGOUT
+// ==========================================
+
+function technicianLogout() {
+
+    localStorage.removeItem(
+        "technicianId"
+    );
+
+    localStorage.removeItem(
+        "technicianName"
+    );
+
+    localStorage.removeItem(
+        "technicianEmail"
+    );
+
+    localStorage.removeItem(
+        "technician"
+    );
+
+    localStorage.removeItem(
+        "loginRole"
+    );
+
+
+    window.location.href =
+        "../login.html";
+
+}
+
+
+// ==========================================
+// SEARCH EVENTS
+// ==========================================
+
+document.getElementById(
+    "customerSearch"
+).addEventListener(
+    "input",
+    function () {
+
+        searchCustomers(
+            this.value
+        );
+
+    }
+);
+
+
+document.getElementById(
+    "headerSearch"
+).addEventListener(
+    "input",
+    function () {
+
+        searchCustomers(
+            this.value
+        );
+
+    }
+);
+
+
+// ==========================================
+// START
+// ==========================================
+
+async function initializeCustomersPage() {
+
+    await loadTechnicianInformation();
+
+    await loadCustomers();
+
+}
+
+
+initializeCustomersPage();
+
+</script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Earnings - AC CARE Technician</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 245px;
+            height: 100vh;
+            background: #06285c;
+            color: white;
+            padding: 25px 15px;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 35px;
+        }
+
+        .menu a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 13px 15px;
+            margin-bottom: 7px;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #2864dc;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 245px;
+            padding: 25px 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 {
+            font-size: 28px;
+        }
+
+        .profile {
+            background: white;
+            padding: 10px 18px;
+            border-radius: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* SUMMARY CARDS */
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+
+        .card h3 {
+            font-size: 15px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #06285c;
+        }
+
+        /* TABLE */
+
+        .table-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+
+        .table-box h2 {
+            margin-bottom: 20px;
+            font-size: 21px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #374151;
+        }
+
+        .completed {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .amount {
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="logo">
+            AC CARE
+        </div>
+
+        <div class="menu">
+
+            <a href="dashboard.html">
+                Dashboard
+            </a>
+
+            <a href="jobs.html">
+                Service Requests
+            </a>
+
+            <a href="#">
+                Today's Jobs
+            </a>
+
+            <a href="#">
+                Completed Jobs
+            </a>
+
+            <a href="customers.html">
+                Customers
+            </a>
+
+            <a href="earnings.html" class="active">
+                Earnings
+            </a>
+
+            <a href="#">
+                Reviews
+            </a>
+
+            <a href="#">
+                Profile
+            </a>
+
+            <a href="#" onclick="technicianLogout()">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+
+    <div class="main">
+
+        <div class="topbar">
+
+            <h1>Earnings</h1>
+
+            <div class="profile" id="technicianName">
+                Technician
+            </div>
+
+        </div>
+
+
+        <!-- SUMMARY CARDS -->
+
+        <div class="cards">
+
+            <div class="card">
+
+                <h3>
+                    Total Earnings
+                </h3>
+
+                <div class="value" id="totalEarnings">
+                    ₹0
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    Today's Earnings
+                </h3>
+
+                <div class="value" id="todayEarnings">
+                    ₹0
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <h3>
+                    Completed Jobs
+                </h3>
+
+                <div class="value" id="completedJobs">
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EARNINGS HISTORY -->
+
+        <div class="table-box">
+
+            <h2>
+                Earnings History
+            </h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Booking ID
+                        </th>
+
+                        <th>
+                            Customer
+                        </th>
+
+                        <th>
+                            Service
+                        </th>
+
+                        <th>
+                            Date
+                        </th>
+
+                        <th>
+                            Amount
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="earningsTable">
+
+                    <tr>
+                        <td colspan="6" class="empty">
+                            Loading earnings...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const technicianId =
+            localStorage.getItem("technicianId");
+
+
+        // Check technician login
+
+        if (!technicianId) {
+
+            alert("Please login as technician.");
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        // Load technician earnings
+
+        async function loadEarnings() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `http://localhost:5000/api/technicians/${technicianId}/earnings`
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!data.success) {
+
+                    throw new Error(
+                        data.message ||
+                        "Failed to load earnings."
+                    );
+
+                }
+
+
+                // Summary
+
+                document.getElementById(
+                    "totalEarnings"
+                ).textContent =
+                    "₹" +
+                    Number(
+                        data.summary.total_earnings || 0
+                    ).toLocaleString("en-IN");
+
+
+                document.getElementById(
+                    "todayEarnings"
+                ).textContent =
+                    "₹" +
+                    Number(
+                        data.summary.today_earnings || 0
+                    ).toLocaleString("en-IN");
+
+
+                document.getElementById(
+                    "completedJobs"
+                ).textContent =
+                    data.summary.completed_jobs || 0;
+
+
+                // Earnings table
+
+                const table =
+                    document.getElementById(
+                        "earningsTable"
+                    );
+
+
+                if (
+                    !data.earnings ||
+                    data.earnings.length === 0
+                ) {
+
+                    table.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="empty">
+                                No completed jobs found.
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+
+                }
+
+
+                table.innerHTML =
+                    data.earnings.map(
+                        earning => `
+
+                        <tr>
+
+                            <td>
+                                ${earning.booking_id}
+                            </td>
+
+                            <td>
+                                ${earning.customer_name}
+                            </td>
+
+                            <td>
+                                ${earning.service_name}
+                            </td>
+
+                            <td>
+                                ${formatDate(
+                                    earning.preferred_date
+                                )}
+                            </td>
+
+                            <td class="amount">
+                                ₹${Number(
+                                    earning.total_amount || 0
+                                ).toLocaleString("en-IN")}
+                            </td>
+
+                            <td class="completed">
+                                ${earning.status}
+                            </td>
+
+                        </tr>
+
+                    `
+                    ).join("");
+
+
+            } catch (error) {
+
+                console.error(
+                    "Earnings error:",
+                    error
+                );
+
+                document.getElementById(
+                    "earningsTable"
+                ).innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty">
+                            Failed to load earnings.
+                        </td>
+                    </tr>
+                `;
+
+            }
+
+        }
+
+
+        // Format date
+
+        function formatDate(date) {
+
+            if (!date) {
+                return "-";
+            }
+
+            return new Date(date)
+                .toLocaleDateString("en-IN");
+
+        }
+
+
+        // Load technician name
+
+        async function loadTechnician() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `http://localhost:5000/api/technicians/${technicianId}`
+                    );
+
+                const data =
+                    await response.json();
+
+                if (data.success) {
+
+                    document.getElementById(
+                        "technicianName"
+                    ).textContent =
+                        data.technician.full_name;
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Technician error:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        // Logout
+
+        function technicianLogout() {
+
+            localStorage.removeItem(
+                "technicianId"
+            );
+
+            localStorage.removeItem(
+                "selectedTechnicianBooking"
+            );
+
+            window.location.href =
+                "login.html";
+
+        }
+
+
+        loadEarnings();
+        loadTechnician();
+
+    </script>
+
+</body>
+</html>

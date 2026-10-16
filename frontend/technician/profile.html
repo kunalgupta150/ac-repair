@@ -1,0 +1,471 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - AC CARE Technician</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fc;
+            color: #243247;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 245px;
+            height: 100vh;
+            background: #06285c;
+            padding: 25px 15px;
+            color: white;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 13px 15px;
+            margin-bottom: 8px;
+            border-radius: 7px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #2864dc;
+        }
+
+        .main {
+            margin-left: 245px;
+            padding: 30px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 28px;
+        }
+
+        .topbar h1 {
+            font-size: 27px;
+        }
+
+        .topbar p {
+            color: #718096;
+            margin-top: 7px;
+        }
+
+        .profile-card {
+            max-width: 850px;
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 3px 14px rgba(0, 0, 0, 0.06);
+        }
+
+        .profile-heading {
+            border-bottom: 1px solid #e5eaf2;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .avatar {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: #e5edff;
+            color: #2057b5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .profile-heading p {
+            color: #718096;
+            margin-top: 6px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d8dfeb;
+            border-radius: 7px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #2864dc;
+        }
+
+        .form-group input:disabled {
+            background: #f1f4f8;
+            color: #68758a;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        button {
+            border: none;
+            border-radius: 7px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .edit-btn,
+        .save-btn {
+            background: #2864dc;
+            color: white;
+        }
+
+        .cancel-btn {
+            background: #e8edf5;
+            color: #243247;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #message {
+            margin-top: 18px;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .success {
+            color: #16834a;
+        }
+
+        .error {
+            color: #c62828;
+        }
+
+        @media (max-width: 760px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .logo {
+                margin-bottom: 18px;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+            }
+
+            .profile-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">❄ AC CARE</div>
+
+        <a href="dashboard.html">🏠 Dashboard</a>
+        <a href="jobs.html">🛠 My Jobs</a>
+        <a href="jobs.html?filter=today">📅 Today's Jobs</a>
+        <a href="jobs.html?filter=completed">✓ Completed Jobs</a>
+        <a href="customers.html">👥 Customers</a>
+        <a href="earnings.html">💰 Earnings</a>
+        <a href="reviews.html">⭐ Reviews</a>
+        <a href="profile.html" class="active">👤 My Profile</a>
+        <a href="#" id="logoutLink">🚪 Logout</a>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1>My Profile</h1>
+                <p>View and manage your technician information.</p>
+            </div>
+        </div>
+
+        <section class="profile-card">
+            <div class="profile-heading">
+                <div class="avatar" id="avatar">T</div>
+                <h2 id="displayName">Loading profile...</h2>
+                <p>AC CARE Technician</p>
+            </div>
+
+            <form id="profileForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="full_name">Full Name</label>
+                        <input id="full_name" name="full_name" required disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input id="phone" name="phone" type="tel" required disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input id="email" name="email" type="email" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="specialization">Specialization</label>
+                        <input id="specialization" name="specialization" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="experience">Experience (years)</label>
+                        <input id="experience" name="experience" type="number" min="0" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input id="address" name="address" disabled>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="edit-btn" id="editBtn">Edit Profile</button>
+                    <button type="submit" class="save-btn" id="saveBtn" hidden>Save Changes</button>
+                    <button type="button" class="cancel-btn" id="cancelBtn" hidden>Cancel</button>
+                </div>
+            </form>
+
+            <p id="message" role="status"></p>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE_URL = "http://localhost:5000";
+       const technicianId = localStorage.getItem("technicianId");
+
+if (!technicianId) {
+    window.location.href = "login.html";
+}
+
+        const form = document.getElementById("profileForm");
+        const fields = [
+            "full_name",
+            "phone",
+            "email",
+            "specialization",
+            "experience",
+            "address"
+        ];
+
+        const message = document.getElementById("message");
+        const editBtn = document.getElementById("editBtn");
+        const saveBtn = document.getElementById("saveBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
+
+        let originalData = {};
+
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = type || "";
+        }
+
+        function setEditing(editing) {
+            fields.forEach(function (field) {
+                document.getElementById(field).disabled = !editing;
+            });
+
+            editBtn.hidden = editing;
+            saveBtn.hidden = !editing;
+            cancelBtn.hidden = !editing;
+        }
+
+        function getFormData() {
+            const data = {};
+
+            fields.forEach(function (field) {
+                data[field] = document.getElementById(field).value;
+            });
+
+            return data;
+        }
+
+        function displayTechnician(technician) {
+            document.getElementById("displayName").textContent =
+                technician.full_name || "Technician";
+
+            document.getElementById("avatar").textContent =
+                (technician.full_name || "T").trim().charAt(0).toUpperCase();
+
+            fields.forEach(function (field) {
+                const input = document.getElementById(field);
+                const value = technician[field];
+
+                input.value = value == null ? "" : value;
+            });
+
+            originalData = getFormData();
+        }
+
+        async function loadProfile() {
+            showMessage("Loading technician details...", "");
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/technicians/${technicianId}`
+                );
+
+                const result = await response.json();
+
+                if (!response.ok || result.success === false) {
+                    throw new Error(result.message || "Could not load profile.");
+                }
+
+                const technician = result.technician || result.data || result;
+
+                if (!technician || !technician.full_name) {
+                    throw new Error("Technician details were not returned by the server.");
+                }
+
+                displayTechnician(technician);
+                showMessage("", "");
+            } catch (error) {
+                console.error("Profile loading error:", error);
+                showMessage(
+                    error.message + " Check that the backend is running.",
+                    "error"
+                );
+            }
+        }
+
+        editBtn.addEventListener("click", function () {
+            originalData = getFormData();
+            setEditing(true);
+            showMessage("", "");
+        });
+
+        cancelBtn.addEventListener("click", function () {
+            fields.forEach(function (field) {
+                document.getElementById(field).value = originalData[field] || "";
+            });
+
+            document.getElementById("displayName").textContent =
+                originalData.full_name || "Technician";
+
+            document.getElementById("avatar").textContent =
+                (originalData.full_name || "T").trim().charAt(0).toUpperCase();
+
+            setEditing(false);
+            showMessage("Changes cancelled.", "");
+        });
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const updatedData = getFormData();
+
+            if (!updatedData.full_name.trim() || !updatedData.phone.trim()) {
+                showMessage("Please enter your name and phone number.", "error");
+                return;
+            }
+
+            saveBtn.disabled = true;
+            showMessage("Saving your changes...", "");
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/technicians/${technicianId}`,
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(updatedData)
+                    }
+                );
+
+                const result = await response.json();
+
+                if (!response.ok || result.success === false) {
+                    throw new Error(result.message || "Could not update profile.");
+                }
+
+                displayTechnician(result.technician || updatedData);
+                setEditing(false);
+                showMessage("Profile updated successfully!", "success");
+            } catch (error) {
+                console.error("Profile update error:", error);
+                showMessage(
+                    error.message + " Your changes may not have been saved.",
+                    "error"
+                );
+            } finally {
+                saveBtn.disabled = false;
+            }
+        });
+
+        document.getElementById("logoutLink").addEventListener("click", function (event) {
+            event.preventDefault();
+            localStorage.removeItem("technicianId");
+            localStorage.removeItem("selectedTechnicianBooking");
+            window.location.href = "login.html";
+        });
+
+        loadProfile();
+    </script>
+
+</body>
+</html>
+```

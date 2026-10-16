@@ -1,0 +1,214 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - AC CARE</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <style>
+        .profile-container {
+            max-width: 850px;
+            margin: 30px auto;
+        }
+
+        .profile-card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,.06);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #e3edff;
+            color: #174ea6;
+            display: grid;
+            place-items: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .profile-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .profile-form label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+        }
+
+        .profile-form input,
+        .profile-form textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border: 1px solid #d7deea;
+            border-radius: 8px;
+            font: inherit;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .profile-message {
+            margin-top: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .profile-form {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+
+<aside class="dashboard-sidebar">
+    <div class="dashboard-logo">❄️ <span>AC CARE</span></div>
+    <p class="sidebar-label">MAIN MENU</p>
+
+    <a href="dashboard.html" class="sidebar-link">
+        🏠 <span>Dashboard</span>
+    </a>
+
+    <a href="../booking.html" class="sidebar-link">
+        🔧 <span>Book Service</span>
+    </a>
+
+    <a href="bookings.html" class="sidebar-link">
+        📋 <span>My Bookings</span>
+    </a>
+
+    <p class="sidebar-label account-label">ACCOUNT</p>
+
+    <a href="profile.html" class="sidebar-link active">
+        👤 <span>Profile</span>
+    </a>
+
+    <a href="../index.html" class="sidebar-link">
+        🚪 <span>Home</span>
+    </a>
+</aside>
+
+<main class="dashboard-main">
+    <header class="dashboard-header">
+        <button class="menu-button" type="button">☰</button>
+
+        <div class="dashboard-user">
+            <div class="user-avatar" id="profileAvatar">C</div>
+            <div class="user-info">
+                <strong id="headerCustomerName">Customer</strong>
+                <small>Customer</small>
+            </div>
+        </div>
+    </header>
+
+    <section class="dashboard-title">
+        <div>
+            <h1>My Profile</h1>
+            <p>View and manage your account details.</p>
+        </div>
+    </section>
+
+    <section class="profile-container">
+        <div class="profile-card">
+            <div class="profile-avatar" id="mainAvatar">C</div>
+            <h2 id="profileHeading">Customer Profile</h2>
+            <p>Account information</p>
+
+            <form id="profileForm" class="profile-form">
+                <div>
+                    <label for="fullName">Full Name</label>
+                    <input id="fullName" type="text" readonly>
+                </div>
+
+                <div>
+                    <label for="email">Email</label>
+                    <input id="email" type="email" readonly>
+                </div>
+
+                <div>
+                    <label for="phone">Phone</label>
+                    <input id="phone" type="tel" readonly>
+                </div>
+
+                <div class="full-width">
+                    <label for="address">Address</label>
+                    <textarea id="address" rows="3" readonly></textarea>
+                </div>
+            </form>
+
+            <p id="profileMessage" class="profile-message" role="status"></p>
+
+            <p>
+                <a href="dashboard.html" class="primary-btn">
+                    Back to Dashboard
+                </a>
+            </p>
+        </div>
+    </section>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const message = document.getElementById("profileMessage");
+
+    try {
+        const savedCustomer = localStorage.getItem("customer");
+
+        if (!savedCustomer) {
+            message.textContent = "Please log in to view your profile.";
+            return;
+        }
+
+        const customer = JSON.parse(savedCustomer);
+
+        const name =
+            customer.full_name ||
+            customer.name ||
+            customer.customer_name ||
+            "";
+
+        document.getElementById("fullName").value = name;
+        document.getElementById("email").value = customer.email || "";
+        document.getElementById("phone").value =
+            customer.phone || customer.contact || "";
+        document.getElementById("address").value = customer.address || "";
+
+        document.getElementById("profileHeading").textContent =
+            name ? name + "'s Profile" : "Customer Profile";
+
+        document.getElementById("headerCustomerName").textContent =
+            name || "Customer";
+
+        const initial = name ? name.charAt(0).toUpperCase() : "C";
+        document.getElementById("profileAvatar").textContent = initial;
+        document.getElementById("mainAvatar").textContent = initial;
+
+        message.textContent = name
+            ? "Your saved profile information is displayed below."
+            : "Some profile details are not available in your saved login information.";
+    } catch (error) {
+        console.error("Profile loading error:", error);
+        message.textContent = "Unable to read your saved profile information.";
+    }
+});
+</script>
+
+</body>
+</html>
+```

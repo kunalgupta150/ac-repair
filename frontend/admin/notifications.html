@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Notifications - AC CARE Admin</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 245px;
+            height: 100vh;
+            background: #06285c;
+            color: white;
+            padding: 24px 14px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            padding-left: 15px;
+        }
+
+        .logo span {
+            color: #5d8cff;
+        }
+
+        .tagline {
+            color: #c5d2e8;
+            font-size: 10px;
+            margin: 5px 0 30px 15px;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 5px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #2864dc;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 245px;
+            padding: 25px 30px;
+            min-height: 100vh;
+        }
+
+        /* ================= TOPBAR ================= */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 {
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .page-title p {
+            color: #69758a;
+            font-size: 13px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-top {
+            position: relative;
+        }
+
+        .search-top input {
+            width: 230px;
+            height: 40px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            padding: 0 40px 0 14px;
+            outline: none;
+            background: white;
+            font-size: 12px;
+        }
+
+        .search-top span {
+            position: absolute;
+            right: 13px;
+            top: 12px;
+            color: #718096;
+        }
+
+        /* ================= PROFILE ================= */
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 7px 12px;
+            border-radius: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .profile-image {
+            width: 37px;
+            height: 37px;
+            background: #dce8ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-info strong {
+            font-size: 12px;
+        }
+
+        .profile-info small {
+            display: block;
+            color: #788398;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        /* ================= STATISTICS ================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e3e8f0;
+            border-radius: 9px;
+            padding: 20px;
+        }
+
+        .stat-card p {
+            color: #68758b;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card h2 {
+            font-size: 25px;
+            margin-bottom: 7px;
+        }
+
+        .stat-card small {
+            font-size: 10px;
+            color: #1b9a59;
+        }
+
+        .stat-card small.red {
+            color: #c43d3d;
+        }
+
+        .stat-card small.blue {
+            color: #2864dc;
+        }
+
+        /* ================= NOTIFICATION CARD ================= */
+
+        .card {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 9px;
+            padding: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .mark-read {
+            border: none;
+            background: transparent;
+            color: #2864dc;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .mark-read:hover {
+            text-decoration: underline;
+        }
+
+        /* ================= FILTER ================= */
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            border: 1px solid #dce2eb;
+            background: white;
+            color: #637087;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #2864dc;
+            color: white;
+            border-color: #2864dc;
+        }
+
+        /* ================= NOTIFICATION ================= */
+
+        .notification {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 17px 5px;
+            border-bottom: 1px solid #edf0f5;
+            transition: 0.2s;
+        }
+
+        .notification:last-child {
+            border-bottom: none;
+        }
+
+        .notification:hover {
+            background: #fafbfe;
+        }
+
+        .notification.unread {
+            background: #f7faff;
+        }
+
+        .notification-icon {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #e8efff;
+            color: #2864dc;
+            font-size: 17px;
+        }
+
+        .notification-icon.green {
+            background: #e3f7eb;
+            color: #18844a;
+        }
+
+        .notification-icon.orange {
+            background: #fff2d7;
+            color: #b87800;
+        }
+
+        .notification-icon.red {
+            background: #ffe7e7;
+            color: #c43d3d;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .notification-message {
+            color: #667287;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .notification-time {
+            color: #929aaa;
+            font-size: 9px;
+            margin-top: 6px;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+        }
+
+        .notification-action {
+            border: 1px solid #d7deea;
+            background: white;
+            color: #56647a;
+            padding: 6px 9px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 8px;
+        }
+
+        .notification-action:hover {
+            background: #2864dc;
+            color: white;
+        }
+
+        .unread-dot {
+            width: 7px;
+            height: 7px;
+            background: #2864dc;
+            border-radius: 50%;
+            margin-top: 17px;
+        }
+
+        /* ================= EMPTY ================= */
+
+        .empty {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+            color: #7a8497;
+            font-size: 12px;
+        }
+
+        /* ================= MOBILE ================= */
+
+        .mobile-menu {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .mobile-menu button {
+            background: #2864dc;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1100px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 750px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.show {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-top input {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .notification {
+                flex-wrap: wrap;
+            }
+
+            .notification-actions {
+                width: 100%;
+                margin-left: 57px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            ❄ AC <span>CARE</span>
+        </div>
+
+        <div class="tagline">
+            Cool Comfort, Our Priority
+        </div>
+
+
+        <ul class="menu">
+
+            <li>
+                <a href="dashboard.html">
+                    <span class="menu-icon">⌂</span>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="customers.html">
+                    <span class="menu-icon">♙</span>
+                    Customers
+                </a>
+            </li>
+
+            <li>
+                <a href="technicians.html">
+                    <span class="menu-icon">♟</span>
+                    Technicians
+                </a>
+            </li>
+
+            <li>
+                <a href="services.html">
+                    <span class="menu-icon">⚙</span>
+                    Services
+                </a>
+            </li>
+
+            <li>
+                <a href="bookings.html">
+                    <span class="menu-icon">▤</span>
+                    Bookings
+                </a>
+            </li>
+
+            <li>
+                <a href="payments.html">
+                    <span class="menu-icon">₹</span>
+                    Payments
+                </a>
+            </li>
+
+            <li>
+                <a href="reviews.html">
+                    <span class="menu-icon">☆</span>
+                    Reviews
+                </a>
+            </li>
+
+            <li>
+                <a href="reports.html">
+                    <span class="menu-icon">▥</span>
+                    Reports
+                </a>
+            </li>
+
+            <li>
+                <a href="notifications.html" class="active">
+                    <span class="badge" id="sidebarUnreadCount">0</span>
+                    Notifications
+                </a>
+            </li>
+
+            <li>
+                <a href="settings.html">
+                    <span class="menu-icon">⚙</span>
+                    Settings
+                </a>
+            </li>
+
+            <li>
+                <a href="../login.html" onclick="logout()">
+                    <span class="menu-icon">↪</span>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- MOBILE MENU -->
+
+        <div class="mobile-menu">
+
+            <button onclick="toggleSidebar()">
+                ☰ Menu
+            </button>
+
+        </div>
+
+
+        <!-- ================= TOPBAR ================= -->
+
+        <div class="topbar">
+
+
+            <div class="page-title">
+
+                <h1>
+                    Notifications
+                </h1>
+
+                <p>
+                    Stay updated with AC CARE activities
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+
+                <div class="search-top">
+
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search notifications..."
+                        onkeyup="searchNotifications()"
+                    >
+
+                    <span>
+                        ⌕
+                    </span>
+
+                </div>
+
+
+                <div class="profile">
+
+                    <div class="profile-image">
+                        👤
+                    </div>
+
+                    <div class="profile-info">
+
+                        <strong>
+                            Kunal Gupta
+                        </strong>
+
+                        <small>
+                            Administrator
+                        </small>
+
+                    </div>
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= STATISTICS ================= -->
+
+        <section class="stats">
+
+
+            <div class="stat-card">
+
+                <p>
+                    Total Notifications
+                </p>
+
+                <h2 id="totalCount">
+                    0
+                </h2>
+
+                <small class="blue">
+                    Today
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Unread
+                </p>
+
+                <h2 id="unreadCount">
+                    0
+                </h2>
+
+                <small class="red">
+                    Requires attention
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    New Bookings
+                </p>
+
+                <h2>
+                    0
+                </h2>
+
+                <small>
+                    Today
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    System Alerts
+                </p>
+
+                <h2>
+                    0
+                </h2>
+
+                <small class="red">
+                    Check alerts
+                </small>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= NOTIFICATIONS ================= -->
+
+        <section class="card">
+
+
+            <div class="card-header">
+
+                <h2>
+                    Recent Notifications
+                </h2>
+
+                <button
+                    class="mark-read"
+                    onclick="markAllRead()"
+                >
+                    Mark all as read
+                </button>
+
+            </div>
+
+
+            <!-- FILTERS -->
+
+            <div class="filters">
+
+                <button
+                    class="filter-btn active"
+                    onclick="filterNotifications('all', this)"
+                >
+                    All
+                </button>
+
+                <button
+                    class="filter-btn"
+                    onclick="filterNotifications('booking', this)"
+                >
+                    Bookings
+                </button>
+
+                <button
+                    class="filter-btn"
+                    onclick="filterNotifications('payment', this)"
+                >
+                    Payments
+                </button>
+
+                <button
+                    class="filter-btn"
+                    onclick="filterNotifications('system', this)"
+                >
+                    System
+                </button>
+
+                <button
+                    class="filter-btn"
+                    onclick="filterNotifications('review', this)"
+                >
+                    Reviews
+                </button>
+
+            </div>
+
+
+<!-- REAL NOTIFICATIONS FROM MYSQL -->
+<div id="notificationList"></div>
+
+<div class="empty" id="emptyMessage">
+    No notifications found.
+</div>
+
+<p id="notificationError"
+   style="display:none; color:#c43d3d; padding:20px; font-size:12px;">
+</p>
+
+            <!-- EMPTY -->
+
+            <div
+                class="empty"
+                id="emptyMessage"
+            >
+                No notifications found.
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+        console.log("AC CARE Notifications JavaScript loaded");
+
+const NOTIFICATIONS_API =
+    "http://localhost:5000/api/admin/notifications";
+
+let allNotifications = [];
+let activeFilter = "all";
+
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("show");
+}
+
+function logout() {
+    localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("loginRole");
+    window.location.href = "../login.html";
+}
+
+function formatNotificationDate(dateValue) {
+    if (!dateValue) return "";
+
+    const date = new Date(dateValue);
+    if (Number.isNaN(date.getTime())) return "";
+
+    return date.toLocaleString("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+}
+
+function notificationIcon(type) {
+    const icons = {
+        booking: ["📅", ""],
+        payment: ["₹", "green"],
+        review: ["★", "orange"],
+        system: ["!", "red"],
+        general: ["🔔", ""]
+    };
+
+    return icons[String(type || "general").toLowerCase()]
+        || icons.general;
+}
+
+
+async function loadNotifications() {
+    const errorBox = document.getElementById("notificationError");
+
+    if (errorBox) {
+        errorBox.style.display = "none";
+    }
+
+    try {
+        const response = await fetch(NOTIFICATIONS_API);
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || "Unable to load notifications."
+            );
+        }
+
+        allNotifications = result.notifications || [];
+        console.log("Notifications from API:", allNotifications);
+console.log("New Bookings element:", document.getElementById("newBookingsCount"));
+
+        const totalCount = document.getElementById("totalCount");
+        const unreadCount = document.getElementById("unreadCount");
+        const newBookingsCount = document.getElementById("newBookingsCount");
+        const systemAlertsCount = document.getElementById("systemAlertsCount");
+
+        const unreadTotal = allNotifications.filter(
+            n => !n.is_read || n.is_read === 0
+        ).length;
+
+        const bookingTotal = allNotifications.filter(
+            n => String(n.type || "").trim().toLowerCase() === "booking"
+        ).length;
+
+        const systemTotal = allNotifications.filter(
+            n => String(n.type || "").trim().toLowerCase() === "system"
+        ).length;
+
+        if (totalCount) totalCount.textContent = allNotifications.length;
+        if (unreadCount) unreadCount.textContent = unreadTotal;
+        if (newBookingsCount) newBookingsCount.textContent = bookingTotal;
+        if (systemAlertsCount) systemAlertsCount.textContent = systemTotal;
+
+        renderNotifications();
+
+    } catch (error) {
+        console.error("Notifications error:", error);
+
+        if (errorBox) {
+            errorBox.textContent =
+                error.message || "Cannot connect to the backend.";
+            errorBox.style.display = "block";
+        }
+    }
+}
+function renderNotifications() {
+    const list = document.getElementById("notificationList");
+    const empty = document.getElementById("emptyMessage");
+    const search = document.getElementById("searchInput")
+        .value.trim().toLowerCase();
+
+    list.replaceChildren();
+
+    const filtered = allNotifications.filter(n => {
+        const type = String(n.type || "general").toLowerCase();
+
+        const matchesType =
+            activeFilter === "all" || type === activeFilter;
+
+        const matchesSearch =
+            `${n.title || ""} ${n.message || ""} ${type}`
+                .toLowerCase().includes(search);
+
+        return matchesType && matchesSearch;
+    });
+
+    filtered.forEach(n => {
+        const type = String(n.type || "general").toLowerCase();
+        const unread = !n.is_read;
+        const [icon, color] = notificationIcon(type);
+
+        const item = document.createElement("div");
+        item.className = "notification" + (unread ? " unread" : "");
+        item.dataset.type = type;
+
+        const iconBox = document.createElement("div");
+        iconBox.className = "notification-icon " + color;
+        iconBox.textContent = icon;
+
+        const content = document.createElement("div");
+        content.className = "notification-content";
+
+        const title = document.createElement("div");
+        title.className = "notification-title";
+        title.textContent = n.title || "Notification";
+
+        const message = document.createElement("div");
+        message.className = "notification-message";
+        message.textContent = n.message || "";
+
+        const time = document.createElement("div");
+        time.className = "notification-time";
+        time.textContent = formatNotificationDate(n.created_at);
+
+        content.append(title, message, time);
+        item.append(iconBox, content);
+
+        if (unread) {
+            const dot = document.createElement("div");
+            dot.className = "unread-dot";
+            dot.setAttribute("aria-label", "Unread");
+            item.appendChild(dot);
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "notification-actions";
+
+        if (unread) {
+            const readButton = document.createElement("button");
+            readButton.className = "notification-action";
+            readButton.textContent = "Mark Read";
+            readButton.addEventListener("click", () => markRead(n.id));
+            actions.appendChild(readButton);
+        }
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "notification-action";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => deleteNotification(n.id));
+
+        actions.appendChild(deleteButton);
+        item.appendChild(actions);
+        list.appendChild(item);
+    });
+
+    empty.style.display = filtered.length ? "none" : "block";
+}
+
+function searchNotifications() {
+    renderNotifications();
+}
+
+function filterNotifications(type, button) {
+    activeFilter = type;
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    button.classList.add("active");
+    renderNotifications();
+}
+
+async function markRead(id) {
+    try {
+        const response = await fetch(
+            `${NOTIFICATIONS_API}/${encodeURIComponent(id)}/read`,
+            { method: "PUT" }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Could not mark as read.");
+        }
+
+        await loadNotifications();
+    } catch (error) {
+        alert(error.message || "Could not update notification.");
+    }
+}
+
+async function markAllRead() {
+    const unread = allNotifications.filter(n => !n.is_read);
+
+    if (!unread.length) {
+        alert("There are no unread notifications.");
+        return;
+    }
+
+    try {
+        const results = await Promise.all(
+            unread.map(n =>
+                fetch(
+                    `${NOTIFICATIONS_API}/${encodeURIComponent(n.id)}/read`,
+                    { method: "PUT" }
+                )
+            )
+        );
+
+        if (results.some(r => !r.ok)) {
+            throw new Error("Some notifications could not be updated.");
+        }
+
+        await loadNotifications();
+        alert("All notifications marked as read.");
+    } catch (error) {
+        alert(error.message || "Could not update notifications.");
+        await loadNotifications();
+    }
+}
+
+async function deleteNotification(id) {
+    if (!confirm("Delete this notification permanently?")) return;
+
+    try {
+        const response = await fetch(
+            `${NOTIFICATIONS_API}/${encodeURIComponent(id)}`,
+            { method: "DELETE" }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Could not delete notification.");
+        }
+
+        await loadNotifications();
+    } catch (error) {
+        alert(error.message || "Could not delete notification.");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadNotifications();
+});
+window.addEventListener("error", function (event) {
+    console.error("Notifications JavaScript error:", event.message);
+});
+async function updateSidebarNotifications() {
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/admin/notifications"
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) return;
+
+        const badge = document.getElementById("sidebarUnreadCount");
+
+        if (badge) {
+            badge.textContent = data.unreadCount;
+            badge.style.display =
+                data.unreadCount > 0 ? "inline-flex" : "none";
+        }
+    } catch (error) {
+        console.error("Sidebar notification count error:", error);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateSidebarNotifications();
+});
+
+    </script>
+
+</body>
+
+</html>

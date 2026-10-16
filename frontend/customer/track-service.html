@@ -1,0 +1,192 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Service - AC CARE</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <style>
+        .tracking-card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 25px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.05);
+        }
+        .tracking-step {
+            border-left: 3px solid #dce5f5;
+            padding: 5px 0 22px 20px;
+            margin-left: 8px;
+        }
+        .tracking-step.active {
+            border-left-color: #2563eb;
+        }
+        .tracking-step h3 {
+            margin: 0 0 6px;
+            font-size: 16px;
+        }
+        .tracking-step p, .tracking-info p {
+            color: #64748b;
+            margin: 5px 0;
+        }
+        .tracking-status {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 20px;
+            background: #e8f0ff;
+            color: #2057c8;
+        }
+        #trackingMessage {
+            color: #c62828;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+
+<aside class="dashboard-sidebar">
+    <div class="dashboard-logo">❄️ <span>AC CARE</span></div>
+    <p class="sidebar-label">MAIN MENU</p>
+    <a href="dashboard.html" class="sidebar-link">🏠 <span>Dashboard</span></a>
+    <a href="../booking.html" class="sidebar-link">🔧 <span>Book Service</span></a>
+    <a href="bookings.html" class="sidebar-link">📋 <span>My Bookings</span></a>
+    <a href="track-service.html" class="sidebar-link active">📍 <span>Track Service</span></a>
+    <a href="profile.html" class="sidebar-link">👤 <span>Profile</span></a>
+    <a href="../index.html" class="sidebar-link">🚪 <span>Logout</span></a>
+</aside>
+
+<main class="dashboard-main">
+    <section class="dashboard-title">
+        <div>
+            <h1>Track Your Service</h1>
+            <p>Check your booking status and assigned technician.</p>
+        </div>
+        <a href="bookings.html" class="secondary-btn">My Bookings</a>
+    </section>
+
+    <section class="tracking-card">
+        <h2>Booking Details</h2>
+        <div class="tracking-info">
+            <p>Booking ID: <strong id="bookingId">Loading...</strong></p>
+            <p>Service: <strong id="serviceName">—</strong></p>
+            <p>Appointment: <strong id="appointmentDate">—</strong></p>
+            <p>Status: <span id="bookingStatus" class="tracking-status">Loading...</span></p>
+            <p>Technician: <strong id="technicianName">Not assigned yet</strong></p>
+            <p>Technician Phone: <strong id="technicianPhone">—</strong></p>
+        </div>
+
+        <h2 style="margin-top:25px;">Service Progress</h2>
+        <div id="progress">
+            <div class="tracking-step active">
+                <h3>Booking Received</h3>
+                <p>Your service request has been recorded.</p>
+            </div>
+            <div class="tracking-step">
+                <h3>Technician Assigned</h3>
+                <p>Waiting for technician assignment.</p>
+            </div>
+            <div class="tracking-step">
+                <h3>Service In Progress</h3>
+                <p>The technician will update this when work begins.</p>
+            </div>
+            <div class="tracking-step">
+                <h3>Completed</h3>
+                <p>Your service is complete once marked by the technician.</p>
+            </div>
+        </div>
+
+        <p id="trackingMessage"></p>
+        <button type="button" class="secondary-btn" onclick="loadTracking()">Refresh Status</button>
+    </section>
+</main>
+
+<script>
+const API_BASE = "http://localhost:5000/api";
+
+async function loadTracking() {
+    console.log("loadTracking is running");
+    console.log("Tracking booking ID:", new URLSearchParams(window.location.search).get("id"));
+    const params = new URLSearchParams(window.location.search);
+    const bookingId = params.get("id");
+    const message = document.getElementById("trackingMessage");
+
+    if (!bookingId) {
+        document.getElementById("bookingId").textContent = "Not selected";
+        message.textContent = "Open My Bookings and click Track beside the booking you want to view.";
+        return;
+    }
+
+    document.getElementById("bookingId").textContent = bookingId;
+    message.textContent = "";
+
+    try {
+        // This endpoint must return the booking belonging to the logged-in customer.
+        const customer = JSON.parse(localStorage.getItem("customer") || "null");
+        const customerId = customer && (
+    customer.id ??
+    customer.customerId ??
+    customer.customer_id
+);
+        if (!customerId) {
+            message.textContent = "Please log in to view your booking.";
+            return;
+        }
+
+        const response = await fetch(
+            `${API_BASE}/bookings/customer/${encodeURIComponent(customerId)}`
+        );
+
+        if (!response.ok) throw new Error("Could not load your bookings.");
+
+        const result = await response.json();
+        console.log("Bookings API response:", result);
+        const bookings = Array.isArray(result) ? result :
+            (result.bookings || result.data || []);
+
+        const booking = bookings.find(b =>
+    String(b.booking_id ?? b.id) === String(bookingId)
+);
+console.log("Matched booking:", booking);
+        if (!booking) {
+            message.textContent = "Booking not found in your account.";
+            return;
+        }
+
+        const status = String(booking.status || "Pending");
+        document.getElementById("serviceName").textContent =
+            booking.service_name || booking.serviceName || booking.service || "—";
+        document.getElementById("appointmentDate").textContent =
+            booking.preferred_date || booking.booking_date || booking.date || "—";
+        document.getElementById("bookingStatus").textContent = status;
+        document.getElementById("technicianName").textContent =
+            booking.technician_name || booking.technicianName || "Not assigned yet";
+        document.getElementById("technicianPhone").textContent =
+            booking.technician_phone || booking.technicianPhone || "—";
+
+        const steps = [...document.querySelectorAll(".tracking-step")];
+        const normalized = status.toLowerCase();
+        let activeIndex = 0;
+
+        if (normalized.includes("assign") || normalized.includes("accept")) activeIndex = 1;
+        if (normalized.includes("progress")) activeIndex = 2;
+        if (normalized.includes("complete")) activeIndex = 3;
+
+        steps.forEach((step, index) => {
+            step.classList.toggle("active", index <= activeIndex);
+        });
+
+        if (normalized.includes("cancel")) {
+            message.textContent = "This booking has been cancelled.";
+        }
+    } catch (error) {
+        console.error("Tracking error:", error);
+        message.textContent = error.message || "Unable to load tracking details.";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadTracking);
+</script>
+</body>
+</html>

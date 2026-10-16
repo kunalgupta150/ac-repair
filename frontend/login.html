@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Login - AC CARE</title>
+
+    <link rel="stylesheet"
+          href="assets/css/style.css">
+</head>
+
+
+<body class="auth-body">
+
+
+<div class="auth-container">
+
+
+    <div class="auth-header">
+
+        <div class="logo">
+            ❄️ <span>AC CARE</span>
+        </div>
+
+        <h1>Welcome Back!</h1>
+
+        <p>
+            Login to your account
+        </p>
+
+    </div>
+
+
+    <div class="login-options">
+
+
+        <!-- CUSTOMER -->
+
+        <div class="login-card">
+
+            <div class="login-icon">
+                👤
+            </div>
+
+            <h2>Customer Login</h2>
+
+            <p>
+                Book services and track your requests.
+            </p>
+
+            <button
+               type="button"
+               onclick="alert('Customer button is working'); showLoginForm('customer');">
+               Login as Customer
+            </button>
+        </div>
+
+
+        <!-- TECHNICIAN -->
+
+        <div class="login-card">
+
+            <div class="login-icon">
+                👨‍🔧
+            </div>
+
+            <h2>Technician Login</h2>
+
+            <p>
+                View your jobs and manage services.
+            </p>
+
+            <button 
+                type="button" onclick="showLoginForm('technician')">
+                Login as Technician
+            </button>
+
+        </div>
+
+
+        <!-- ADMIN -->
+
+        <div class="login-card">
+
+            <div class="login-icon">
+                🛡️
+            </div>
+
+            <h2>Admin Login</h2>
+
+            <p>
+                Manage services, technicians and users.
+            </p>
+
+            <button 
+                type="button" onclick="showLoginForm('admin')">
+                Login as Admin
+            </button>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- LOGIN FORM -->
+
+    <div class="login-form-container"
+         id="loginFormContainer">
+
+        <h2 id="loginTitle">
+            Login
+        </h2>
+
+
+        <form id="loginForm">
+
+            <input
+                type="email"
+                id="loginEmail"
+                placeholder="Email Address"
+                required>
+
+
+            <input
+                type="password"
+                id="loginPassword"
+                placeholder="Password"
+                required>
+
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+        
+<!-- AC CARE - Forgot Password -->
+<div style="text-align:center; margin-top:15px;">
+    <button
+        type="button"
+        id="showForgotPassword"
+        style="background:none; border:none; color:#1769e0;
+        cursor:pointer; font-size:14px;">
+        Forgot Password?
+    </button>
+</div>
+
+<div id="forgotPasswordSection"
+     style="display:none; max-width:420px; margin:20px auto;
+     padding:22px; border:1px solid #ddd; border-radius:12px;">
+
+    <h2>Reset Your Password</h2>
+    <p>Enter your registered email and account type. We'll send a reset link if the account exists.</p>
+
+    <form id="forgotPasswordForm">
+        <label for="resetEmail">Registered Email</label>
+        <input
+            type="email"
+            id="resetEmail"
+            required
+            maxlength="254"
+            autocomplete="email"
+            placeholder="Enter your email"
+            style="display:block; width:100%; box-sizing:border-box;
+            padding:12px; margin:8px 0 16px;">
+
+        <label for="resetRole">Account Type</label>
+        <select
+            id="resetRole"
+            required
+            style="display:block; width:100%; box-sizing:border-box;
+            padding:12px; margin:8px 0 16px;">
+            <option value="customer">Customer</option>
+            <option value="technician">Technician</option>
+            <option value="admin">Admin</option>
+        </select>
+
+        <button
+            type="submit"
+            id="sendResetLinkButton"
+            style="width:100%; padding:12px; cursor:pointer;">
+            Send Reset Link
+        </button>
+
+        <p id="forgotPasswordMessage"
+           role="status"
+           aria-live="polite"></p>
+
+        <button
+            type="button"
+            id="hideForgotPassword"
+            style="background:none; border:none; color:#1769e0;
+            cursor:pointer;">
+            Back to Login
+        </button>
+    </form>
+</div>
+
+
+
+        <div class="auth-links">
+
+            <a href="#">
+                Forgot Password?
+            </a>
+
+            <span>
+                Don't have an account?
+            </span>
+
+            <a href="register.html">
+                Create Account
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="back-home">
+
+        <a href="index.html">
+            ← Back to Home
+        </a>
+
+    </div>
+
+
+</div>
+
+<script src="assets/js/script.js"></script>
+
+<script>
+function showLoginForm(role) {
+
+    const container =
+        document.getElementById("loginFormContainer");
+
+    const title =
+        document.getElementById("loginTitle");
+
+    if (!container || !title) {
+        alert("Login form container not found.");
+        return;
+    }
+
+
+    if (role === "customer") {
+
+        title.textContent =
+            "Customer Login";
+
+    }
+    else if (role === "technician") {
+
+        title.textContent =
+            "Technician Login";
+
+    }
+    else if (role === "admin") {
+
+        title.textContent =
+            "Admin Login";
+
+    }
+
+
+    // Save selected login role
+    localStorage.setItem(
+        "loginRole",
+        role
+    );
+
+
+    // Show login form
+    container.classList.add("show");
+
+    container.style.display =
+        "block";
+
+
+    container.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
+
+}
+</script>
+
+</body>
+</html>

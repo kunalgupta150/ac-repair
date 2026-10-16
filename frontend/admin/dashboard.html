@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard - AC CARE</title>
+
+    <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+<!-- =====================================================
+     ADMIN SIDEBAR
+===================================================== -->
+
+<aside class="dashboard-sidebar admin-sidebar">
+
+
+    <div class="dashboard-logo">
+
+        ❄️
+        <span>AC CARE</span>
+
+    </div>
+
+
+    <p class="sidebar-label">
+        MAIN MENU
+    </p>
+
+
+    <a href="dashboard.html"
+       class="sidebar-link active">
+
+        🏠
+        <span>Dashboard</span>
+
+    </a>
+
+
+    <a href="customers.html"
+       class="sidebar-link">
+
+        👥
+        <span>Customers</span>
+
+    </a>
+
+
+    <a href="technicians.html"
+       class="sidebar-link">
+
+        👨‍🔧
+        <span>Technicians</span>
+
+    </a>
+
+
+    <a href="services.html"
+       class="sidebar-link">
+
+        🔧
+        <span>Services</span>
+
+    </a>
+
+
+    <a href="bookings.html"
+       class="sidebar-link">
+
+        📅
+        <span>Bookings</span>
+
+    </a>
+
+
+    <a href="payments.html" class="sidebar-link">
+    💳 <span>Payments</span>
+</a>
+
+
+    <a href="reviews.html"
+       class="sidebar-link">
+
+        ⭐
+        <span>Reviews</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        📊
+        <span>Reports</span>
+
+    </a>
+
+
+
+<a href="notifications.html"
+   class="sidebar-link">
+
+    🔔
+    <span>Notifications</span>
+
+    <span class="sidebar-notification" id="sidebarUnreadCount">
+        0
+    </span>
+
+</a>
+
+    <a href="#"
+       class="sidebar-link">
+
+        ⚙️
+        <span>Settings</span>
+
+    </a>
+
+
+    <p class="sidebar-label account-label">
+        ACCOUNT
+    </p>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        👤
+        <span>Profile</span>
+
+    </a>
+
+
+    <a href="../index.html"
+       class="sidebar-link">
+
+        🚪
+        <span>Logout</span>
+
+    </a>
+
+
+    <!-- SUPPORT -->
+
+    <div class="support-card">
+
+        <div class="support-icon">
+            🎧
+        </div>
+
+        <h3>Need Help?</h3>
+
+        <p>
+            Our support team is available 24/7.
+        </p>
+
+        <a href="../contact.html">
+            Contact Support
+        </a>
+
+    </div>
+
+
+</aside>
+
+
+
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
+
+<main class="dashboard-main">
+
+
+    <!-- TOP HEADER -->
+
+    <header class="dashboard-header">
+
+
+        <button class="menu-button">
+            ☰
+        </button>
+
+
+        <div class="dashboard-search">
+
+            <input
+                type="text"
+                placeholder="Search here...">
+
+            🔍
+
+        </div>
+
+
+        <div class="dashboard-user">
+
+
+            
+<div class="notification">
+
+    🔔
+
+    <span id="headerUnreadCount">0</span>
+
+</div>
+
+
+            <div class="user-avatar admin-avatar">
+                A
+            </div>
+
+
+            <div class="user-info">
+
+                <strong>Admin</strong>
+
+                <small>Administrator</small>
+
+            </div>
+
+
+            <span class="dropdown-arrow">
+                ▼
+            </span>
+
+
+        </div>
+
+    </header>
+
+
+
+    <!-- TITLE -->
+
+    <section class="dashboard-title">
+
+
+        <div>
+
+            <h1>Dashboard</h1>
+
+            <p>
+                Welcome back, Admin! Here's what's happening today.
+            </p>
+
+        </div>
+
+
+        <div class="date-selector">
+
+            📅
+            Today, 02 Sep 2026
+
+            <span>⌄</span>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         STATISTICS
+    ================================================= -->
+
+    <section class="dashboard-stats admin-stats">
+
+
+        <!-- CUSTOMERS -->
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon blue">
+                👥
+            </div>
+
+            <div>
+
+                <span>Customers</span>
+
+                <h2 id="totalCustomers">0</h2>
+
+                <a href="customers.html">
+                    View all →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- TECHNICIANS -->
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon green">
+                👨‍🔧
+            </div>
+
+            <div>
+
+                <span>Technicians</span>
+
+                <h2 id="totalTechnicians">0</h2>
+
+                <a href="technicians.html">
+                    View all →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- BOOKINGS -->
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon purple">
+                📅
+            </div>
+
+            <div>
+
+                <span>Bookings</span>
+
+                <h2 id="totalBookings">0</h2>
+
+                <a href="bookings.html">
+                    View all →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- PENDING -->
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon orange">
+                🕐
+            </div>
+
+            <div>
+
+                <span>Pending</span>
+
+                <h2 id="pendingBookings">0</h2>
+
+                <a href="bookings.html">
+                    View all →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- COMPLETED -->
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon green">
+                ✓
+            </div>
+
+            <div>
+
+                <span>Completed</span>
+
+                <h2 id="completedBookings">0</h2>
+
+                <a href="bookings.html">
+                    View all →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- REVENUE -->
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon pink">
+                ₹
+            </div>
+
+            <div>
+
+                <span>Revenue</span>
+
+                <h2 id="totalRevenue">₹0</h2>
+
+                <a href="payments.html">
+                    View all →
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =================================================
+         RECENT BOOKINGS + TODAY JOBS
+    ================================================= -->
+
+    <section class="admin-content-grid">
+
+
+        <!-- RECENT BOOKINGS -->
+
+        <div class="dashboard-panel recent-bookings-panel">
+
+
+            <div class="panel-header">
+
+                <h2>Recent Bookings</h2>
+
+                <a href="bookings.html">
+                    View All Bookings
+                </a>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+
+                <table class="dashboard-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Booking ID</th>
+
+                            <th>Customer</th>
+
+                            <th>Service</th>
+
+                            <th>Technician</th>
+
+                            <th>Date</th>
+
+                            <th>Status</th>
+
+                            <th>Payment</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="adminRecentBookings"></tbody>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- TODAY'S JOBS -->
+
+        <div class="dashboard-panel todays-jobs-panel">
+
+
+            <div class="panel-header">
+
+                <h2>Today's Jobs</h2>
+
+                <a href="bookings.html">
+                    View All
+                </a>
+
+            </div>
+        
+<div class="jobs-list" id="adminTodaysJobs">
+    <p>Loading today's jobs...</p>
+</div>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+<!-- MONTHLY REVENUE -->
+<div class="dashboard-panel revenue-panel">
+
+    <div class="panel-header">
+        <div>
+            <h2>Monthly Revenue</h2>
+
+            <h3 class="revenue-total" id="monthlyRevenueTotal">
+                Loading...
+            </h3>
+
+            <span class="revenue-growth" id="monthlyRevenueGrowth">
+                Loading revenue data...
+            </span>
+        </div>
+
+        <select class="year-select" id="revenueYearSelect">
+            <option value="current">This Year</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+        </select>
+    </div>
+
+    <div class="revenue-chart">
+        <div class="chart-values" id="revenueChartValues">
+            <span>₹0</span>
+            <span>₹0</span>
+            <span>₹0</span>
+            <span>₹0</span>
+            <span>₹0</span>
+            <span>₹0</span>
+        </div>
+
+        <div class="chart-area">
+            <div class="chart-line" id="revenueChartBars">
+                <span>Loading...</span>
+            </div>
+
+            <div class="chart-months" id="revenueChartMonths">
+                <span>Jan</span><span>Feb</span><span>Mar</span>
+                <span>Apr</span><span>May</span><span>Jun</span>
+                <span>Jul</span><span>Aug</span><span>Sep</span>
+                <span>Oct</span><span>Nov</span><span>Dec</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+        <!-- BOOKINGS OVERVIEW -->
+
+        <div class="dashboard-panel overview-panel">
+
+
+            <div class="panel-header">
+
+                <h2>Bookings Overview</h2>
+
+            </div>
+
+
+            <div class="booking-overview">
+
+
+                <div class="donut-chart">
+
+                    <div class="donut-inner">
+
+                        <strong>120</strong>
+
+                        <span>Bookings</span>
+
+                    </div>
+
+                </div>
+
+                <div class="overview-list">
+
+
+                    <div>
+
+                        <span class="overview-dot completed-dot">
+                        </span>
+
+                        <span>Completed (72%)</span>
+
+                        <strong>86</strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span class="overview-dot pending-dot">
+                        </span>
+
+                        <span>Pending (18%)</span>
+
+                        <strong>22</strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span class="overview-dot cancelled-dot">
+                        </span>
+
+                        <span>Cancelled (10%)</span>
+
+                        <strong>12</strong>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+<script src="../assets/js/script.js"></script>
+<script>
+async function loadDashboardStats() {
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/dashboard/stats"
+        );
+
+        const result = await response.json();
+
+        if (!result.success) {
+            console.error("Failed to load dashboard statistics");
+            return;
+        }
+
+        document.getElementById("totalCustomers").textContent =
+            result.data.totalCustomers;
+
+        document.getElementById("totalTechnicians").textContent =
+            result.data.totalTechnicians;
+
+        document.getElementById("totalBookings").textContent =
+            result.data.totalBookings;
+
+        document.getElementById("pendingBookings").textContent =
+            result.data.pendingBookings;
+
+        document.getElementById("completedBookings").textContent =
+            result.data.completedBookings;
+
+        document.getElementById("totalRevenue").textContent =
+            "₹" + Number(result.data.totalRevenue).toLocaleString("en-IN");
+
+    } catch (error) {
+        console.error("Dashboard API error:", error);
+    }
+}
+
+loadDashboardStats();
+async function loadAdminRecentBookings() {
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/admin/recent-bookings"
+        );
+
+        const result = await response.json();
+
+        if (!result.success) {
+            console.error(
+                "Failed to load recent bookings"
+            );
+            return;
+        }
+
+        const tableBody =
+            document.getElementById(
+                "adminRecentBookings"
+            );
+
+        if (!tableBody) {
+            return;
+        }
+
+        tableBody.innerHTML = "";
+
+        result.bookings.forEach(function (booking) {
+
+            const row =
+                document.createElement("tr");
+
+            const date =
+                new Date(
+                    booking.preferred_date
+                ).toLocaleDateString(
+                    "en-IN",
+                    {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                    }
+                );
+
+            const technician =
+                booking.technician_name ||
+                "Not Assigned";
+
+            const payment =
+                booking.payment_status ||
+                "Pending";
+
+            const statusClass =
+                booking.status
+                    .toLowerCase()
+                    .replace(/\s+/g, "-");
+
+            const paymentClass =
+                payment
+                    .toLowerCase()
+                    .replace(/\s+/g, "-");
+
+            row.innerHTML = `
+
+                <td>
+                    ${booking.booking_id}
+                </td>
+
+                <td>
+                    <strong>
+                        ${booking.customer_name}
+                    </strong>
+                </td>
+
+                <td>
+                    ${booking.service_name}
+                </td>
+
+                <td>
+                    ${technician}
+                </td>
+
+                <td>
+                    ${date}
+                </td>
+
+                <td>
+                    <span class="status ${statusClass}">
+                        ${booking.status}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="status ${paymentClass}">
+                        ${payment}
+                    </span>
+                </td>
+
+                <td>
+                    <button
+                        class="table-button"
+                        type="button">
+                        View
+                    </button>
+                </td>
+
+            `;
+
+            tableBody.appendChild(row);
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Recent bookings error:",
+            error
+        );
+
+    }
+
+}
+
+
+loadAdminRecentBookings();
+
+async function updateNotificationBadges() {
+    try {
+        const response = await fetch(
+            "http://localhost:5000/api/admin/notifications"
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            console.error("Could not load notification count.");
+            return;
+        }
+
+        const unreadCount = Number(result.unreadCount) || 0;
+
+        const sidebarBadge =
+            document.getElementById("sidebarUnreadCount");
+
+        const headerBadge =
+            document.getElementById("headerUnreadCount");
+
+        if (sidebarBadge) {
+            sidebarBadge.textContent = unreadCount;
+            sidebarBadge.style.display =
+                unreadCount > 0 ? "" : "none";
+        }
+
+        if (headerBadge) {
+            headerBadge.textContent = unreadCount;
+            headerBadge.style.display =
+                unreadCount > 0 ? "" : "none";
+        }
+
+    } catch (error) {
+        console.error("Notification badge error:", error);
+    }
+}
+
+updateNotificationBadges();
+</script>
+
+</body>
+
+</html>

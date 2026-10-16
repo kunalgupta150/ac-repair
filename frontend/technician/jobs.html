@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Service Requests - AC CARE</title>
+
+    <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+    <style>
+
+        .requests-container {
+            margin-top: 25px;
+        }
+
+        .request-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 18px;
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .request-id {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .request-status {
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-assigned {
+            background: #fff4db;
+            color: #d97706;
+        }
+
+        .status-accepted {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .status-progress {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .request-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 18px;
+        }
+
+        .detail-item span {
+            display: block;
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .detail-item strong {
+            color: #172033;
+            font-size: 14px;
+        }
+
+        .problem-box {
+            margin-top: 18px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .problem-box span {
+            display: block;
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .problem-box p {
+            margin: 0;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .request-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 18px;
+            gap: 10px;
+        }
+
+        .view-btn {
+            display: inline-block;
+            padding: 9px 16px;
+            border: 1px solid #2563eb;
+            border-radius: 7px;
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .view-btn:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .loading-message,
+        .empty-message,
+        .error-message {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .error-message {
+            color: #dc2626;
+        }
+
+        @media (max-width: 900px) {
+
+            .request-details {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .request-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .request-details {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="dashboard-sidebar">
+
+    <div class="dashboard-logo">
+        ❄️ <span>AC CARE</span>
+    </div>
+
+
+    <p class="sidebar-label">
+        MAIN MENU
+    </p>
+
+
+    <a href="dashboard.html"
+       class="sidebar-link">
+
+        🏠
+        <span>Dashboard</span>
+
+    </a>
+
+
+    <a href="jobs.html"
+       class="sidebar-link active">
+
+        🔧
+        <span>Service Requests</span>
+
+    </a>
+
+
+    <a href="jobs.html?filter=today" class="sidebar-link">
+    📅 <span>Today's Jobs</span>
+</a>
+
+
+    <a href="jobs.html?filter=completed" class="sidebar-link">
+    ✓ <span>Completed Jobs</span>
+</a>
+
+<a href="customers.html" class="sidebar-link">
+    👥 <span>Customers</span>
+</a>
+
+
+    <a href="earnings.html" class="sidebar-link">
+    ₹ <span>Earnings</span>
+</a>
+
+    <a href="reviews.html" class="sidebar-link">
+    ⭐ <span>Reviews</span>
+</a>
+
+
+    <p class="sidebar-label account-label">
+        ACCOUNT
+    </p>
+
+
+    <a href="profile.html" class="sidebar-link">
+    👤 <span>Profile</span>
+</a>
+
+    <a href="#" class="sidebar-link" id="logoutLink">
+    🚪 <span>Logout</span>
+</a>
+
+
+    <div class="support-card">
+
+        <div class="support-icon">
+            🎧
+        </div>
+
+        <h3>Need Help?</h3>
+
+        <p>
+            Contact AC CARE support team.
+        </p>
+
+        <a href="../contact.html">
+            Contact Support
+        </a>
+
+    </div>
+
+</aside>
+
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="dashboard-main">
+
+
+    <header class="dashboard-header">
+
+        <button class="menu-button">
+            ☰
+        </button>
+
+
+        <div class="dashboard-search">
+
+            <input
+                type="text"
+                placeholder="Search jobs..."
+                id="searchInput">
+
+            🔍
+
+        </div>
+
+
+        <div class="dashboard-user">
+
+            <div class="notification">
+                🔔
+                <span>3</span>
+            </div>
+
+
+            <div class="user-avatar technician-avatar">
+                A
+            </div>
+
+
+            <div class="user-info">
+
+                <strong id="technicianName">
+                    Amit Sharma
+                </strong>
+
+                <small>
+                    Technician
+                </small>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ================= TITLE ================= -->
+
+    <section class="dashboard-title">
+
+        <div>
+
+            <h1>
+                Service Requests
+            </h1>
+
+            <p>
+                View and manage your assigned service requests.
+            </p>
+
+        </div>
+
+
+        <div class="date-selector">
+            📅 Today
+        </div>
+
+    </section>
+
+
+
+    <!-- ================= REQUESTS ================= -->
+
+    <section class="requests-container"
+             id="requestsContainer">
+
+        <div class="loading-message">
+            Loading service requests...
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<script>
+
+const API_BASE_URL =
+    "http://localhost:5000";
+
+
+/*
+    Get logged-in technician ID.
+
+    For now your Amit Sharma technician ID
+    is 1, so we use 1 as a fallback.
+*/
+const technicianId = localStorage.getItem("technicianId");
+
+if (!technicianId) {
+    window.location.href = "login.html";
+}
+
+
+async function loadServiceRequests() {
+
+    const container =
+        document.getElementById("requestsContainer");
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/technicians/${technicianId}/dashboard`
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok || !result.success) {
+
+            throw new Error(
+                result.message ||
+                "Failed to load service requests."
+            );
+
+        }
+
+
+        // Display technician name
+
+        if (result.technician) {
+
+            document.getElementById(
+                "technicianName"
+            ).textContent =
+                result.technician.full_name;
+
+        }
+
+
+
+const allBookings = result.bookings || [];
+
+const params = new URLSearchParams(window.location.search);
+const filter = params.get("filter");
+
+let bookings = allBookings;
+if (filter === "completed") {
+    bookings = allBookings.filter(function (booking) {
+        return String(booking.status || "").toLowerCase() === "completed";
+    });
+}
+
+if (filter === "today") {
+    // Use the local date, not UTC.
+    const todayKey = [
+        new Date().getFullYear(),
+        String(new Date().getMonth() + 1).padStart(2, "0"),
+        String(new Date().getDate()).padStart(2, "0")
+    ].join("-");
+
+    bookings = allBookings.filter(function (booking) {
+        if (!booking.preferred_date) return false;
+
+        // MySQL DATE values are usually returned as YYYY-MM-DD.
+        const dateText = String(booking.preferred_date);
+        const match = dateText.match(/^\d{4}-\d{2}-\d{2}/);
+
+        return match ? match[0] === todayKey : false;
+    });
+
+    console.log("Today's date:", todayKey);
+    console.log("Technician bookings from API:", allBookings);
+    console.log("Today's matching bookings:", bookings);
+}
+
+displayRequests(bookings);
+
+
+    } catch (error) {
+
+        console.error(
+            "Service requests error:",
+            error
+        );
+
+
+        container.innerHTML = `
+            <div class="error-message">
+
+                <h3>Unable to Load Service Requests</h3>
+
+                <p>
+                    ${error.message}
+                </p>
+
+            </div>
+        `;
+
+    }
+
+}
+
+
+
+function displayRequests(bookings) {
+
+    const container =
+        document.getElementById("requestsContainer");
+
+
+    container.innerHTML =
+        bookings.map(function(booking) {
+
+            const status =
+                booking.status || "Assigned";
+
+
+            let statusClass =
+                "status-assigned";
+
+
+            if (status === "Accepted") {
+                statusClass =
+                    "status-accepted";
+            }
+
+            else if (status === "In Progress") {
+                statusClass =
+                    "status-progress";
+            }
+
+            else if (status === "Completed") {
+                statusClass =
+                    "status-completed";
+            }
+
+            else if (status === "Pending") {
+                statusClass =
+                    "status-pending";
+            }
+
+
+            return `
+
+                <div
+                    class="request-card"
+                    data-search="${(
+                        booking.booking_id +
+                        " " +
+                        booking.customer_name +
+                        " " +
+                        booking.service_name
+                    ).toLowerCase()}"
+                >
+
+                    <div class="request-header">
+
+                        <div>
+
+                            <h2>
+                                ${booking.service_name}
+                            </h2>
+
+                            <div class="request-id">
+                                Booking ID:
+                                ${booking.booking_id}
+                            </div>
+
+                        </div>
+
+
+                        <span
+                            class="request-status ${statusClass}"
+                        >
+                            ${status}
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="request-details">
+
+
+                        <div class="detail-item">
+
+                            <span>
+                                Customer
+                            </span>
+
+                            <strong>
+                                ${booking.customer_name}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span>
+                                Phone
+                            </span>
+
+                            <strong>
+                                ${booking.customer_phone}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span>
+                                Service
+                            </span>
+
+                            <strong>
+                                ${booking.service_name}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span>
+                                AC Type
+                            </span>
+
+                            <strong>
+                                ${booking.ac_type}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span>
+                                Date
+                            </span>
+
+                            <strong>
+                                ${formatDate(
+                                    booking.preferred_date
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span>
+                                Time
+                            </span>
+
+                            <strong>
+                                ${formatTime(
+                                    booking.preferred_time
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span>
+                                Amount
+                            </span>
+
+                            <strong>
+                                ₹${booking.total_amount}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="detail-item">
+
+                            <span>
+                                Address
+                            </span>
+
+                            <strong>
+                                ${booking.address}
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="problem-box">
+
+                        <span>
+                            Problem Description
+                        </span>
+
+                        <p>
+                            ${booking.problem_description || "No description provided."}
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="request-actions">
+
+                        <a href="job-details.html?id=${booking.id}"
+   class="view-btn"
+   onclick='localStorage.setItem("selectedTechnicianBooking", JSON.stringify(${JSON.stringify(booking).replace(/'/g, "\\'")}))'>
+   View Details
+</a>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+}
+
+
+
+function formatDate(dateValue) {
+
+    if (!dateValue) {
+        return "Not specified";
+    }
+
+
+    const date =
+        new Date(dateValue);
+
+
+    if (isNaN(date.getTime())) {
+        return dateValue;
+    }
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+
+function formatTime(timeValue) {
+
+    if (!timeValue) {
+        return "Not specified";
+    }
+
+
+    const parts =
+        String(timeValue).split(":");
+
+
+    if (parts.length < 2) {
+        return timeValue;
+    }
+
+
+    let hours =
+        parseInt(parts[0]);
+
+
+    const minutes =
+        parts[1];
+
+
+    const ampm =
+        hours >= 12 ? "PM" : "AM";
+
+
+    hours =
+        hours % 12 || 12;
+
+
+    return `${hours}:${minutes} ${ampm}`;
+
+}
+
+
+
+/* ================= SEARCH ================= */
+
+document
+    .getElementById("searchInput")
+    .addEventListener(
+        "input",
+        function() {
+
+            const search =
+                this.value
+                    .toLowerCase()
+                    .trim();
+
+
+            const cards =
+                document.querySelectorAll(
+                    ".request-card"
+                );
+
+
+            cards.forEach(function(card) {
+
+                const text =
+                    card.dataset.search || "";
+
+
+                if (
+                    text.includes(search)
+                ) {
+
+                    card.style.display =
+                        "block";
+
+                } else {
+
+                    card.style.display =
+                        "none";
+
+                }
+
+            });
+
+        }
+    );
+
+
+document.getElementById("logoutLink").addEventListener("click", function (event) {
+    event.preventDefault();
+
+    localStorage.removeItem("technicianId");
+    localStorage.removeItem("selectedTechnicianBooking");
+
+    window.location.href = "login.html";
+});
+/* ================= LOAD ================= */
+
+loadServiceRequests();
+
+</script>
+
+
+<script src="../assets/js/script.js"></script>
+
+</body>
+
+</html>

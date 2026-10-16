@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Job Details - AC CARE</title>
+
+    <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+    <style>
+
+        .details-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .details-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .details-card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .details-card-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #172033;
+        }
+
+        .details-body {
+            padding: 24px;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            padding: 14px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #172033;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #fff4df;
+            color: #d97706;
+        }
+
+        .customer-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .customer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e8f0ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .customer-box h3 {
+            margin: 0 0 4px;
+            color: #172033;
+        }
+
+        .customer-box p {
+            margin: 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .problem-box {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            color: #475569;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .amount-box {
+            text-align: center;
+            background: #f5f8ff;
+            border-radius: 10px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .amount-box span {
+            display: block;
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .amount-box strong {
+            font-size: 28px;
+            color: #172033;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .job-action {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .accept-job {
+            background: #2563eb;
+            color: white;
+        }
+
+        .start-job {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .complete-job {
+            background: #16a34a;
+            color: white;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        @media (max-width: 900px) {
+
+            .details-container {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .detail-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="dashboard-sidebar">
+
+    <div class="dashboard-logo">
+        ❄️ <span>AC CARE</span>
+    </div>
+
+
+    <p class="sidebar-label">
+        MAIN MENU
+    </p>
+
+
+    <a href="dashboard.html"
+       class="sidebar-link">
+
+        🏠
+        <span>Dashboard</span>
+
+    </a>
+
+
+    <a href="jobs.html"
+       class="sidebar-link">
+
+        🔧
+        <span>Service Requests</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        📅
+        <span>Today's Jobs</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        ✓
+        <span>Completed Jobs</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        👥
+        <span>Customers</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        ₹
+        <span>Earnings</span>
+
+    </a>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        ⭐
+        <span>Reviews</span>
+
+    </a>
+
+
+    <p class="sidebar-label account-label">
+        ACCOUNT
+    </p>
+
+
+    <a href="#"
+       class="sidebar-link">
+
+        👤
+        <span>Profile</span>
+
+    </a>
+
+
+    <a href="dashboard.html"
+       class="sidebar-link">
+
+        ←
+        <span>Back to Dashboard</span>
+
+    </a>
+
+
+    <div class="support-card">
+
+        <div class="support-icon">
+            🎧
+        </div>
+
+        <h3>Need Help?</h3>
+
+        <p>
+            Contact AC CARE support team.
+        </p>
+
+        <a href="../contact.html">
+            Contact Support
+        </a>
+
+    </div>
+
+</aside>
+
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="dashboard-main">
+
+
+    <header class="dashboard-header">
+
+        <button class="menu-button">
+            ☰
+        </button>
+
+
+        <div class="dashboard-search">
+
+            <input
+                type="text"
+                placeholder="Search jobs...">
+
+            🔍
+
+        </div>
+
+
+        <div class="dashboard-user">
+
+            <div class="notification">
+                🔔
+                <span>3</span>
+            </div>
+
+
+            <div class="user-avatar technician-avatar"
+                 id="technicianInitial">
+                A
+            </div>
+
+
+            <div class="user-info">
+
+                <strong id="technicianName">
+                    Technician
+                </strong>
+
+                <small>
+                    Technician
+                </small>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <section class="dashboard-title">
+
+        <div>
+
+            <h1>Job Details</h1>
+
+            <p>
+                View complete service request information.
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <a href="dashboard.html"
+       class="back-button">
+
+        ← Back to Dashboard
+
+    </a>
+
+
+
+    <!-- LOADING -->
+
+    <div id="loadingMessage"
+         class="loading">
+
+        Loading job details...
+
+    </div>
+
+
+
+    <!-- DETAILS -->
+
+    <div id="jobDetails"
+         class="details-container"
+         style="display:none;">
+
+
+        <!-- LEFT -->
+
+        <div>
+
+
+            <!-- BOOKING INFORMATION -->
+
+            <div class="details-card">
+
+                <div class="details-card-header">
+
+                    <h2>
+                        Booking Information
+                    </h2>
+
+                    <span
+                        id="bookingStatus"
+                        class="status-badge">
+
+                        Assigned
+
+                    </span>
+
+                </div>
+
+
+                <div class="details-body">
+
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            Booking ID
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            id="bookingId">
+
+                            -
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            Service
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            id="serviceName">
+
+                            -
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            AC Type
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            id="acType">
+
+                            -
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            Service Date
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            id="serviceDate">
+
+                            -
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            Service Time
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            id="serviceTime">
+
+                            -
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            Address
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            id="serviceAddress">
+
+                            -
+
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- PROBLEM -->
+
+            <div class="details-card"
+                 style="margin-top:20px;">
+
+                <div class="details-card-header">
+
+                    <h2>
+                        Problem Description
+                    </h2>
+
+                </div>
+
+
+                <div class="details-body">
+
+                    <div
+                        class="problem-box"
+                        id="problemDescription">
+
+                        -
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- RIGHT -->
+
+        <div>
+
+
+            <!-- CUSTOMER -->
+
+            <div class="details-card">
+
+                <div class="details-card-header">
+
+                    <h2>
+                        Customer
+                    </h2>
+
+                </div>
+
+
+                <div class="details-body">
+
+                    <div class="customer-box">
+
+                        <div
+                            class="customer-avatar"
+                            id="customerInitial">
+
+                            C
+
+                        </div>
+
+
+                        <div>
+
+                            <h3 id="customerName">
+                                -
+                            </h3>
+
+                            <p id="customerPhone">
+                                -
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-row">
+
+                        <span class="detail-label">
+                            Email
+                        </span>
+
+                        <span
+                            class="detail-value"
+                            id="customerEmail">
+
+                            -
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- AMOUNT -->
+
+            <div class="details-card"
+                 style="margin-top:20px;">
+
+                <div class="details-card-header">
+
+                    <h2>
+                        Payment
+                    </h2>
+
+                </div>
+
+
+                <div class="details-body">
+
+                    <div class="amount-box">
+
+                        <span>
+                            Service Amount
+                        </span>
+
+                        <strong id="totalAmount">
+                            ₹0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="action-buttons">
+
+                        <button
+                            type="button"
+                            class="job-action accept-job"
+                            id="acceptJobButton"
+                            onclick="updateJobStatus('Accepted')">
+
+                            Accept Job
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="job-action start-job"
+                            id="startJobButton"
+                            onclick="updateJobStatus('In Progress')">
+
+                            Start Job
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="job-action complete-job"
+                            id="completeJobButton"
+                            onclick="updateJobStatus('Completed')">
+
+                            Complete Job
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</main>
+
+
+<!-- <script src="../assets/js/script.js"></script> -->
+
+<script>
+
+let currentBooking = null;
+
+
+// ==========================================
+// LOAD TECHNICIAN
+// ==========================================
+
+function loadTechnician() {
+
+    const technician =
+        JSON.parse(
+            localStorage.getItem("technician") ||
+            "null"
+        );
+
+
+    if (!technician) {
+        return;
+    }
+
+
+    document.getElementById(
+        "technicianName"
+    ).textContent =
+        technician.full_name;
+
+
+    document.getElementById(
+        "technicianInitial"
+    ).textContent =
+        technician.full_name
+            .charAt(0)
+            .toUpperCase();
+
+}
+
+
+// ==========================================
+// LOAD JOB DETAILS
+// ==========================================
+
+function loadJobDetails() {
+
+    const savedBooking =
+        localStorage.getItem(
+            "selectedTechnicianBooking"
+        );
+
+
+    if (!savedBooking) {
+
+        document.getElementById(
+            "loadingMessage"
+        ).innerHTML = `
+
+            <strong>
+                No booking selected.
+            </strong>
+
+            <br><br>
+
+            <a href="dashboard.html">
+                Return to Dashboard
+            </a>
+
+        `;
+
+        return;
+    }
+
+
+    try {
+
+        currentBooking =
+            JSON.parse(savedBooking);
+
+
+        document.getElementById(
+            "loadingMessage"
+        ).style.display =
+            "none";
+
+
+        document.getElementById(
+            "jobDetails"
+        ).style.display =
+            "grid";
+
+
+        // Booking
+
+        document.getElementById(
+            "bookingId"
+        ).textContent =
+            currentBooking.booking_id;
+
+
+        document.getElementById(
+            "serviceName"
+        ).textContent =
+            currentBooking.service_name;
+
+
+        document.getElementById(
+            "acType"
+        ).textContent =
+            currentBooking.ac_type;
+
+
+        document.getElementById(
+            "serviceDate"
+        ).textContent =
+            formatDate(
+                currentBooking.preferred_date
+            );
+
+
+        document.getElementById(
+            "serviceTime"
+        ).textContent =
+            formatTime(
+                currentBooking.preferred_time
+            );
+
+
+        document.getElementById(
+            "serviceAddress"
+        ).textContent =
+            currentBooking.address ||
+            "Address not available";
+
+
+        document.getElementById(
+            "problemDescription"
+        ).textContent =
+            currentBooking.problem_description ||
+            "No problem description provided.";
+
+
+        // Customer
+
+        document.getElementById(
+            "customerName"
+        ).textContent =
+            currentBooking.customer_name;
+
+
+        document.getElementById(
+            "customerPhone"
+        ).textContent =
+            currentBooking.customer_phone;
+
+
+        document.getElementById(
+            "customerEmail"
+        ).textContent =
+            currentBooking.customer_email;
+
+
+        document.getElementById(
+            "customerInitial"
+        ).textContent =
+            currentBooking.customer_name
+                .charAt(0)
+                .toUpperCase();
+
+
+        // Amount
+
+        document.getElementById(
+            "totalAmount"
+        ).textContent =
+            "₹" +
+            Number(
+                currentBooking.total_amount
+            ).toLocaleString("en-IN");
+
+
+        // Status
+
+        document.getElementById(
+            "bookingStatus"
+        ).textContent =
+            currentBooking.status;
+
+
+        updateButtons(
+            currentBooking.status
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Job details error:",
+            error
+        );
+
+
+        document.getElementById(
+            "loadingMessage"
+        ).textContent =
+            "Unable to load job details.";
+
+    }
+
+}
+
+
+// ==========================================
+// UPDATE BUTTONS
+// ==========================================
+
+function updateButtons(status) {
+
+    const accept =
+        document.getElementById(
+            "acceptJobButton"
+        );
+
+    const start =
+        document.getElementById(
+            "startJobButton"
+        );
+
+    const complete =
+        document.getElementById(
+            "completeJobButton"
+        );
+
+
+    accept.style.display =
+        "none";
+
+    start.style.display =
+        "none";
+
+    complete.style.display =
+        "none";
+
+
+    if (status === "Assigned") {
+
+        accept.style.display =
+            "block";
+
+    }
+
+
+    if (status === "Accepted") {
+
+        start.style.display =
+            "block";
+
+    }
+
+
+    if (status === "In Progress") {
+
+        complete.style.display =
+            "block";
+
+    }
+
+}
+
+
+// ==========================================
+// UPDATE JOB STATUS
+// ==========================================
+
+async function updateJobStatus(newStatus) {
+
+    if (!currentBooking) {
+        return;
+    }
+
+
+    const technicianId =
+        localStorage.getItem(
+            "technicianId"
+        );
+
+
+    if (!technicianId) {
+
+        alert(
+            "Technician session not found."
+        );
+
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `http://localhost:5000/api/technicians/bookings/${currentBooking.id}/status`,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        status: newStatus,
+                        technician_id:
+                            technicianId
+                    })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok ||
+            !result.success) {
+
+            alert(
+                result.message ||
+                "Failed to update job status."
+            );
+
+            return;
+        }
+
+
+        currentBooking.status =
+            newStatus;
+
+
+        localStorage.setItem(
+            "selectedTechnicianBooking",
+            JSON.stringify(
+                currentBooking
+            )
+        );
+
+
+        document.getElementById(
+            "bookingStatus"
+        ).textContent =
+            newStatus;
+
+
+        updateButtons(
+            newStatus
+        );
+
+
+        alert(
+            "Job status updated successfully!"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Status update error:",
+            error
+        );
+
+
+        alert(
+            "Cannot connect to server."
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// FORMAT DATE
+// ==========================================
+
+function formatDate(date) {
+
+    if (!date) {
+        return "-";
+    }
+
+
+    const d =
+        new Date(date);
+
+
+    return d.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+// ==========================================
+// FORMAT TIME
+// ==========================================
+
+function formatTime(time) {
+
+    if (!time) {
+        return "-";
+    }
+
+
+    const parts =
+        String(time).split(":");
+
+
+    let hour =
+        parseInt(
+            parts[0],
+            10
+        );
+
+
+    const minute =
+        parts[1] || "00";
+
+
+    const ampm =
+        hour >= 12
+            ? "PM"
+            : "AM";
+
+
+    hour =
+        hour % 12 || 12;
+
+
+    return `${hour}:${minute} ${ampm}`;
+
+}
+
+
+// ==========================================
+// START
+// ==========================================
+
+
+function loadTechnician() {
+    const technicianId = localStorage.getItem("technicianId");
+
+    if (!technicianId) {
+        alert("Technician session not found. Please log in again.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    const savedTechnician = localStorage.getItem("technician");
+    let technician = null;
+
+    try {
+        technician = JSON.parse(savedTechnician || "null");
+    } catch (error) {
+        console.error("Invalid saved technician data:", error);
+    }
+
+    if (technician && technician.full_name) {
+        document.getElementById("technicianName").textContent =
+            technician.full_name;
+
+        document.getElementById("technicianInitial").textContent =
+            technician.full_name.trim().charAt(0).toUpperCase();
+    }
+}
+
+loadJobDetails();
+
+</script>
+
+</body>
+</html>

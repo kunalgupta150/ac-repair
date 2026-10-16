@@ -1,0 +1,931 @@
+<!DOCTYPE html
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Technician Dashboard - AC CARE</title>
+
+    <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="dashboard-sidebar">
+
+    <div class="dashboard-logo">
+        ❄️ <span>AC CARE</span>
+    </div>
+
+
+    <p class="sidebar-label">
+        MAIN MENU
+    </p>
+
+
+    <a href="dashboard.html"
+       class="sidebar-link active">
+
+        🏠
+        <span>Dashboard</span>
+
+    </a>
+
+
+    <a href="jobs.html"
+       class="sidebar-link">
+
+        🔧
+        <span>Service Requests</span>
+
+    </a>
+
+
+    <a href="jobs.html?filter=today" class="sidebar-link">
+    📅 <span>Today's Jobs</span>
+</a>
+    <a href="#"
+       class="sidebar-link">
+
+        ✓
+        <span>Completed Jobs</span>
+
+    </a>
+
+
+         <a href="customers.html"
+             class="sidebar-link">
+              👥
+              <span>Customers</span>
+
+         </a>
+          <a href="earnings.html">
+             Earnings
+             </a>
+             
+             
+<a href="reviews.html" class="sidebar-link">
+    ⭐
+    <span>Reviews</span>
+</a>
+
+
+    <p class="sidebar-label account-label">
+        ACCOUNT
+    </p>
+
+
+    <a href="profile.html" class="sidebar-link">
+    👤 <span>My Profile</span>
+</a>
+
+
+   <a href="#"
+   class="sidebar-link"
+   onclick="technicianLogout(); return false;">
+
+    <span>Logout</span>
+
+</a>
+
+
+    <div class="support-card">
+
+        <div class="support-icon">
+            🎧
+        </div>
+
+        <h3>Need Help?</h3>
+
+        <p>
+            Contact AC CARE support team.
+        </p>
+
+        <a href="../contact.html">
+            Contact Support
+        </a>
+
+    </div>
+
+</aside>
+
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="dashboard-main">
+
+
+    <header class="dashboard-header">
+
+        <button class="menu-button">
+            ☰
+        </button>
+
+
+        <div class="dashboard-search">
+
+            <input
+                type="text"
+                placeholder="Search jobs...">
+
+            🔍
+
+        </div>
+
+
+        <div class="dashboard-user">
+
+            <div class="notification">
+                🔔
+                <span>3</span>
+            </div>
+
+
+            <div class="user-avatar technician-avatar"
+             id="technicianInitial">
+    T
+            </div>
+
+
+            <div class="user-info">
+
+               <strong id="technicianName">Technician</strong>
+
+                <small>Technician</small>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <section class="dashboard-title">
+
+        <div>
+
+            <h1>Technician Dashboard</h1>
+
+            <p>
+                 Welcome back, <span id="welcomeName">Technician</span>! Here's your work overview.
+            </p>
+
+        </div>
+
+
+        <div class="date-selector">
+            📅 Today, 02 Sep 2026
+        </div>
+
+    </section>
+
+
+
+    <!-- STATS -->
+
+    <section class="dashboard-stats">
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon blue">
+                🔧
+            </div>
+
+            <div>
+
+                <span>Today's Jobs</span>
+
+                <h2 id="todayJobs">0</h2>
+
+                <a href="#">
+                    View jobs →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon orange">
+                🕐
+            </div>
+
+            <div>
+
+                <span>Pending Jobs</span>
+
+              <h2 id="pendingJobs">0</h2>
+
+                <a href="jobs.html">
+                    View requests →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon green">
+                ✓
+            </div>
+
+            <div>
+
+                <span>Completed Jobs</span>
+
+               <h2 id="completedJobs">0</h2>
+
+                <a href="#">
+                    View history →
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-card-icon purple">
+                ₹
+            </div>
+
+            <div>
+
+                <span>Total Earnings</span>
+
+               <h2 id="totalEarnings">₹0</h2>
+
+                <a href="#">
+                    View earnings →
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- JOBS -->
+
+    <section class="dashboard-panel">
+
+    <div class="panel-header">
+
+        <h2>Assigned Jobs</h2>
+
+        <a href="jobs.html">
+            View All →
+        </a>
+
+    </div>
+
+
+    <div class="jobs-list" id="todayJobsList">
+
+        <div class="job-card">
+
+            <div class="job-customer">
+                Loading today's jobs...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+    <!-- PERFORMANCE -->
+
+    <section class="dashboard-grid">
+
+
+        <div class="dashboard-panel">
+
+            <div class="panel-header">
+
+                <h2>My Performance</h2>
+
+            </div>
+
+
+            <div class="performance">
+
+                <div class="performance-item">
+
+    <span>Jobs Completed</span>
+
+    <strong id="performanceCompletedJobs">0</strong>
+
+</div>
+
+
+<div class="performance-item">
+
+    <span>Customer Rating</span>
+
+    <strong id="customerRating">0 ★</strong>
+
+</div>
+
+
+<div class="performance-item">
+
+    <span>Success Rate</span>
+
+    <strong id="successRate">0%</strong>
+
+</div>
+            </div>
+
+        </div>
+
+
+
+        <div class="dashboard-panel">
+
+            <div class="panel-header">
+
+                <h2>Today's Earnings</h2>
+
+            </div>
+
+
+            <div class="earnings-box">
+
+                <span>Total Earnings</span>
+
+                <h2 id="todayEarnings">₹0</h2>
+
+                <p>
+                    Based on today's completed services.
+                </p>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+<script src="../assets/js/script.js"></script>
+<script>
+
+let technicianBookings = [];
+
+
+// ==========================================
+// LOAD TECHNICIAN DASHBOARD
+// ==========================================
+
+async function loadTechnicianDashboard() {
+
+    const technicianId =
+        localStorage.getItem("technicianId");
+
+
+    if (!technicianId) {
+
+        alert(
+            "Technician session not found. Please login again."
+        );
+
+        window.location.href =
+            "../login.html";
+
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `http://localhost:5000/api/technicians/${technicianId}/dashboard`
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (!response.ok || !result.success) {
+
+            throw new Error(
+                result.message ||
+                "Failed to load dashboard."
+            );
+
+        }
+
+
+        technicianBookings =
+            result.bookings || [];
+
+
+        const technician =
+            result.technician;
+
+
+        const stats =
+            result.stats;
+
+
+        // ==========================================
+        // TECHNICIAN INFORMATION
+        // ==========================================
+
+        document.getElementById(
+            "technicianName"
+        ).textContent =
+            technician.full_name;
+
+
+        document.getElementById(
+            "welcomeName"
+        ).textContent =
+            technician.full_name;
+
+
+        document.getElementById(
+            "technicianInitial"
+        ).textContent =
+            technician.full_name
+                .charAt(0)
+                .toUpperCase();
+
+
+        // ==========================================
+        // STATISTICS
+        // ==========================================
+
+        const today =
+            getTodayDate();
+
+
+       const todayBookings = technicianBookings.filter(
+    function (booking) {
+        return normalizeDate(booking.preferred_date) === today;
+    }
+);
+      document.getElementById(
+    "todayJobs"
+).textContent =
+    todayBookings.length;
+
+
+        document.getElementById(
+            "pendingJobs"
+        ).textContent =
+            stats.pendingJobs;
+
+
+        document.getElementById(
+            "completedJobs"
+        ).textContent =
+            stats.completedJobs;
+        
+// ==========================================
+// PERFORMANCE STATISTICS
+// ==========================================
+
+document.getElementById(
+    "performanceCompletedJobs"
+).textContent =
+    stats.completedJobs;
+
+
+document.getElementById(
+    "customerRating"
+).textContent =
+    Number(
+        stats.customerRating || 0
+    ).toFixed(1) + " ★";
+
+
+document.getElementById(
+    "successRate"
+).textContent =
+    (stats.successRate || 0) + "%";
+
+
+   // ==========================================
+// TOTAL EARNINGS
+// ==========================================
+
+document.getElementById(
+    "totalEarnings"
+).textContent =
+    "₹" +
+    Number(
+        stats.totalEarnings || 0
+    ).toLocaleString("en-IN");
+
+
+// ==========================================
+// TODAY'S EARNINGS
+// ==========================================
+
+document.getElementById(
+    "todayEarnings"
+).textContent =
+    "₹" +
+    Number(
+        stats.todayEarnings || 0
+    ).toLocaleString("en-IN");
+        // ==========================================
+        // TODAY'S JOBS
+        // ==========================================
+
+        displayTodayJobs(
+            todayBookings
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Technician dashboard error:",
+            error
+        );
+
+
+        document.getElementById(
+            "todayJobsList"
+        ).innerHTML = `
+
+            <div class="job-card">
+
+                <div class="job-customer">
+
+                    <strong>
+                        Failed to load jobs
+                    </strong>
+
+                    <span>
+                        Please refresh the page.
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// ==========================================
+// DISPLAY TODAY'S JOBS
+// ==========================================
+
+function displayTodayJobs(bookings) {
+
+    const container =
+        document.getElementById(
+            "todayJobsList"
+        );
+
+
+    if (!bookings.length) {
+
+        container.innerHTML = `
+
+            <div class="job-card">
+
+                <div class="job-customer">
+
+                    <strong>
+                        No jobs today
+                    </strong>
+
+                    <span>
+                        You don't have any assigned jobs for today.
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        bookings.map(
+            function (booking) {
+
+                return `
+
+                    <div class="job-card">
+
+                        <div class="job-time">
+
+                            <strong>
+                                ${formatTime(
+                                    booking.preferred_time
+                                )}
+                            </strong>
+
+                            <small>
+                                ${booking.booking_id}
+                            </small>
+
+                        </div>
+
+
+                        <div class="job-customer">
+
+                            <strong>
+                                ${booking.customer_name}
+                            </strong>
+
+                            <span>
+                                ${booking.service_name}
+                            </span>
+
+                            <small>
+                                📍
+                                ${booking.address || "Address not available"}
+                            </small>
+
+                        </div>
+
+
+                        <div class="job-status">
+
+                            ${getStatusBadge(
+                                booking.status
+                            )}
+
+                            <button
+                                type="button"
+                                class="table-button"
+                                onclick='viewJobDetails(${JSON.stringify(booking)})'>
+
+                                View Details
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+// ==========================================
+// STATUS BADGE
+// ==========================================
+
+function getStatusBadge(status) {
+
+    let className =
+        "pending";
+
+
+    if (status === "Accepted") {
+
+        className =
+            "accepted";
+
+    }
+    else if (
+        status === "In Progress"
+    ) {
+
+        className =
+            "progress";
+
+    }
+    else if (
+        status === "Completed"
+    ) {
+
+        className =
+            "completed";
+
+    }
+    else if (
+        status === "Assigned"
+    ) {
+
+        className =
+            "pending";
+
+    }
+    else if (
+        status === "Cancelled"
+    ) {
+
+        className =
+            "cancelled";
+
+    }
+
+
+    return `
+        <span class="status ${className}">
+            ${status}
+        </span>
+    `;
+
+}
+
+
+// ==========================================
+// FORMAT TIME
+// ==========================================
+
+function formatTime(time) {
+
+    if (!time) {
+        return "-";
+    }
+
+
+    const parts =
+        String(time).split(":");
+
+
+    if (parts.length < 2) {
+        return time;
+    }
+
+
+    let hour =
+        parseInt(
+            parts[0],
+            10
+        );
+
+
+    const minute =
+        parts[1];
+
+
+    const ampm =
+        hour >= 12
+            ? "PM"
+            : "AM";
+
+
+    hour =
+        hour % 12 || 12;
+
+
+    return `${hour}:${minute} ${ampm}`;
+
+}
+
+
+// ==========================================
+// TODAY'S DATE
+// ==========================================
+
+function getTodayDate() {
+
+    const today =
+        new Date();
+
+
+    const year =
+        today.getFullYear();
+
+
+    const month =
+        String(
+            today.getMonth() + 1
+        ).padStart(2, "0");
+
+
+    const day =
+        String(
+            today.getDate()
+        ).padStart(2, "0");
+
+
+    return `${year}-${month}-${day}`;
+
+}
+
+
+// ==========================================
+// NORMALIZE DATABASE DATE
+// ==========================================
+
+function normalizeDate(date) {
+
+    if (!date) {
+        return "";
+    }
+
+
+    const value =
+        String(date);
+
+
+    return value.substring(
+        0,
+        10
+    );
+
+}
+
+
+// ==========================================
+// VIEW JOB DETAILS
+// ==========================================
+
+function viewJobDetails(booking) {
+
+    localStorage.setItem(
+        "selectedTechnicianBooking",
+        JSON.stringify(booking)
+    );
+
+
+    window.location.href =
+        "job-details.html";
+
+}
+
+
+// ==========================================
+// LOGOUT
+// ==========================================
+
+function technicianLogout() {
+
+    localStorage.removeItem(
+        "technicianId"
+    );
+
+    localStorage.removeItem(
+        "technicianName"
+    );
+
+    localStorage.removeItem(
+        "technicianEmail"
+    );
+
+    localStorage.removeItem(
+        "technician"
+    );
+
+    localStorage.removeItem(
+        "loginRole"
+    );
+
+
+    window.location.href =
+        "../login.html";
+
+}
+
+
+// ==========================================
+// START
+// ==========================================
+
+loadTechnicianDashboard();
+
+</script>
+
+</body>
+
+</html>

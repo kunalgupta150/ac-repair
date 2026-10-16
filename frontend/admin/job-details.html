@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Job Details - AC CARE Admin</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 245px;
+            height: 100vh;
+            background: #06285c;
+            color: white;
+            padding: 24px 14px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            padding-left: 15px;
+        }
+
+        .logo span {
+            color: #5d8cff;
+        }
+
+        .tagline {
+            color: #c5d2e8;
+            font-size: 10px;
+            margin: 5px 0 30px 15px;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 5px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #2864dc;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 245px;
+            padding: 25px 30px;
+            min-height: 100vh;
+        }
+
+        /* ================= MOBILE MENU ================= */
+
+        .mobile-menu {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .mobile-menu button {
+            background: #2864dc;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* ================= TOPBAR ================= */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 20px;
+        }
+
+        .title-section h1 {
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .title-section p {
+            color: #69758a;
+            font-size: 13px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 230px;
+            height: 40px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            padding: 0 40px 0 14px;
+            outline: none;
+            font-size: 12px;
+            background: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 13px;
+            top: 12px;
+            color: #718096;
+        }
+
+        /* ================= PROFILE ================= */
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 7px 12px;
+            border-radius: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .profile-image {
+            width: 37px;
+            height: 37px;
+            background: #dce8ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-info strong {
+            font-size: 12px;
+        }
+
+        .profile-info small {
+            display: block;
+            color: #788398;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        /* ================= BACK BUTTON ================= */
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            border: none;
+            background: transparent;
+            color: #2864dc;
+            font-size: 12px;
+            cursor: pointer;
+            margin-bottom: 18px;
+        }
+
+        .back-button:hover {
+            text-decoration: underline;
+        }
+
+        /* ================= JOB HEADER ================= */
+
+        .job-header {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 9px;
+            padding: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .job-heading {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .job-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: #e5edff;
+            color: #2864dc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+        }
+
+        .job-heading h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .job-heading p {
+            color: #7a8497;
+            font-size: 11px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .status.working {
+            background: #e8e0ff;
+            color: #6841c6;
+        }
+
+        .edit-btn {
+            border: none;
+            background: #2864dc;
+            color: white;
+            padding: 10px 17px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .edit-btn:hover {
+            background: #1d51b7;
+        }
+
+        /* ================= GRID ================= */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        /* ================= CARD ================= */
+
+        .card {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 9px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-title {
+            font-size: 16px;
+            margin-bottom: 18px;
+        }
+
+        /* ================= INFORMATION ================= */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-item label {
+            display: block;
+            color: #788398;
+            font-size: 9px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .info-item strong {
+            font-size: 11px;
+        }
+
+        .info-item span {
+            display: block;
+            color: #5e6a80;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        /* ================= CUSTOMER ================= */
+
+        .person {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .person-avatar {
+            width: 45px;
+            height: 45px;
+            background: #e5edff;
+            color: #2864dc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .person-details strong {
+            font-size: 12px;
+        }
+
+        .person-details span {
+            display: block;
+            color: #788398;
+            font-size: 9px;
+            margin-top: 4px;
+        }
+
+        .contact-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .contact-btn {
+            flex: 1;
+            border: 1px solid #dce2eb;
+            background: white;
+            border-radius: 6px;
+            padding: 9px;
+            cursor: pointer;
+            font-size: 9px;
+            color: #4f5b70;
+        }
+
+        .contact-btn:hover {
+            background: #f3f6fb;
+        }
+
+        /* ================= TECHNICIAN ================= */
+
+        .technician-avatar {
+            background: #e8f5ed;
+            color: #18834a;
+        }
+
+        .rating {
+            color: #e49a00;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        /* ================= PROGRESS ================= */
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 9px;
+        }
+
+        .progress-header span {
+            font-size: 10px;
+            color: #69758a;
+        }
+
+        .progress-header strong {
+            font-size: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e8edf4;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 65%;
+            height: 100%;
+            background: #2864dc;
+            border-radius: 10px;
+        }
+
+        .progress-note {
+            color: #788398;
+            font-size: 9px;
+            margin-top: 9px;
+        }
+
+        /* ================= TIMELINE ================= */
+
+        .timeline {
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 7px;
+            top: 4px;
+            bottom: 4px;
+            width: 2px;
+            background: #e0e6ef;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 23px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -22px;
+            top: 2px;
+            width: 13px;
+            height: 13px;
+            background: white;
+            border: 3px solid #2864dc;
+            border-radius: 50%;
+        }
+
+        .timeline-item.completed .timeline-dot {
+            background: #2864dc;
+        }
+
+        .timeline-item h4 {
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .timeline-item p {
+            color: #788398;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        .timeline-item small {
+            color: #9aa3b2;
+            font-size: 8px;
+        }
+
+        /* ================= PAYMENT ================= */
+
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 0;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .payment-row:last-child {
+            border-bottom: none;
+        }
+
+        .payment-row span {
+            color: #788398;
+            font-size: 10px;
+        }
+
+        .payment-row strong {
+            font-size: 11px;
+        }
+
+        .paid {
+            color: #168447;
+        }
+
+        /* ================= ADDRESS ================= */
+
+        .address {
+            background: #f7f9fc;
+            border-radius: 7px;
+            padding: 13px;
+            color: #59667b;
+            font-size: 10px;
+            line-height: 1.7;
+        }
+
+        /* ================= NOTES ================= */
+
+        .notes {
+            background: #fff8e5;
+            border: 1px solid #f5e4ad;
+            border-radius: 7px;
+            padding: 14px;
+            color: #766022;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1000px) {
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main {
+                margin-left: 220px;
+            }
+
+        }
+
+        @media (max-width: 750px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.show {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+
+            .job-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            ❄ AC <span>CARE</span>
+        </div>
+
+        <div class="tagline">
+            Cool Comfort, Our Priority
+        </div>
+
+
+        <ul class="menu">
+
+            <li>
+                <a href="dashboard.html">
+                    <span class="menu-icon">⌂</span>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="customers.html">
+                    <span class="menu-icon">♙</span>
+                    Customers
+                </a>
+            </li>
+
+            <li>
+                <a href="technicians.html">
+                    <span class="menu-icon">♟</span>
+                    Technicians
+                </a>
+            </li>
+
+            <li>
+                <a href="services.html">
+                    <span class="menu-icon">⚙</span>
+                    Services
+                </a>
+            </li>
+
+            <li>
+                <a href="bookings.html">
+                    <span class="menu-icon">▤</span>
+                    Bookings
+                </a>
+            </li>
+
+            <li>
+                <a href="payments.html">
+                    <span class="menu-icon">₹</span>
+                    Payments
+                </a>
+            </li>
+
+            <li>
+                <a href="reviews.html">
+                    <span class="menu-icon">☆</span>
+                    Reviews
+                </a>
+            </li>
+
+            <li>
+                <a href="reports.html">
+                    <span class="menu-icon">▥</span>
+                    Reports
+                </a>
+            </li>
+
+            <li>
+                <a href="notifications.html">
+                    <span class="menu-icon">♧</span>
+                    Notifications
+                </a>
+            </li>
+
+            <li>
+                <a href="settings.html">
+                    <span class="menu-icon">⚙</span>
+                    Settings
+                </a>
+            </li>
+
+            <li>
+                <a href="../login.html" onclick="logout()">
+                    <span class="menu-icon">↪</span>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- MOBILE MENU -->
+
+        <div class="mobile-menu">
+
+            <button onclick="toggleSidebar()">
+                ☰ Menu
+            </button>
+
+        </div>
+
+
+        <!-- ================= TOPBAR ================= -->
+
+        <div class="topbar">
+
+
+            <div class="title-section">
+
+                <h1>
+                    Job Details
+                </h1>
+
+                <p>
+                    View complete information about this service job
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+
+                <div class="search-box">
+
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                    >
+
+                    <span class="search-icon">
+                        ⌕
+                    </span>
+
+                </div>
+
+
+                <div class="profile">
+
+                    <div class="profile-image">
+                        👤
+                    </div>
+
+                    <div class="profile-info">
+
+                        <strong>
+                            Kunal Gupta
+                        </strong>
+
+                        <small>
+                            Administrator
+                        </small>
+
+                    </div>
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= BACK ================= -->
+
+        <button
+            class="back-button"
+            onclick="goBack()"
+        >
+            ← Back to Jobs
+        </button>
+
+
+        <!-- ================= JOB HEADER ================= -->
+
+        <section class="job-header">
+
+
+            <div class="job-heading">
+
+                <div class="job-icon">
+                    🔧
+                </div>
+
+                <div>
+
+                    <h2>
+                        Job #JOB5020
+                    </h2>
+
+                    <p>
+                        Booking #AC10243 • Created on 30 Aug 2026
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="header-actions">
+
+                <span class="status working">
+                    In Progress
+                </span>
+
+                <button
+                    class="edit-btn"
+                    onclick="editJob()"
+                >
+                    Edit Job
+                </button>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= CONTENT ================= -->
+
+        <div class="content-grid">
+
+
+            <!-- ================= LEFT COLUMN ================= -->
+
+            <div>
+
+
+                <!-- JOB INFORMATION -->
+
+                <section class="card">
+
+                    <h3 class="card-title">
+                        Job Information
+                    </h3>
+
+
+                    <div class="info-grid">
+
+
+                        <div class="info-item">
+
+                            <label>
+                                Service
+                            </label>
+
+                            <strong>
+                                AC Gas Refill
+                            </strong>
+
+                            <span>
+                                Window AC
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <label>
+                                AC Brand
+                            </label>
+
+                            <strong>
+                                Voltas
+                            </strong>
+
+                            <span>
+                                1.5 Ton
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <label>
+                                Scheduled Date
+                            </label>
+
+                            <strong>
+                                31 August 2026
+                            </strong>
+
+                            <span>
+                                02:00 PM - 04:00 PM
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <label>
+                                Job Priority
+                            </label>
+
+                            <strong>
+                                Normal
+                            </strong>
+
+                            <span>
+                                Standard service request
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <label>
+                                Estimated Duration
+                            </label>
+
+                            <strong>
+                                1 - 2 Hours
+                            </strong>
+
+                            <span>
+                                Depends on service condition
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-item">
+
+                            <label>
+                                Created By
+                            </label>
+
+                            <strong>
+                                System
+                            </strong>
+
+                            <span>
+                                Customer booking
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </section>
+
+
+                <!-- CUSTOMER -->
+
+                <section class="card">
+
+                    <h3 class="card-title">
+                        Customer Information
+                    </h3>
+
+
+                    <div class="person">
+
+                        <div class="person-avatar">
+                            AP
+                        </div>
+
+                        <div class="person-details">
+
+                            <strong>
+                                Arjun Patel
+                            </strong>
+
+                            <span>
+                                Customer ID: CUST1024
+                            </span>
+
+                            <span>
+                                Member since January 2026
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="contact-row">
+
+                        <button
+                            class="contact-btn"
+                            onclick="callCustomer()"
+                        >
+                            ☎ Call Customer
+                        </button>
+
+                        <button
+                            class="contact-btn"
+                            onclick="emailCustomer()"
+                        >
+                            ✉ Email
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- ADDRESS -->
+
+                <section class="card">
+
+                    <h3 class="card-title">
+                        Service Address
+                    </h3>
+
+
+                    <div class="address">
+
+                        <strong>
+                            Arjun Patel
+                        </strong>
+
+                        <br>
+
+                        Flat 402, Sunshine Apartments,
+
+                        <br>
+
+                        LBS Marg, Kurla West,
+
+                        <br>
+
+                        Mumbai, Maharashtra - 400070
+
+                    </div>
+
+                </section>
+
+
+                <!-- JOB PROGRESS -->
+
+                <section class="card">
+
+                    <h3 class="card-title">
+                        Job Progress
+                    </h3>
+
+
+                    <div class="progress-header">
+
+                        <span>
+                            Current Progress
+                        </span>
+
+                        <strong>
+                            65%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="progress-bar">
+
+                        <div class="progress-fill"></div>
+
+                    </div>
+
+
+                    <p class="progress-note">
+                        Technician has started the service and is currently working on the AC.
+                    </p>
+
+                </section>
+
+
+                <!-- JOB TIMELINE -->
+
+                <section class="card">
+
+                    <h3 class="card-title">
+                        Job Timeline
+                    </h3>
+
+
+                    <div class="timeline">
+
+
+                        <div class="timeline-item completed">
+
+                            <div class="timeline-dot"></div>
+
+                            <h4>
+                                Job Created
+                            </h4>
+
+                            <p>
+                                Customer successfully created the service booking.
+                            </p>
+
+                            <small>
+                                30 Aug 2026 • 06:32 PM
+                            </small>
+
+                        </div>
+
+
+                        <div class="timeline-item completed">
+
+                            <div class="timeline-dot"></div>
+
+                            <h4>
+                                Technician Assigned
+                            </h4>
+
+                            <p>
+                                Sameer Khan was assigned to this job.
+                            </p>
+
+                            <small>
+                                30 Aug 2026 • 07:15 PM
+                            </small>
+
+                        </div>
+
+
+                        <div class="timeline-item completed">
+
+                            <div class="timeline-dot"></div>
+
+                            <h4>
+                                Technician Accepted
+                            </h4>
+
+                            <p>
+                                Technician accepted the service request.
+                            </p>
+
+                            <small>
+                                30 Aug 2026 • 07:22 PM
+                            </small>
+
+                        </div>
+
+
+                        <div class="timeline-item completed">
+
+                            <div class="timeline-dot"></div>
+
+                            <h4>
+                                Technician Arrived
+                            </h4>
+
+                            <p>
+                                Technician reached the customer's address.
+                            </p>
+
+                            <small>
+                                31 Aug 2026 • 01:58 PM
+                            </small>
+
+                        </div>
+
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-dot"></div>
+
+                            <h4>
+                                Service In Progress
+                            </h4>
+
+                            <p>
+                                Gas refill and AC inspection are currently in progress.
+                            </p>
+
+                            <small>
+                                31 Aug 2026 • 02:15 PM
+                            </small>
+
+                        </div>
+
+
+                    </div>
+
+                </section>
+
+
+            </div>
+
+
+            <!-- ================= RIGHT COLUMN ================= -->
+
+            <div>
+
+
+                <!-- TECHNICIAN -->
+
+                <section class="card">
+
+                    <h3 class="card-title">
+                        Assigned Technician
+                    </h3>
+
+
+                    <div class="person">
+
+                        <div class="person-avatar technician-avatar">
+                            SK
+                        </div>
+
+                        <div class="person-details">
+
+                            <strong>
+                                Sameer Khan
+                            </strong>
+
+                            <span>
+                                Technician ID: TECH104
+                            </span>
+
+                            <div class="rating">
+                                ★ 4.8 Rating
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="contact-row">
+
+                        <button
+                            class="contact-btn"
+                            onclick="callTechnician()"
+                        >
+                            ☎ Call
+                        </button>
+
+                        <button
+                            class="contact-btn"
+                            onclick="messageTechnician()"
+                        >
+                            💬 Message
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- PAYMENT -->
+
+                <section class="card">
+
+                    <h3 class="card-title">
+                        Payment Details
+                    </h3>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Service Charge
+                        </span>
+
+                        <strong>
+                            ₹799
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Visit Charge
+                        </span>
+
+                        <strong>
+                            ₹199
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Tax
+                        </span>
+
+                        <strong>
+                            ₹180
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Total Amount
+                        </span>
+
+                        <strong>
+                            ₹1,178
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Payment Status
+                        </span>
+
+                        <strong class="paid">
+                            Paid
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Payment Method
+                        </span>
+
+                        <strong>
+                            UPI
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+                <!-- SERVICE NOTES -->
+
+                <section class="card">
+
+                    <h3 class="card-title">
+                        Customer Notes
+                    </h3>
+
+
+                    <div class="notes">
+
+                        Customer reported that the AC is not cooling properly.
+
+                        Please check the gas pressure and inspect the outdoor unit
+                        before completing the service.
+
+                    </div>
+
+                </section>
+
+
+                <!-- QUICK DETAILS -->
+
+                <section class="card">
+
+                    <h3 class="card-title">
+                        Quick Details
+                    </h3>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Job ID
+                        </span>
+
+                        <strong>
+                            #JOB5020
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Booking ID
+                        </span>
+
+                        <strong>
+                            #AC10243
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Service Type
+                        </span>
+
+                        <strong>
+                            Gas Refill
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            AC Type
+                        </span>
+
+                        <strong>
+                            Window AC
+                        </strong>
+
+                    </div>
+
+
+                    <div class="payment-row">
+
+                        <span>
+                            Warranty
+                        </span>
+
+                        <strong>
+                            30 Days
+                        </strong>
+
+                    </div>
+
+                </section>
+
+
+            </div>
+
+
+        </div>
+
+
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+
+        /* ================= BACK ================= */
+
+        function goBack() {
+
+            window.location.href = "jobs.html";
+
+        }
+
+
+        /* ================= EDIT ================= */
+
+        function editJob() {
+
+            alert(
+                "Edit Job page will be connected in the next stage."
+            );
+
+        }
+
+
+        /* ================= CUSTOMER ================= */
+
+        function callCustomer() {
+
+            alert(
+                "Calling Arjun Patel..."
+            );
+
+        }
+
+
+        function emailCustomer() {
+
+            alert(
+                "Opening email for Arjun Patel..."
+            );
+
+        }
+
+
+        /* ================= TECHNICIAN ================= */
+
+        function callTechnician() {
+
+            alert(
+                "Calling Sameer Khan..."
+            );
+
+        }
+
+
+        function messageTechnician() {
+
+            alert(
+                "Opening message window for Sameer Khan..."
+            );
+
+        }
+
+
+        /* ================= MOBILE SIDEBAR ================= */
+
+        function toggleSidebar() {
+
+            const sidebar =
+                document.getElementById("sidebar");
+
+            sidebar.classList.toggle("show");
+
+        }
+
+
+        /* ================= LOGOUT ================= */
+
+        function logout() {
+
+            localStorage.removeItem(
+                "loggedInUser"
+            );
+
+        }
+
+    </script>
+
+
+</body>
+
+</html>

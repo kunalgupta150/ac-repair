@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Bookings - AC CARE Admin</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 245px;
+            height: 100vh;
+            background: #06285c;
+            color: white;
+            padding: 24px 14px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            padding-left: 15px;
+        }
+
+        .logo span {
+            color: #5d8cff;
+        }
+
+        .tagline {
+            color: #c5d2e8;
+            font-size: 10px;
+            margin: 5px 0 30px 15px;
+        }
+
+        .menu {
+            list-style: none;
+        }
+
+        .menu li {
+            margin-bottom: 5px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #2864dc;
+        }
+
+        .menu-icon {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 245px;
+            padding: 25px 30px;
+            min-height: 100vh;
+        }
+
+        /* ================= TOPBAR ================= */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 {
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .page-title p {
+            color: #69758a;
+            font-size: 13px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-top {
+            position: relative;
+        }
+
+        .search-top input {
+            width: 230px;
+            height: 40px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            padding: 0 40px 0 14px;
+            outline: none;
+            background: white;
+            font-size: 12px;
+        }
+
+        .search-top span {
+            position: absolute;
+            right: 13px;
+            top: 12px;
+            color: #718096;
+        }
+
+        /* ================= PROFILE ================= */
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 7px 12px;
+            border-radius: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .profile-image {
+            width: 37px;
+            height: 37px;
+            background: #dce8ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-info strong {
+            font-size: 12px;
+        }
+
+        .profile-info small {
+            display: block;
+            color: #788398;
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        /* ================= STATISTICS ================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e3e8f0;
+            border-radius: 9px;
+            padding: 20px;
+            min-height: 115px;
+        }
+
+        .stat-card p {
+            color: #68758b;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card h2 {
+            font-size: 25px;
+            margin-bottom: 6px;
+        }
+
+        .stat-card small {
+            color: #1b9a59;
+            font-size: 10px;
+        }
+
+        .stat-card small.gray {
+            color: #788398;
+        }
+
+        .stat-card small.orange {
+            color: #c47a00;
+        }
+
+        /* ================= FILTER BAR ================= */
+
+        .filter-card {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 9px;
+            padding: 18px;
+            margin-bottom: 22px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .booking-search {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .booking-search input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            padding: 0 14px;
+            outline: none;
+            font-size: 12px;
+        }
+
+        .filter-select {
+            height: 40px;
+            min-width: 150px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            background: white;
+            padding: 0 12px;
+            outline: none;
+            font-size: 11px;
+            color: #4f5b70;
+            cursor: pointer;
+        }
+
+        .reset-btn {
+            height: 40px;
+            padding: 0 15px;
+            border: 1px solid #d5dce8;
+            border-radius: 7px;
+            background: white;
+            color: #526077;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .reset-btn:hover {
+            background: #f1f4f8;
+        }
+
+        /* ================= TABLE CARD ================= */
+
+        .card {
+            background: white;
+            border: 1px solid #e2e7ef;
+            border-radius: 9px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .results {
+            font-size: 11px;
+            color: #748095;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1150px;
+        }
+
+        th {
+            background: #f7f9fc;
+            color: #69758a;
+            font-size: 9px;
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e5e9f0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 13px;
+            font-size: 10px;
+            border-bottom: 1px solid #edf0f5;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ================= BOOKING ID ================= */
+
+        .booking-id {
+            color: #2864dc;
+            font-weight: bold;
+        }
+
+        /* ================= CUSTOMER ================= */
+
+        .customer {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .customer-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e5edff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2864dc;
+            font-weight: bold;
+            font-size: 9px;
+        }
+
+        .customer-name {
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .customer-phone {
+            color: #7a8497;
+            font-size: 8px;
+            margin-top: 3px;
+        }
+
+        /* ================= SERVICE ================= */
+
+        .service-name {
+            font-weight: bold;
+        }
+
+        .service-type {
+            color: #7a8497;
+            font-size: 8px;
+            margin-top: 3px;
+        }
+
+        /* ================= TECHNICIAN ================= */
+
+        .technician-name {
+            font-weight: bold;
+        }
+
+        .technician-status {
+            color: #7a8497;
+            font-size: 8px;
+            margin-top: 3px;
+        }
+
+        /* ================= DATE ================= */
+
+        .date {
+            font-weight: bold;
+        }
+
+        .time {
+            color: #7a8497;
+            font-size: 8px;
+            margin-top: 3px;
+        }
+
+        /* ================= AMOUNT ================= */
+
+        .amount {
+            font-weight: bold;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 5px;
+            font-size: 8px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .confirmed {
+            background: #d9f5e4;
+            color: #168447;
+        }
+
+        .pending {
+            background: #fff1c9;
+            color: #a36a00;
+        }
+
+        .completed {
+            background: #dce8ff;
+            color: #2864dc;
+        }
+
+        .cancelled {
+            background: #fde2e2;
+            color: #c43d3d;
+        }
+
+        .progress {
+            background: #e8e0ff;
+            color: #6841c6;
+        }
+
+        /* ================= ACTION BUTTONS ================= */
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .view-btn,
+        .edit-btn {
+            border: 1px solid #d5dce8;
+            background: white;
+            padding: 6px 9px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 8px;
+            white-space: nowrap;
+        }
+
+        .view-btn {
+            color: #2864dc;
+        }
+
+        .edit-btn {
+            color: #4c5870;
+        }
+
+        .view-btn:hover {
+            background: #2864dc;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #eef2f8;
+        }
+        /* ================= EDIT BOOKING MODAL ================= */
+
+.edit-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.edit-modal-content {
+    width: 480px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.edit-form {
+    display: grid;
+    gap: 15px;
+    padding: 22px;
+}
+
+.edit-form input,
+.edit-form select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #dbe2ea;
+    border-radius: 7px;
+    font-size: 14px;
+}
+
+.edit-form label {
+    font-size: 13px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.edit-message {
+    padding: 0 22px;
+    font-size: 13px;
+    color: #dc2626;
+}
+        /* ================= ASSIGN TECHNICIAN MODAL ================= */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.technician-modal {
+    width: 450px;
+    max-width: 90%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h2 {
+    font-size: 18px;
+    color: #172033;
+}
+
+.modal-close {
+    border: none;
+    background: transparent;
+    font-size: 25px;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.modal-close:hover {
+    color: #dc2626;
+}
+
+.modal-body {
+    padding: 22px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    outline: none;
+}
+
+.form-group select:focus {
+    border-color: #2563eb;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.cancel-btn,
+.save-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.cancel-btn {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.save-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: #d1d5db;
+}
+
+.save-btn:hover {
+    background: #1d4ed8;
+}
+
+        /* ================= MOBILE ================= */
+
+        .mobile-menu {
+            display: none;
+        }
+
+        .mobile-menu button {
+            background: #2864dc;
+            color: white;
+            border: none;
+            padding: 9px 13px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 1100px) {
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 950px) {
+
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+            }
+
+            .search-top input {
+                width: 170px;
+            }
+
+        }
+
+        @media (max-width: 750px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .sidebar.show {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 18px;
+            }
+
+            .mobile-menu {
+                display: block;
+                margin-bottom: 15px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-actions {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-top input {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .booking-search {
+                width: 100%;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+
+            .reset-btn {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            ❄ AC <span>CARE</span>
+        </div>
+
+        <div class="tagline">
+            Cool Comfort, Our Priority
+        </div>
+
+
+        <ul class="menu">
+
+            <li>
+                <a href="dashboard.html">
+                    <span class="menu-icon">⌂</span>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="customers.html">
+                    <span class="menu-icon">♙</span>
+                    Customers
+                </a>
+            </li>
+
+            <li>
+                <a href="technicians.html">
+                    <span class="menu-icon">♟</span>
+                    Technicians
+                </a>
+            </li>
+
+            <li>
+                <a href="services.html">
+                    <span class="menu-icon">⚙</span>
+                    Services
+                </a>
+            </li>
+
+            <li>
+                <a href="bookings.html" class="active">
+                    <span class="menu-icon">▤</span>
+                    Bookings
+                </a>
+            </li>
+
+            <li>
+                <a href="payments.html">
+                    <span class="menu-icon">₹</span>
+                    Payments
+                </a>
+            </li>
+
+            <li>
+                <a href="reviews.html">
+                    <span class="menu-icon">☆</span>
+                    Reviews
+                </a>
+            </li>
+
+            <li>
+                <a href="reports.html">
+                    <span class="menu-icon">▥</span>
+                    Reports
+                </a>
+            </li>
+
+            <li>
+                <a href="notifications.html">
+                    <span class="menu-icon">♧</span>
+                    Notifications
+                </a>
+            </li>
+
+            <li>
+                <a href="settings.html">
+                    <span class="menu-icon">⚙</span>
+                    Settings
+                </a>
+            </li>
+
+            <li>
+                <a href="../login.html" onclick="logout()">
+                    <span class="menu-icon">↪</span>
+                    Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+
+        <!-- MOBILE MENU -->
+
+        <div class="mobile-menu">
+
+            <button onclick="toggleSidebar()">
+                ☰ Menu
+            </button>
+
+        </div>
+
+
+        <!-- ================= TOPBAR ================= -->
+
+        <div class="topbar">
+
+
+            <div class="page-title">
+
+                <h1>
+                    Bookings
+                </h1>
+
+                <p>
+                    Manage and track all AC service bookings
+                </p>
+
+            </div>
+
+
+            <div class="top-actions">
+
+
+                <div class="search-top">
+
+                    <input
+                        type="text"
+                        id="topSearch"
+                        placeholder="Search..."
+                        onkeyup="filterBookings()"
+                    >
+
+                    <span>⌕</span>
+
+                </div>
+
+
+                <div class="profile">
+
+                    <div class="profile-image">
+                        👤
+                    </div>
+
+                    <div class="profile-info">
+
+                        <strong>
+                            Kunal Gupta
+                        </strong>
+
+                        <small>
+                            Administrator
+                        </small>
+
+                    </div>
+
+                    <span>
+                        ⌄
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= STATISTICS ================= -->
+
+        <section class="stats">
+
+
+            <div class="stat-card">
+
+                <p>
+                    Total Bookings
+                </p>
+
+                <h2>
+                    486
+                </h2>
+
+                <small>
+                    ↑ 14.2% this month
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Pending
+                </p>
+
+                <h2>
+                    24
+                </h2>
+
+                <small class="orange">
+                    Require attention
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    In Progress
+                </p>
+
+                <h2>
+                    38
+                </h2>
+
+                <small class="gray">
+                    Technicians assigned
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <p>
+                    Completed
+                </p>
+
+                <h2>
+                    401
+                </h2>
+
+                <small>
+                    82.5% completion rate
+                </small>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ================= FILTERS ================= -->
+
+        <section class="filter-card">
+
+            <div class="filter-row">
+
+
+                <div class="booking-search">
+
+                    <input
+                        type="text"
+                        id="bookingSearch"
+                        placeholder="Search booking ID, customer, service or technician..."
+                        onkeyup="filterBookings()"
+                    >
+
+                </div>
+
+
+                <select
+                    class="filter-select"
+                    id="statusFilter"
+                    onchange="filterBookings()"
+                >
+
+                    <option value="all">
+                        All Status
+                    </option>
+
+                    <option value="confirmed">
+                        Confirmed
+                    </option>
+
+                    <option value="pending">
+                        Pending
+                    </option>
+
+                    <option value="progress">
+                        In Progress
+                    </option>
+
+                    <option value="completed">
+                        Completed
+                    </option>
+
+                    <option value="cancelled">
+                        Cancelled
+                    </option>
+
+                </select>
+
+
+                <select
+                    class="filter-select"
+                    id="serviceFilter"
+                    onchange="filterBookings()"
+                >
+
+                    <option value="all">
+                        All Services
+                    </option>
+
+                    <option value="repair">
+                        AC Repair
+                    </option>
+
+                    <option value="cleaning">
+                        AC Cleaning
+                    </option>
+
+                    <option value="gas">
+                        Gas Refill
+                    </option>
+
+                    <option value="installation">
+                        Installation
+                    </option>
+
+                    <option value="maintenance">
+                        Maintenance
+                    </option>
+
+                </select>
+
+
+                <select
+                    class="filter-select"
+                    id="dateFilter"
+                    onchange="filterBookings()"
+                >
+
+                    <option value="all">
+                        All Dates
+                    </option>
+
+                    <option value="today">
+                        Today
+                    </option>
+
+                    <option value="tomorrow">
+                        Tomorrow
+                    </option>
+
+                    <option value="week">
+                        This Week
+                    </option>
+
+                </select>
+
+
+                <button
+                    class="reset-btn"
+                    onclick="resetFilters()"
+                >
+                    Reset Filters
+                </button>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= BOOKING TABLE ================= -->
+
+        <section class="card">
+
+
+            <div class="card-header">
+
+                <h2>
+                    Booking List
+                </h2>
+
+                <span
+                    class="results"
+                    id="resultsCount"
+                >
+                    Showing 8 bookings
+                </span>
+
+            </div>
+
+
+            <div class="table-container">
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>BOOKING ID</th>
+                <th>CUSTOMER</th>
+                <th>SERVICE</th>
+                <th>TECHNICIAN</th>
+                <th>DATE & TIME</th>
+                <th>AMOUNT</th>
+                <th>STATUS</th>
+                <th>ACTION</th>
+            </tr>
+        </thead>
+
+        <tbody id="bookingTableBody">
+
+            <tr>
+                <td colspan="8" style="text-align:center;">
+                    Loading bookings...
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+        </section>
+
+
+    </main>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+let allBookings = [];
+
+
+/* ================= LOAD BOOKINGS ================= */
+
+async function loadBookings() {
+
+    const tableBody =
+        document.getElementById("bookingTableBody");
+
+    try {
+
+        const response =
+            await fetch(
+                "http://localhost:5000/api/admin/bookings"
+            );
+
+        const result =
+            await response.json();
+
+
+        if (!result.success) {
+
+                               tableBody.innerHTML = `
+        <tr>
+            <td colspan="8" style="text-align:center; color:#c43d3d;">
+                ${result.message || "Failed to load bookings."}
+            </td>
+        </tr>
+    `;
+
+    return;
+}
+
+
+        allBookings =
+            result.data || [];
+
+
+        displayBookings();
+
+
+    } catch (error) {
+
+        console.error(
+            "Bookings loading error:",
+            error
+        );
+
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align:center;">
+                    Cannot connect to server.
+                </td>
+            </tr>
+        `;
+
+    }
+
+}
+
+
+/* ================= DISPLAY BOOKINGS ================= */
+
+function displayBookings() {
+
+    const tableBody =
+        document.getElementById("bookingTableBody");
+
+
+    if (allBookings.length === 0) {
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="8" style="text-align:center;">
+                    No bookings found.
+                </td>
+            </tr>
+        `;
+
+        updateResultsCount(0);
+
+        return;
+    }
+
+
+    tableBody.innerHTML =
+        allBookings.map(function(booking) {
+
+
+            /* ---------- CUSTOMER INITIALS ---------- */
+
+            const customerName =
+                booking.customer_name || "Unknown";
+
+            const nameParts =
+                customerName.trim().split(" ");
+
+            let initials =
+                nameParts[0]
+                    ? nameParts[0][0]
+                    : "";
+
+            if (nameParts.length > 1) {
+
+                initials +=
+                    nameParts[nameParts.length - 1][0];
+
+            }
+
+
+            /* ---------- DATE ---------- */
+
+            const date =
+                new Date(
+                    booking.preferred_date
+                );
+
+            const formattedDate =
+                date.toLocaleDateString(
+                    "en-IN",
+                    {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                    }
+                );
+
+
+            /* ---------- TIME ---------- */
+
+            let formattedTime =
+                booking.preferred_time || "—";
+
+
+            if (formattedTime.length >= 5) {
+
+                const parts =
+                    formattedTime.split(":");
+
+                let hours =
+                    parseInt(parts[0]);
+
+                const minutes =
+                    parts[1];
+
+                const ampm =
+                    hours >= 12
+                        ? "PM"
+                        : "AM";
+
+                hours =
+                    hours % 12 || 12;
+
+                formattedTime =
+                    hours +
+                    ":" +
+                    minutes +
+                    " " +
+                    ampm;
+
+            }
+
+
+            /* ---------- STATUS ---------- */
+
+            const status =
+                booking.status || "Pending";
+
+
+            const statusClass =
+                getStatusClass(status);
+
+
+            /* ---------- SERVICE FILTER VALUE ---------- */
+
+            const serviceValue =
+                getServiceFilterValue(
+                    booking.service_name
+                );
+
+
+            /* ---------- DATE FILTER VALUE ---------- */
+
+            const dateValue =
+                getDateFilterValue(
+                    booking.preferred_date
+                );
+
+
+            return `
+
+                <tr
+                    data-status="${status.toLowerCase()}"
+                    data-service="${serviceValue}"
+                    data-date="${dateValue}"
+                >
+
+                    <!-- BOOKING ID -->
+
+                    <td>
+
+                        <span class="booking-id">
+                            #${booking.booking_id}
+                        </span>
+
+                    </td>
+
+
+                    <!-- CUSTOMER -->
+
+                    <td>
+
+                        <div class="customer">
+
+                            <div class="customer-avatar">
+                                ${initials.toUpperCase()}
+                            </div>
+
+                            <div>
+
+                                <div class="customer-name">
+                                    ${customerName}
+                                </div>
+
+                                <div class="customer-phone">
+                                    ${booking.customer_phone || "—"}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- SERVICE -->
+
+                    <td>
+
+                        <div class="service-name">
+                            ${booking.service_name || "—"}
+                        </div>
+
+                        <div class="service-type">
+                            ${booking.ac_type || "—"}
+                        </div>
+
+                    </td>
+
+
+                    <!-- TECHNICIAN -->
+
+                    <td>
+
+                        <div class="technician-name">
+                            ${booking.technician_name || "Not Assigned"}
+                        </div>
+
+                        <div class="technician-status">
+                            ${booking.technician_name === "Not Assigned"
+                                ? "Waiting"
+                                : "Assigned"}
+                        </div>
+
+                    </td>
+
+
+                    <!-- DATE & TIME -->
+
+                    <td>
+
+                        <div class="date">
+                            ${formattedDate}
+                        </div>
+
+                        <div class="time">
+                            ${formattedTime}
+                        </div>
+
+                    </td>
+
+
+                    <!-- AMOUNT -->
+
+                    <td>
+
+                        <span class="amount">
+                            ₹${Number(
+                                booking.total_amount || 0
+                            ).toLocaleString("en-IN")}
+                        </span>
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        <span class="status ${statusClass}">
+                            ${status}
+                        </span>
+
+                    </td>
+
+
+                    <!-- ACTION -->
+
+                    <td>
+
+                        <div class="action-buttons">
+
+                            <button
+                                class="view-btn"
+                                onclick="viewBooking('${booking.booking_id}')"
+                            >
+                                View
+                            </button>
+
+                            <button
+                                class="edit-btn"
+                                onclick="editBooking('${booking.booking_id}')"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                type="button"
+                                class="edit-btn"
+                                onclick="openAssignTechnicianModal(${booking.id})"
+                            >
+                                Assign
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("");
+
+
+    filterBookings();
+
+}
+
+
+/* ================= STATUS CLASS ================= */
+
+function getStatusClass(status) {
+
+    const value =
+        status.toLowerCase();
+
+
+    if (value === "pending")
+        return "pending";
+
+    if (value === "in progress")
+        return "progress";
+
+    if (value === "completed")
+        return "completed";
+
+    if (value === "cancelled")
+        return "cancelled";
+
+    if (
+        value === "assigned" ||
+        value === "accepted"
+    )
+        return "confirmed";
+
+    return "pending";
+
+}
+
+
+/* ================= SERVICE FILTER ================= */
+
+function getServiceFilterValue(service) {
+
+    const value =
+        (service || "").toLowerCase();
+
+
+    if (value.includes("repair"))
+        return "repair";
+
+    if (value.includes("clean"))
+        return "cleaning";
+
+    if (value.includes("gas"))
+        return "gas";
+
+    if (value.includes("install"))
+        return "installation";
+
+    if (value.includes("maintenance"))
+        return "maintenance";
+
+    return "all";
+
+}
+
+
+/* ================= DATE FILTER ================= */
+
+function getDateFilterValue(dateValue) {
+
+    const bookingDate =
+        new Date(dateValue);
+
+
+    const today =
+        new Date();
+
+    today.setHours(
+        0, 0, 0, 0
+    );
+
+
+    const tomorrow =
+        new Date(today);
+
+    tomorrow.setDate(
+        tomorrow.getDate() + 1
+    );
+
+
+    const bookingDay =
+        new Date(bookingDate);
+
+    bookingDay.setHours(
+        0, 0, 0, 0
+    );
+
+
+    if (
+        bookingDay.getTime() ===
+        today.getTime()
+    ) {
+
+        return "today";
+
+    }
+
+
+    if (
+        bookingDay.getTime() ===
+        tomorrow.getTime()
+    ) {
+
+        return "tomorrow";
+
+    }
+
+
+    return "week";
+
+}
+
+
+/* ================= FILTER BOOKINGS ================= */
+
+function filterBookings() {
+
+    const searchInput =
+        document.getElementById(
+            "bookingSearch"
+        );
+
+    const topSearchInput =
+        document.getElementById(
+            "topSearch"
+        );
+
+    const statusFilter =
+        document.getElementById(
+            "statusFilter"
+        );
+
+    const serviceFilter =
+        document.getElementById(
+            "serviceFilter"
+        );
+
+    const dateFilter =
+        document.getElementById(
+            "dateFilter"
+        );
+
+
+    const search =
+        searchInput
+            ? searchInput.value.toLowerCase()
+            : "";
+
+
+    const topSearch =
+        topSearchInput
+            ? topSearchInput.value.toLowerCase()
+            : "";
+
+
+    const status =
+        statusFilter
+            ? statusFilter.value
+            : "all";
+
+
+    const service =
+        serviceFilter
+            ? serviceFilter.value
+            : "all";
+
+
+    const date =
+        dateFilter
+            ? dateFilter.value
+            : "all";
+
+
+    const searchValue =
+        search || topSearch;
+
+
+    const rows =
+        document.querySelectorAll(
+            "#bookingTableBody tr"
+        );
+
+
+    let visibleCount = 0;
+
+
+    rows.forEach(function(row) {
+
+        const rowText =
+            row.textContent.toLowerCase();
+
+
+        const rowStatus =
+            row.getAttribute(
+                "data-status"
+            );
+
+
+        const rowService =
+            row.getAttribute(
+                "data-service"
+            );
+
+
+        const rowDate =
+            row.getAttribute(
+                "data-date"
+            );
+
+
+        const matchesSearch =
+            rowText.includes(
+                searchValue
+            );
+
+
+        const matchesStatus =
+            status === "all" ||
+            rowStatus === status;
+
+
+        const matchesService =
+            service === "all" ||
+            rowService === service;
+
+
+        const matchesDate =
+            date === "all" ||
+            rowDate === date;
+
+
+        if (
+            matchesSearch &&
+            matchesStatus &&
+            matchesService &&
+            matchesDate
+        ) {
+
+            row.style.display = "";
+
+            visibleCount++;
+
+        } else {
+
+            row.style.display = "none";
+
+        }
+
+    });
+
+
+    updateResultsCount(
+        visibleCount
+    );
+
+}
+
+
+/* ================= RESULTS COUNT ================= */
+
+function updateResultsCount(count) {
+
+    const results =
+        document.getElementById(
+            "resultsCount"
+        );
+
+
+    if (results) {
+
+        results.textContent =
+            "Showing " +
+            count +
+            " bookings";
+
+    }
+
+}
+
+
+/* ================= RESET FILTERS ================= */
+
+function resetFilters() {
+
+    document.getElementById(
+        "bookingSearch"
+    ).value = "";
+
+
+    document.getElementById(
+        "topSearch"
+    ).value = "";
+
+
+    document.getElementById(
+        "statusFilter"
+    ).value = "all";
+
+
+    document.getElementById(
+        "serviceFilter"
+    ).value = "all";
+
+
+    document.getElementById(
+        "dateFilter"
+    ).value = "all";
+
+
+    filterBookings();
+
+}
+
+
+/* ================= VIEW BOOKING ================= */
+
+function viewBooking(id) {
+
+    alert(
+        "Booking #" +
+        id +
+        " selected."
+    );
+
+}
+
+
+/* ================= EDIT BOOKING ================= */
+
+async function editBooking(id) {
+    const booking = allBookings.find(item =>
+        String(item.id) === String(id) ||
+        String(item.booking_id) === String(id)
+    );
+
+    if (!booking) {
+        alert("Booking not found.");
+        return;
+    }
+
+    const currentDate = booking.preferred_date
+        ? String(booking.preferred_date).slice(0, 10)
+        : "";
+
+    const newDate = prompt(
+        "Enter new service date (YYYY-MM-DD):",
+        currentDate
+    );
+
+    if (newDate === null) return;
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+        alert("Enter the date in YYYY-MM-DD format.");
+        return;
+    }
+
+    const currentTime = booking.preferred_time
+        ? String(booking.preferred_time).slice(0, 5)
+        : "10:00";
+
+    const newTime = prompt(
+        "Enter new service time (HH:MM):",
+        currentTime
+    );
+
+    if (newTime === null) return;
+
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(newTime)) {
+        alert("Enter time in HH:MM format.");
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `http://localhost:5000/api/admin/bookings/${booking.id}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    preferred_date: newDate,
+                    preferred_time: newTime
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Booking update failed.");
+        }
+
+        // Update the local record too
+        booking.preferred_date = newDate;
+        booking.preferred_time = newTime;
+
+        alert("Booking updated successfully!");
+        await loadBookings();
+
+    } catch (error) {
+        console.error("Edit booking error:", error);
+        alert(error.message || "Unable to update booking.");
+    }
+}
+
+
+/* ================= MOBILE SIDEBAR ================= */
+
+function toggleSidebar() {
+
+    const sidebar =
+        document.getElementById(
+            "sidebar"
+        );
+
+
+    if (sidebar) {
+
+        sidebar.classList.toggle(
+            "show"
+        );
+
+    }
+
+}
+
+
+/* ================= LOGOUT ================= */
+
+function logout() {
+
+    localStorage.removeItem(
+        "loggedInUser"
+    );
+
+}
+
+
+/* ================= PAGE LOAD ================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        loadBookings();
+
+    }
+);
+// ================= ASSIGN TECHNICIAN =================
+
+async function openAssignTechnicianModal(bookingId) {
+
+    document.getElementById("assignBookingId").value = bookingId;
+
+    const modal =
+        document.getElementById("assignTechnicianModal");
+
+    const select =
+        document.getElementById("assignTechnicianSelect");
+
+    modal.style.display = "flex";
+
+    select.innerHTML = `
+        <option value="">
+            Loading technicians...
+        </option>
+    `;
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:5000/api/technicians"
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || "Failed to load technicians."
+            );
+        }
+
+        select.innerHTML = `
+            <option value="">
+                Select Technician
+            </option>
+        `;
+
+        result.data.forEach(function (technician) {
+
+            const option = document.createElement("option");
+
+            option.value = technician.id;
+
+            option.textContent =
+                `${technician.full_name} - ${technician.specialization} (${technician.status})`;
+
+            select.appendChild(option);
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Technician loading error:",
+            error
+        );
+
+        select.innerHTML = `
+            <option value="">
+                Failed to load technicians
+            </option>
+        `;
+
+        alert("Cannot load technicians.");
+
+    }
+
+}
+
+
+// ================= SAVE ASSIGNMENT =================
+
+async function saveTechnicianAssignment() {
+
+    const bookingId =
+        document.getElementById("assignBookingId").value;
+
+    const technicianId =
+        document.getElementById("assignTechnicianSelect").value;
+
+
+    if (!technicianId) {
+
+        alert("Please select a technician.");
+
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `http://localhost:5000/api/admin/bookings/${bookingId}/assign`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    technician_id: technicianId
+                })
+            }
+        );
+
+
+        const result = await response.json();
+
+
+        if (!response.ok || !result.success) {
+
+            alert(
+                result.message ||
+                "Failed to assign technician."
+            );
+
+            return;
+        }
+
+
+        alert(
+            "Technician assigned successfully!"
+        );
+
+
+        closeAssignTechnicianModal();
+
+
+        // Reload bookings table
+        loadBookings();
+
+
+    } catch (error) {
+
+        console.error(
+            "Assign technician error:",
+            error
+        );
+
+        alert("Cannot connect to server.");
+
+    }
+
+}
+
+
+// ================= CLOSE MODAL =================
+
+function closeAssignTechnicianModal() {
+
+    document.getElementById(
+        "assignTechnicianModal"
+    ).style.display = "none";
+
+}
+</script>
+<!-- ================= ASSIGN TECHNICIAN MODAL ================= -->
+
+<div id="assignTechnicianModal" class="modal-overlay">
+
+    <div class="technician-modal">
+
+        <div class="modal-header">
+
+            <h2>Assign Technician</h2>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeAssignTechnicianModal()">
+                &times;
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <p style="margin-bottom: 18px; color: #64748b;">
+                Select a technician for this booking.
+            </p>
+
+            <input
+                type="hidden"
+                id="assignBookingId">
+
+            <div class="form-group">
+
+                <label for="assignTechnicianSelect">
+                    Technician
+                </label>
+
+                <select
+                    id="assignTechnicianSelect"
+                    required>
+
+                    <option value="">
+                        Loading technicians...
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="cancel-btn"
+                    onclick="closeAssignTechnicianModal()">
+                    Cancel
+                </button>
+
+                <button
+                    type="button"
+                    class="save-btn"
+                    onclick="saveTechnicianAssignment()">
+                    Assign Technician
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+</body>
+
+</html>
