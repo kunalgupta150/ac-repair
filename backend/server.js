@@ -1,12 +1,35 @@
+// =====================================================
+// AC CARE - BACKEND SERVER (MONGODB / MONGOOSE VERSION)
+// =====================================================
+
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+require("dotenv").config();
+
+const { connectDB } = require("./db");
+const Admin = require("./models/Admin");
+const Customer = require("./models/Customer");
+const Technician = require("./models/Technician");
+const Service = require("./models/Service");
+const Booking = require("./models/Booking");
+const Payment = require("./models/Payment");
+const Review = require("./models/Review");
+const Notification = require("./models/Notification");
+const PasswordResetToken = require("./models/PasswordResetToken");
+
+// =====================================================
+// HELPER FUNCTIONS
+// =====================================================
+
 function calculatePaymentSplit(amount) {
     const total = Number(amount);
-
     if (!Number.isFinite(total) || total <= 0) {
         throw new Error("Invalid payment amount.");
     }
-
     const totalPaise = Math.round(total * 100);
-
     const technicianPaise = Math.round(totalPaise * 0.55);
     const ownerPaise = totalPaise - technicianPaise;
 
@@ -16,18 +39,26 @@ function calculatePaymentSplit(amount) {
         ownerShare: ownerPaise / 100
     };
 }
+
+// Safely resolve an ID (handles MongoDB ObjectId or booking_id string)
+function toObjectId(id) {
+    if (!id) return null;
+    if (mongoose.isValidObjectId(id)) {
+        return new mongoose.Types.ObjectId(String(id));
+    }
+    return null;
+}
+
 // =====================================================
-// AC CARE - BACKEND SERVER
+// BREVO SERVICE TEST
 // =====================================================
 
-const express = require("express");
-const cors = require("cors");
-const mysql = require("mysql2/promise");
-const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
-require("dotenv").config();
 (async () => {
     try {
+        if (!process.env.BREVO_API_KEY) {
+            console.log("ℹ️ Brevo API key not configured.");
+            return;
+        }
         const response = await fetch("https://api.brevo.com/v3/account", {
             method: "GET",
             headers: {
@@ -35,28 +66,18 @@ require("dotenv").config();
                 "accept": "application/json"
             }
         });
-
-        console.log("Brevo authentication test status:", response.status);
-
-        if (!response.ok) {
-            const data = await response.json().catch(() => ({}));
-            console.log("Brevo error code:", data.code || "Not provided");
-            console.log("Brevo error message:", data.message || "Not provided");
+        if (response.ok) {
+            console.log("✅ Brevo authentication successful!");
         } else {
-            console.log("Brevo authentication successful!");
+            const data = await response.json().catch(() => ({}));
+            console.log("Brevo test status:", response.status, data.message || "");
         }
     } catch (error) {
-        console.log("Brevo test failed:", error.message);
+        console.log("Brevo test skipped:", error.message);
     }
 })();
-console.log("Brevo key loaded:", Boolean(process.env.BREVO_API_KEY));
-console.log(
-    "Brevo key has surrounding spaces:",
-    process.env.BREVO_API_KEY !== process.env.BREVO_API_KEY?.trim()
-);
 
 const app = express();
-
 
 // =====================================================
 // MIDDLEWARE
@@ -65,413 +86,177 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
 // =====================================================
-// MYSQL DATABASE CONNECTION
-// =====================================================
-
-const db = mysql.createPool({
-
-    host: process.env.DB_HOST,
-
-    user: process.env.DB_USER,
-
-    password: process.env.DB_PASSWORD,
-
-    database: process.env.DB_NAME,
-
-    port: Number(process.env.DB_PORT) || 3306,
-
-    waitForConnections: true,
-
-    connectionLimit: 10,
-
-    queueLimit: 0
-
-});
-
-
-// =====================================================
-// HOME ROUTE
+// HOME & TEST ROUTES
 // =====================================================
 
 app.get("/", (req, res) => {
+    res.json({ message: "AC CARE Backend is running successfully with MongoDB!" });
+});
 
+app.get("/api/test-db", (req, res) => {
+    const isConnected = mongoose.connection.readyState === 1;
     res.json({
-
-        message:
-            "AC CARE Backend is running successfully!"
-
+        success: isConnected,
+        message: isConnected ? "MongoDB connected successfully!" : "MongoDB connection pending"
     });
-
 });
 
-
-// =====================================================
-// TEST DATABASE CONNECTION
-// =====================================================
-
-app.get("/api/test-db", async (req, res) => {
-
-    try {
-
-        const [rows] = await db.query(
-            "SELECT 1 AS result"
-        );
-
-        res.json({
-
-            success: true,
-
-            message:
-                "MySQL database connected successfully!",
-
-            result:
-                rows[0].result
-
-        });
-
-    } catch (error) {
-
-        console.error(
-            "MySQL connection error:",
-            error
-        );
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "MySQL connection failed",
-
-            error:
-                error.message
-
-        });
-
-    }
-
+app.get("/api/test-customers", (req, res) => {
+    res.json({ success: true, message: "Customers route is working" });
 });
 
-
 // =====================================================
-// DASHBOARD STATISTICS API
+// DASHBOARD STATISTICS API (ADMIN)
 // =====================================================
 
 app.get("/api/dashboard/stats", async (req, res) => {
-
     try {
+        const [
+            totalCustomers,
+            totalTechnicians,
+            totalServices,
+            totalBookings,
+            pendingBookings,
+            completedBookings,
+            revenueAggregation
+        ] = await Promise.all([
+            Customer.countDocuments(),
+            Technician.countDocuments(),
+            Service.countDocuments({ status: "Active" }),
+            Booking.countDocuments(),
+            Booking.countDocuments({ status: "Pending" }),
+            Booking.countDocuments({ status: "Completed" }),
+            Payment.aggregate([
+                { $match: { payment_status: "Paid" } },
+                { $group: { _id: null, total: { $sum: "$amount" } } }
+            ])
+        ]);
 
-        const [customers] = await db.query(
-            "SELECT COUNT(*) AS total FROM customers"
-        );
-
-
-        const [technicians] = await db.query(
-            "SELECT COUNT(*) AS total FROM technicians"
-        );
-
-
-        const [services] = await db.query(
-            "SELECT COUNT(*) AS total FROM services"
-        );
-
-
-        const [bookings] = await db.query(
-            "SELECT COUNT(*) AS total FROM bookings"
-        );
-
-
-        const [pendingBookings] = await db.query(
-            "SELECT COUNT(*) AS total FROM bookings WHERE status = 'Pending'"
-        );
-
-
-        const [completedBookings] = await db.query(
-            "SELECT COUNT(*) AS total FROM bookings WHERE status = 'Completed'"
-        );
-
-
-        const [revenue] = await db.query(
-            `SELECT COALESCE(SUM(amount), 0) AS total
-             FROM payments
-             WHERE payment_status = 'Paid'`
-        );
-
+        const totalRevenue = revenueAggregation[0]?.total || 0;
 
         res.json({
-
             success: true,
-
             data: {
-
-                totalCustomers:
-                    customers[0].total,
-
-                totalTechnicians:
-                    technicians[0].total,
-
-                totalServices:
-                    services[0].total,
-
-                totalBookings:
-                    bookings[0].total,
-
-                pendingBookings:
-                    pendingBookings[0].total,
-
-                completedBookings:
-                    completedBookings[0].total,
-
-                totalRevenue:
-                    revenue[0].total
-
+                totalCustomers,
+                totalTechnicians,
+                totalServices,
+                totalBookings,
+                pendingBookings,
+                completedBookings,
+                totalRevenue
             }
-
         });
-
     } catch (error) {
-
-        console.error(
-            "Dashboard API error:",
-            error
-        );
-
+        console.error("Dashboard API error:", error);
         res.status(500).json({
-
             success: false,
-
-            message:
-                "Failed to load dashboard statistics",
-
-            error:
-                error.message
-
+            message: "Failed to load dashboard statistics",
+            error: error.message
         });
-
     }
-
 });
 
 // =====================================================
-// CUSTOMER REGISTRATION API
+// CUSTOMER REGISTRATION & LOGIN
 // =====================================================
 
-    app.post("/api/customers/register", async (req, res) => {
+app.post("/api/customers/register", async (req, res) => {
+    try {
+        const { full_name, phone, email, address, password } = req.body;
 
-        try {
-
-            const {
-                full_name,
-                phone,
-                email,
-                address,
-                password
-            } = req.body;
-
-
-            // Check required fields
-
-            if (
-                !full_name ||
-                !phone ||
-                !email ||
-                !address ||
-                !password
-            ) {
-
-                return res.status(400).json({
-                    success: false,
-                    message: "Please fill all required fields."
-                });
-
-            }
-
-
-            // Check if email already exists
-
-            const [existingCustomer] = await db.query(
-                "SELECT id FROM customers WHERE email = ?",
-                [email]
-            );
-
-
-            if (existingCustomer.length > 0) {
-
-                return res.status(409).json({
-                    success: false,
-                    message: "Email already registered."
-                });
-
-            }
-
-
-            // Hash password before saving
-
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-
-            // Insert customer into MySQL
-
-            const [result] = await db.query(
-                `INSERT INTO customers
-                (full_name, phone, email, address, password)
-                VALUES (?, ?, ?, ?, ?)`,
-                [
-                    full_name,
-                    phone,
-                    email,
-                    address,
-                    hashedPassword
-                ]
-            );
-
-
-            res.status(201).json({
-
-                success: true,
-
-                message: "Customer registered successfully.",
-
-                customerId: result.insertId
-
-            });
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Customer registration error:",
-                error
-            );
-
-            res.status(500).json({
-
+        if (!full_name || !phone || !email || !address || !password) {
+            return res.status(400).json({
                 success: false,
-
-                message: "Registration failed.",
-
-                error: error.message
-
+                message: "Please fill all required fields."
             });
-
         }
 
-    });
-    // =====================================================
-// CUSTOMER LOGIN API
-// =====================================================
+        const normalizedEmail = email.trim().toLowerCase();
+        const existingCustomer = await Customer.findOne({ email: normalizedEmail });
+        if (existingCustomer) {
+            return res.status(409).json({
+                success: false,
+                message: "Email already registered."
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newCustomer = await Customer.create({
+            full_name: full_name.trim(),
+            phone: phone.trim(),
+            email: normalizedEmail,
+            address: address.trim(),
+            password: hashedPassword
+        });
+
+        res.status(201).json({
+            success: true,
+            message: "Customer registered successfully.",
+            customerId: newCustomer._id
+        });
+    } catch (error) {
+        console.error("Customer registration error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Registration failed.",
+            error: error.message
+        });
+    }
+});
 
 app.post("/api/customers/login", async (req, res) => {
-
     try {
-
-        const {
-            email,
-            password
-        } = req.body;
-
-
-        // Check required fields
+        const { email, password } = req.body;
 
         if (!email || !password) {
-
             return res.status(400).json({
                 success: false,
                 message: "Please enter email and password."
             });
-
         }
 
-
-        // Find customer by email
-
-        const [customers] = await db.query(
-            "SELECT * FROM customers WHERE email = ?",
-            [email]
-        );
-
-
-        if (customers.length === 0) {
-
+        const customer = await Customer.findOne({ email: email.trim().toLowerCase() });
+        if (!customer) {
             return res.status(401).json({
                 success: false,
                 message: "Invalid email or password."
             });
-
         }
 
-
-        const customer = customers[0];
-
-
-        // Check password
-
-       const passwordMatch =
-          await bcrypt.compare(
-            password,
-            customer.password
-        );
-
-       if (!passwordMatch) {
-
-          return res.status(401).json({
-            success: false,
-            message: "Invalid email or password."
-        });
-
-    }
-
-        // Login successful
+        const passwordMatch = await bcrypt.compare(password, customer.password);
+        if (!passwordMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password."
+            });
+        }
 
         res.json({
-
             success: true,
-
             message: "Login successful.",
-
             customer: {
-
-                id: customer.id,
-
+                id: customer._id,
                 full_name: customer.full_name,
-
                 phone: customer.phone,
-
                 email: customer.email,
-
                 address: customer.address
-
             }
-
         });
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Customer login error:",
-            error
-        );
-
+    } catch (error) {
+        console.error("Customer login error:", error);
         res.status(500).json({
-
             success: false,
-
             message: "Login failed.",
-
             error: error.message
-
         });
-
     }
-
 });
 
- // ADMIN LOGIN API
+// =====================================================
+// ADMIN LOGIN
+// =====================================================
+
 app.post("/api/admin/login", async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -483,25 +268,15 @@ app.post("/api/admin/login", async (req, res) => {
             });
         }
 
-        const [admins] = await db.query(
-            "SELECT id, name, email, password FROM admins WHERE email = ?",
-            [email.trim()]
-        );
-
-        if (admins.length === 0) {
+        const admin = await Admin.findOne({ email: email.trim().toLowerCase() });
+        if (!admin) {
             return res.status(401).json({
                 success: false,
                 message: "Invalid admin email or password."
             });
         }
 
-        const admin = admins[0];
-
-        const passwordMatch = await bcrypt.compare(
-            password,
-            admin.password
-        );
-
+        const passwordMatch = await bcrypt.compare(password, admin.password);
         if (!passwordMatch) {
             return res.status(401).json({
                 success: false,
@@ -509,133 +284,76 @@ app.post("/api/admin/login", async (req, res) => {
             });
         }
 
-        return res.json({
+        res.json({
             success: true,
             message: "Admin login successful.",
             admin: {
-                id: admin.id,
+                id: admin._id,
                 name: admin.name,
                 email: admin.email
             }
         });
-
     } catch (error) {
         console.error("Admin login error:", error);
-
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Admin login failed."
         });
     }
 });
-// ================= CUSTOMER DASHBOARD API =================
 
-app.get(
-    "/api/customer/dashboard/:customerId",
-    async (req, res) => {
+// =====================================================
+// CUSTOMER DASHBOARD
+// =====================================================
 
-        try {
-
-            const customerId =
-                req.params.customerId;
-
-
-            // Total bookings
-            const [totalBookings] =
-                await db.query(
-                    `SELECT COUNT(*) AS total
-                     FROM bookings
-                     WHERE customer_id = ?`,
-                    [customerId]
-                );
-
-
-            // Pending bookings
-            const [pendingBookings] =
-                await db.query(
-                    `SELECT COUNT(*) AS total
-                     FROM bookings
-                     WHERE customer_id = ?
-                     AND status = 'Pending'`,
-                    [customerId]
-                );
-
-
-            // Completed bookings
-            const [completedBookings] =
-                await db.query(
-                    `SELECT COUNT(*) AS total
-                     FROM bookings
-                     WHERE customer_id = ?
-                     AND status = 'Completed'`,
-                    [customerId]
-                );
-
-
-            // Total spent
-            const [totalSpent] =
-                await db.query(
-                    `SELECT COALESCE(SUM(p.amount), 0) AS total
-                     FROM payments p
-                     INNER JOIN bookings b
-                     ON p.booking_id = b.id
-                     WHERE b.customer_id = ?
-                     AND p.payment_status = 'Paid'`,
-                    [customerId]
-                );
-
-
-            res.json({
-
-                success: true,
-
-                data: {
-
-                    totalBookings:
-                        totalBookings[0].total,
-
-                    pendingBookings:
-                        pendingBookings[0].total,
-
-                    completedBookings:
-                        completedBookings[0].total,
-
-                    totalSpent:
-                        totalSpent[0].total
-
-                }
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "Customer dashboard API error:",
-                error
-            );
-
-            res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Failed to load customer dashboard.",
-
-                error:
-                    error.message
-
-            });
-
+app.get("/api/customer/dashboard/:customerId", async (req, res) => {
+    try {
+        const cId = toObjectId(req.params.customerId);
+        if (!cId) {
+            return res.status(400).json({ success: false, message: "Invalid customer ID." });
         }
 
+        const [totalBookings, pendingBookings, completedBookings, customerBookings] = await Promise.all([
+            Booking.countDocuments({ customer_id: cId }),
+            Booking.countDocuments({ customer_id: cId, status: "Pending" }),
+            Booking.countDocuments({ customer_id: cId, status: "Completed" }),
+            Booking.find({ customer_id: cId }).select("_id")
+        ]);
+
+        const bookingIds = customerBookings.map(b => b._id);
+        const spentAggregation = await Payment.aggregate([
+            { $match: { booking_id: { $in: bookingIds }, payment_status: "Paid" } },
+            { $group: { _id: null, total: { $sum: "$amount" } } }
+        ]);
+
+        const totalSpent = spentAggregation[0]?.total || 0;
+
+        res.json({
+            success: true,
+            data: {
+                totalBookings,
+                pendingBookings,
+                completedBookings,
+                totalSpent
+            }
+        });
+    } catch (error) {
+        console.error("Customer dashboard API error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to load customer dashboard.",
+            error: error.message
+        });
     }
-);
-// ================= CREATE BOOKING API =================
+});
 
+// =====================================================
+// BOOKINGS APIs
+// =====================================================
+
+// Create a new booking
 app.post("/api/bookings", async (req, res) => {
-
     try {
-
         const {
             customer_id,
             ac_type,
@@ -646,262 +364,522 @@ app.post("/api/bookings", async (req, res) => {
             problem_description
         } = req.body;
 
-
-        // Validate required fields
-
-        if (
-            !customer_id ||
-            !ac_type ||
-            !service_name ||
-            !address ||
-            !preferred_date ||
-            !preferred_time
-        ) {
-
+        if (!customer_id || !ac_type || !service_name || !address || !preferred_date || !preferred_time) {
             return res.status(400).json({
-
                 success: false,
-
-                message:
-                    "Please fill all required booking fields."
-
+                message: "Please fill all required booking fields."
             });
-
         }
 
-
-        // Check customer
-
-        const [customers] =
-            await db.query(
-                "SELECT id FROM customers WHERE id = ?",
-                [customer_id]
-            );
-
-
-        if (customers.length === 0) {
-
+        const cId = toObjectId(customer_id);
+        const customer = await Customer.findById(cId);
+        if (!customer) {
             return res.status(404).json({
-
                 success: false,
-
-                message:
-                    "Customer not found."
-
+                message: "Customer not found."
             });
-
         }
 
+        // Match service by name
+        let service = await Service.findOne({
+            $or: [{ service_name: service_name }, { name: service_name }],
+            status: "Active"
+        });
 
-        // Find service
-
-        const [services] =
-            await db.query(
-                `SELECT id, service_name, price
-                 FROM services
-                 WHERE service_name = ?
-                 AND status = 'Active'
-                 LIMIT 1`,
-                [service_name]
-            );
-
-
-        if (services.length === 0) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message:
-                    "Selected service is not available in the database."
-
+        if (!service) {
+            // Auto-create service if not found
+            service = await Service.create({
+                service_name: service_name,
+                name: service_name,
+                price: 499,
+                status: "Active"
             });
-
         }
 
+        const bookingId = "AC" + Math.floor(10000 + Math.random() * 90000);
 
-        const service =
-            services[0];
+        const newBooking = await Booking.create({
+            booking_id: bookingId,
+            customer_id: customer._id,
+            service_id: service._id,
+            ac_type,
+            address,
+            preferred_date,
+            preferred_time,
+            problem_description: problem_description || "",
+            status: "Pending",
+            total_amount: service.price
+        });
 
-
-        // Generate booking ID
-
-        const bookingId =
-            "AC" +
-            Math.floor(
-                10000 +
-                Math.random() * 90000
-            );
-
-
-        // Insert booking
-
-        const [result] =
-            await db.query(
-                `INSERT INTO bookings
-                (
-                    booking_id,
-                    customer_id,
-                    service_id,
-                    ac_type,
-                    address,
-                    preferred_date,
-                    preferred_time,
-                    problem_description,
-                    status,
-                    total_amount
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)`,
-                [
-                    bookingId,
-                    customer_id,
-                    service.id,
-                    ac_type,
-                    address,
-                    preferred_date,
-                    preferred_time,
-                    problem_description || null,
-                    service.price
-                ]
-            );
-            
-try {
-    await db.query(
-        `INSERT INTO notifications
-         (title, message, type, is_read)
-         VALUES (?, ?, ?, FALSE)`,
-        [
-            "New Booking Received",
-            `A new AC service booking (${bookingId}) has been received.`,
-            "booking"
-        ]
-    );
-} catch (notificationError) {
-    // Keep the booking successful even if notification creation fails.
-    console.error(
-        "Failed to create booking notification:",
-        notificationError
-    );
-}
-
+        // Trigger notification
+        try {
+            await Notification.create({
+                title: "New Booking Received",
+                message: `A new AC service booking (${bookingId}) has been received.`,
+                type: "booking",
+                related_booking_id: bookingId,
+                is_read: false
+            });
+        } catch (notifErr) {
+            console.error("Notification creation warning:", notifErr.message);
+        }
 
         res.status(201).json({
-
             success: true,
-
-            message:
-                "Booking created successfully.",
-
+            message: "Booking created successfully.",
             booking: {
-
-                id:
-                    result.insertId,
-
-                booking_id:
-                    bookingId,
-
-                service_name:
-                    service.service_name,
-
-                preferred_date:
-                    preferred_date,
-
-                preferred_time:
-                    preferred_time,
-
-                status:
-                    "Pending",
-
-                total_amount:
-                    service.price
-
+                id: newBooking._id,
+                booking_id: bookingId,
+                service_name: service.service_name,
+                preferred_date,
+                preferred_time,
+                status: "Pending",
+                total_amount: service.price
             }
-
         });
-
-
     } catch (error) {
-
-        console.error(
-            "Booking creation error:",
-            error
-        );
-
-
+        console.error("Booking creation error:", error);
         res.status(500).json({
-
             success: false,
-
-            message:
-                "Failed to create booking.",
-
-            error:
-                error.message
-
+            message: "Failed to create booking.",
+            error: error.message
         });
-
     }
-
 });
-// ================= GET CUSTOMER BOOKINGS API =================
 
+// Get customer bookings
 app.get("/api/bookings/customer/:customerId", async (req, res) => {
-
     try {
+        const cId = toObjectId(req.params.customerId);
+        if (!cId) {
+            return res.status(400).json({ success: false, message: "Invalid customer ID." });
+        }
 
-        const customerId = req.params.customerId;
+        const bookings = await Booking.find({ customer_id: cId })
+            .populate("service_id", "service_name name price")
+            .populate("technician_id", "full_name phone")
+            .sort({ created_at: -1 });
 
-        const [bookings] = await db.query(
-            `SELECT
-                b.id,
-                b.booking_id,
-                s.service_name,
-                b.ac_type,
-                b.address,
-                b.preferred_date,
-                b.preferred_time,
-                b.problem_description,
-                b.status,
-                b.total_amount,
-                COALESCE(t.full_name, 'Not Assigned') AS technician_name
-             FROM bookings b
-             INNER JOIN services s
-                ON b.service_id = s.id
-             LEFT JOIN technicians t
-                ON b.technician_id = t.id
-             WHERE b.customer_id = ?
-             ORDER BY b.created_at DESC`,
-            [customerId]
-        );
+        const formatted = bookings.map(b => ({
+            id: b._id,
+            booking_id: b.booking_id,
+            customer_id: b.customer_id,
+            service_name: b.service_id?.service_name || b.service_id?.name || "AC Service",
+            ac_type: b.ac_type,
+            address: b.address,
+            preferred_date: b.preferred_date,
+            preferred_time: b.preferred_time,
+            problem_description: b.problem_description,
+            status: b.status,
+            total_amount: b.total_amount,
+            technician_name: b.technician_id?.full_name || "Not Assigned",
+            created_at: b.created_at
+        }));
 
         res.json({
             success: true,
-            bookings: bookings
+            bookings: formatted
         });
-
     } catch (error) {
-
-        console.error(
-            "Fetch customer bookings error:",
-            error
-        );
-
+        console.error("Fetch customer bookings error:", error);
         res.status(500).json({
             success: false,
             message: "Failed to load bookings.",
             error: error.message
         });
-
     }
-
 });
-// ===============================
-// TECHNICIAN LOGIN
-// ===============================
+
+// Admin: Recent bookings (last 10)
+app.get("/api/admin/recent-bookings", async (req, res) => {
+    try {
+        const bookings = await Booking.find()
+            .populate("customer_id", "full_name phone email")
+            .populate("service_id", "service_name name")
+            .populate("technician_id", "full_name")
+            .sort({ created_at: -1 })
+            .limit(10);
+
+        const bookingIds = bookings.map(b => b._id);
+        const payments = await Payment.find({ booking_id: { $in: bookingIds } });
+        const paymentMap = new Map(payments.map(p => [String(p.booking_id), p.payment_status]));
+
+        const formatted = bookings.map(b => ({
+            booking_id: b.booking_id,
+            customer_name: b.customer_id?.full_name || "Unknown",
+            service_name: b.service_id?.service_name || b.service_id?.name || "AC Service",
+            technician_name: b.technician_id?.full_name || "Not Assigned",
+            preferred_date: b.preferred_date,
+            status: b.status,
+            total_amount: b.total_amount,
+            payment_status: paymentMap.get(String(b._id)) || "Pending"
+        }));
+
+        res.json({
+            success: true,
+            bookings: formatted
+        });
+    } catch (error) {
+        console.error("Admin recent bookings error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to load recent bookings.",
+            error: error.message
+        });
+    }
+});
+
+// Admin: All bookings
+app.get("/api/admin/bookings", async (req, res) => {
+    try {
+        const bookings = await Booking.find()
+            .populate("customer_id", "full_name phone email")
+            .populate("service_id", "service_name name")
+            .populate("technician_id", "full_name")
+            .sort({ created_at: -1 });
+
+        const formatted = bookings.map(b => ({
+            id: b._id,
+            booking_id: b.booking_id,
+            customer_name: b.customer_id?.full_name || "Unknown",
+            customer_phone: b.customer_id?.phone || "",
+            customer_email: b.customer_id?.email || "",
+            service_name: b.service_id?.service_name || b.service_id?.name || "AC Service",
+            technician_name: b.technician_id?.full_name || "Not Assigned",
+            ac_type: b.ac_type,
+            address: b.address,
+            preferred_date: b.preferred_date,
+            preferred_time: b.preferred_time,
+            problem_description: b.problem_description,
+            status: b.status,
+            total_amount: b.total_amount,
+            created_at: b.created_at
+        }));
+
+        res.json({
+            success: true,
+            data: formatted
+        });
+    } catch (error) {
+        console.error("Admin bookings API error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to load admin bookings.",
+            error: error.message
+        });
+    }
+});
+
+// Admin: Assign technician
+app.put("/api/admin/bookings/:id/assign", async (req, res) => {
+    try {
+        const { technician_id } = req.body;
+        if (!technician_id) {
+            return res.status(400).json({ success: false, message: "Technician is required." });
+        }
+
+        const bQuery = mongoose.isValidObjectId(req.params.id) ? { _id: req.params.id } : { booking_id: req.params.id };
+        const booking = await Booking.findOne(bQuery);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found." });
+        }
+
+        const technician = await Technician.findById(technician_id);
+        if (!technician) {
+            return res.status(404).json({ success: false, message: "Technician not found." });
+        }
+
+        booking.technician_id = technician._id;
+        booking.status = "Assigned";
+        await booking.save();
+
+        res.json({
+            success: true,
+            message: "Technician assigned successfully.",
+            bookingId: booking.booking_id,
+            technician: technician.full_name
+        });
+    } catch (error) {
+        console.error("Assign technician error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to assign technician.",
+            error: error.message
+        });
+    }
+});
+
+// Admin: Edit booking preferred date/time
+app.put("/api/admin/bookings/:id", async (req, res) => {
+    try {
+        const { preferred_date, preferred_time } = req.body;
+        if (!preferred_date || !preferred_time) {
+            return res.status(400).json({ success: false, message: "Date and time are required." });
+        }
+
+        const bQuery = mongoose.isValidObjectId(req.params.id) ? { _id: req.params.id } : { booking_id: req.params.id };
+        const booking = await Booking.findOne(bQuery);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found." });
+        }
+
+        booking.preferred_date = preferred_date;
+        booking.preferred_time = preferred_time;
+        await booking.save();
+
+        res.json({
+            success: true,
+            message: "Booking date and time saved.",
+            booking: {
+                id: booking._id,
+                booking_id: booking.booking_id,
+                preferred_date: booking.preferred_date,
+                preferred_time: booking.preferred_time
+            }
+        });
+    } catch (error) {
+        console.error("Edit booking error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to update booking.",
+            error: error.message
+        });
+    }
+});
+
+// Technician: Update booking status
+app.put("/api/technicians/bookings/:id/status", async (req, res) => {
+    try {
+        const { status, technician_id } = req.body;
+        const allowedStatuses = ["Accepted", "In Progress", "Completed"];
+
+        if (!allowedStatuses.includes(status)) {
+            return res.status(400).json({ success: false, message: "Invalid booking status." });
+        }
+        if (!technician_id) {
+            return res.status(400).json({ success: false, message: "Technician ID is required." });
+        }
+
+        const bQuery = mongoose.isValidObjectId(req.params.id) ? { _id: req.params.id } : { booking_id: req.params.id };
+        const booking = await Booking.findOne(bQuery);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found." });
+        }
+
+        if (String(booking.technician_id) !== String(technician_id)) {
+            return res.status(403).json({
+                success: false,
+                message: "This booking is not assigned to this technician."
+            });
+        }
+
+        if (status === "Accepted" && booking.status !== "Assigned") {
+            return res.status(400).json({ success: false, message: "Only an assigned job can be accepted." });
+        }
+        if (status === "In Progress" && booking.status !== "Accepted") {
+            return res.status(400).json({ success: false, message: "Job must be accepted before starting." });
+        }
+        if (status === "Completed" && booking.status !== "In Progress") {
+            return res.status(400).json({ success: false, message: "Job must be in progress before completing." });
+        }
+
+        booking.status = status;
+        await booking.save();
+
+        res.json({
+            success: true,
+            message: "Booking status updated successfully.",
+            bookingId: booking.booking_id,
+            status: booking.status
+        });
+    } catch (error) {
+        console.error("Technician status update error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to update booking status.",
+            error: error.message
+        });
+    }
+});
+
+// Admin: Today's jobs
+app.get("/api/admin/todays-jobs", async (req, res) => {
+    try {
+        const todayStr = new Date().toISOString().split("T")[0];
+        const jobs = await Booking.find({
+            preferred_date: todayStr,
+            status: { $nin: ["Completed", "Cancelled"] }
+        })
+            .populate("customer_id", "full_name")
+            .populate("service_id", "service_name name")
+            .populate("technician_id", "full_name")
+            .sort({ preferred_time: 1 });
+
+        const formatted = jobs.map(b => ({
+            id: b._id,
+            booking_id: b.booking_id,
+            customer_name: b.customer_id?.full_name || "Unknown",
+            service_name: b.service_id?.service_name || b.service_id?.name || "AC Service",
+            technician_name: b.technician_id?.full_name || "Not Assigned",
+            address: b.address,
+            preferred_date: b.preferred_date,
+            preferred_time: b.preferred_time,
+            status: b.status
+        }));
+
+        res.json({ success: true, jobs: formatted });
+    } catch (error) {
+        console.error("Today's jobs API error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to load today's jobs",
+            error: error.message
+        });
+    }
+});
+
+// Admin: Bookings overview
+app.get("/api/admin/bookings-overview", async (req, res) => {
+    try {
+        const [
+            totalBookings,
+            completedBookings,
+            pendingBookings,
+            cancelledBookings,
+            assignedBookings,
+            acceptedBookings,
+            inProgressBookings
+        ] = await Promise.all([
+            Booking.countDocuments(),
+            Booking.countDocuments({ status: "Completed" }),
+            Booking.countDocuments({ status: "Pending" }),
+            Booking.countDocuments({ status: "Cancelled" }),
+            Booking.countDocuments({ status: "Assigned" }),
+            Booking.countDocuments({ status: "Accepted" }),
+            Booking.countDocuments({ status: "In Progress" })
+        ]);
+
+        res.json({
+            success: true,
+            overview: {
+                totalBookings,
+                completedBookings,
+                pendingBookings,
+                cancelledBookings,
+                assignedBookings,
+                acceptedBookings,
+                inProgressBookings
+            }
+        });
+    } catch (error) {
+        console.error("Bookings overview API error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to load bookings overview."
+        });
+    }
+});
+
+// =====================================================
+// CUSTOMERS MANAGEMENT (ADMIN)
+// =====================================================
+
+app.get("/api/admin/customers", async (req, res) => {
+    try {
+        const customers = await Customer.find().sort({ created_at: -1 });
+        const customerIds = customers.map(c => c._id);
+
+        const bookingAgg = await Booking.aggregate([
+            { $match: { customer_id: { $in: customerIds } } },
+            {
+                $group: {
+                    _id: "$customer_id",
+                    total_bookings: { $sum: 1 },
+                    last_service: { $max: "$preferred_date" }
+                }
+            }
+        ]);
+
+        const aggMap = new Map(bookingAgg.map(a => [String(a._id), a]));
+
+        const formatted = customers.map(c => {
+            const agg = aggMap.get(String(c._id)) || { total_bookings: 0, last_service: null };
+            return {
+                id: c._id,
+                full_name: c.full_name,
+                phone: c.phone,
+                email: c.email,
+                address: c.address,
+                created_at: c.created_at,
+                total_bookings: agg.total_bookings,
+                last_service: agg.last_service
+            };
+        });
+
+        res.json({ success: true, customers: formatted });
+    } catch (error) {
+        console.error("Admin customers error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to load customers.",
+            error: error.message
+        });
+    }
+});
+
+app.get("/api/admin/customers/:id", async (req, res) => {
+    try {
+        const cId = toObjectId(req.params.id);
+        const customer = await Customer.findById(cId);
+        if (!customer) {
+            return res.status(404).json({ success: false, message: "Customer not found." });
+        }
+
+        const bookings = await Booking.find({ customer_id: cId })
+            .populate("service_id", "service_name name")
+            .populate("technician_id", "full_name")
+            .sort({ created_at: -1 });
+
+        const formattedBookings = bookings.map(b => ({
+            booking_id: b.booking_id,
+            service_name: b.service_id?.service_name || b.service_id?.name || "AC Service",
+            technician_name: b.technician_id?.full_name || "Not Assigned",
+            ac_type: b.ac_type,
+            preferred_date: b.preferred_date,
+            preferred_time: b.preferred_time,
+            status: b.status,
+            total_amount: b.total_amount
+        }));
+
+        res.json({
+            success: true,
+            customer: {
+                id: customer._id,
+                full_name: customer.full_name,
+                phone: customer.phone,
+                email: customer.email,
+                address: customer.address,
+                created_at: customer.created_at
+            },
+            bookings: formattedBookings
+        });
+    } catch (error) {
+        console.error("Customer details API error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to load customer details.",
+            error: error.message
+        });
+    }
+});
+
+// =====================================================
+// TECHNICIANS MANAGEMENT
+// =====================================================
+
 app.post("/api/technicians/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -909,38 +887,15 @@ app.post("/api/technicians/login", async (req, res) => {
             });
         }
 
-        const [technicians] = await db.query(
-            `
-            SELECT
-                id,
-                full_name,
-                phone,
-                email,
-                specialization,
-                experience,
-                status,
-                password
-            FROM technicians
-            WHERE email = ?
-            `,
-            [email]
-        );
-
-        if (technicians.length === 0) {
+        const technician = await Technician.findOne({ email: email.trim().toLowerCase() });
+        if (!technician) {
             return res.status(401).json({
                 success: false,
                 message: "Invalid email or password."
             });
         }
 
-        const technician = technicians[0];
-
-        // Check password
-        const passwordMatch = await bcrypt.compare(
-            password,
-            technician.password
-        );
-
+        const passwordMatch = await bcrypt.compare(password, technician.password);
         if (!passwordMatch) {
             return res.status(401).json({
                 success: false,
@@ -948,18 +903,19 @@ app.post("/api/technicians/login", async (req, res) => {
             });
         }
 
-        // Do not send password to frontend
-        delete technician.password;
+        const techObj = technician.toObject();
+        delete techObj.password;
 
         res.json({
             success: true,
             message: "Technician login successful.",
-            technician: technician
+            technician: {
+                id: technician._id,
+                ...techObj
+            }
         });
-
     } catch (error) {
         console.error("Technician login error:", error);
-
         res.status(500).json({
             success: false,
             message: "Technician login failed.",
@@ -967,332 +923,62 @@ app.post("/api/technicians/login", async (req, res) => {
         });
     }
 });
-// =====================================================
-// GET CUSTOMER BOOKINGS
-// =====================================================
-
-app.get("/api/bookings/customer/:customerId", async (req, res) => {
-
-    try {
-
-        const customerId = req.params.customerId;
-
-        const [bookings] = await db.query(
-            `SELECT
-                b.id,
-                b.booking_id,
-                b.customer_id,
-                b.ac_type,
-                b.address,
-                b.preferred_date,
-                b.preferred_time,
-                b.problem_description,
-                b.status,
-                b.total_amount,
-                s.service_name,
-                t.full_name AS technician_name
-             FROM bookings b
-             INNER JOIN services s
-                ON b.service_id = s.id
-             LEFT JOIN technicians t
-                ON b.technician_id = t.id
-             WHERE b.customer_id = ?
-             ORDER BY b.created_at DESC`,
-            [customerId]
-        );
-
-        res.json({
-            success: true,
-            bookings: bookings
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Customer bookings error:",
-            error
-        );
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to load customer bookings.",
-            error: error.message
-        });
-
-    }
-
-});
-// =====================================================
-// ADMIN - RECENT BOOKINGS
-// =====================================================
-
-app.get("/api/admin/recent-bookings", async (req, res) => {
-
-    try {
-
-        const [bookings] = await db.query(`
-            SELECT
-                b.booking_id,
-                c.full_name AS customer_name,
-                s.service_name,
-                t.full_name AS technician_name,
-                b.preferred_date,
-                b.status,
-                b.total_amount,
-                COALESCE(p.payment_status, 'Pending') AS payment_status
-
-            FROM bookings b
-
-            INNER JOIN customers c
-                ON b.customer_id = c.id
-
-            INNER JOIN services s
-                ON b.service_id = s.id
-
-            LEFT JOIN technicians t
-                ON b.technician_id = t.id
-
-            LEFT JOIN payments p
-                ON p.booking_id = b.id
-
-            ORDER BY b.created_at DESC
-
-            LIMIT 10
-        `);
-
-        res.json({
-            success: true,
-            bookings: bookings
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Admin recent bookings error:",
-            error
-        );
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to load recent bookings.",
-            error: error.message
-        });
-
-    }
-
-});
-// =====================================================
-// ADMIN - GET CUSTOMERS
-// =====================================================
-
-app.get("/api/admin/customers", async (req, res) => {
-
-    try {
-
-        const [customers] = await db.query(`
-            SELECT
-                c.id,
-                c.full_name,
-                c.phone,
-                c.email,
-                c.address,
-                c.created_at,
-                COUNT(b.id) AS total_bookings,
-                MAX(b.preferred_date) AS last_service
-            FROM customers c
-            LEFT JOIN bookings b
-                ON c.id = b.customer_id
-            GROUP BY
-                c.id,
-                c.full_name,
-                c.phone,
-                c.email,
-                c.address,
-                c.created_at
-            ORDER BY c.created_at DESC
-        `);
-
-        res.json({
-            success: true,
-            customers: customers
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Admin customers error:",
-            error
-        );
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to load customers.",
-            error: error.message
-        });
-
-    }
-
-});
-// ================= CUSTOMER DETAILS API =================
-
-app.get("/api/admin/customers/:id", async (req, res) => {
-
-    try {
-
-        const customerId = req.params.id;
-
-        // Get customer information
-        const [customers] = await db.query(`
-            SELECT
-                id,
-                full_name,
-                phone,
-                email,
-                address,
-                created_at
-            FROM customers
-            WHERE id = ?
-        `, [customerId]);
-
-
-        if (customers.length === 0) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Customer not found."
-            });
-
-        }
-
-
-        // Get customer's booking history
-        const [bookings] = await db.query(`
-            SELECT
-                b.booking_id,
-                s.service_name,
-                COALESCE(t.full_name, 'Not Assigned') AS technician_name,
-                b.ac_type,
-                b.preferred_date,
-                b.preferred_time,
-                b.status,
-                b.total_amount
-            FROM bookings b
-
-            INNER JOIN services s
-                ON b.service_id = s.id
-
-            LEFT JOIN technicians t
-                ON b.technician_id = t.id
-
-            WHERE b.customer_id = ?
-
-            ORDER BY b.created_at DESC
-        `, [customerId]);
-
-
-        res.json({
-
-            success: true,
-
-            customer: customers[0],
-
-            bookings: bookings
-
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Customer details API error:",
-            error
-        );
-
-        res.status(500).json({
-
-            success: false,
-
-            message: "Failed to load customer details.",
-
-            error: error.message
-
-        });
-
-    }
-
-});
-// ================= TECHNICIANS API =================
 
 app.get("/api/technicians", async (req, res) => {
     try {
+        const technicians = await Technician.find().sort({ created_at: -1 });
+        const techIds = technicians.map(t => t._id);
 
-        const [technicians] = await db.query(`
-            SELECT
-                t.id,
-                t.full_name,
-                t.phone,
-                t.email,
-                t.specialization,
-                t.experience,
-                t.status,
-                t.created_at,
+        const [bookingCounts, reviewAgg] = await Promise.all([
+            Booking.aggregate([
+                { $match: { technician_id: { $in: techIds } } },
+                { $group: { _id: "$technician_id", count: { $sum: 1 } } }
+            ]),
+            Review.aggregate([
+                { $match: { technician_id: { $in: techIds } } },
+                { $group: { _id: "$technician_id", avgRating: { $avg: "$rating" } } }
+            ])
+        ]);
 
-                (
-                    SELECT COUNT(*)
-                    FROM bookings b
-                    WHERE b.technician_id = t.id
-                ) AS assigned_jobs,
+        const countMap = new Map(bookingCounts.map(b => [String(b._id), b.count]));
+        const ratingMap = new Map(reviewAgg.map(r => [String(r._id), Math.round(r.avgRating * 10) / 10]));
 
-                (
-                    SELECT ROUND(AVG(r.rating), 1)
-                    FROM reviews r
-                    WHERE r.technician_id = t.id
-                ) AS rating
+        const formatted = technicians.map(t => ({
+            id: t._id,
+            full_name: t.full_name,
+            phone: t.phone,
+            email: t.email,
+            specialization: t.specialization,
+            experience: t.experience,
+            status: t.status,
+            created_at: t.created_at,
+            assigned_jobs: countMap.get(String(t._id)) || 0,
+            rating: ratingMap.get(String(t._id)) || 5.0
+        }));
 
-            FROM technicians t
-            ORDER BY t.id DESC
-        `);
-
-        res.json({
-            success: true,
-            data: technicians
-        });
-
+        res.json({ success: true, data: formatted });
     } catch (error) {
-
         console.error("Technicians API error:", error);
-
         res.status(500).json({
             success: false,
             message: "Failed to load technicians.",
             error: error.message
         });
-
     }
 });
-// ===============================
-// TEMPORARY: UPDATE TECHNICIAN PASSWORDS
-// ===============================
+
 app.put("/api/technicians/update-passwords", async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash("123456", 10);
-
-        const [result] = await db.query(
-            `
-            UPDATE technicians
-            SET password = ?
-            `,
-            [hashedPassword]
-        );
+        const result = await Technician.updateMany({}, { $set: { password: hashedPassword } });
 
         res.json({
             success: true,
             message: "All technician passwords updated successfully.",
-            updated: result.affectedRows
+            updated: result.modifiedCount
         });
-
     } catch (error) {
         console.error("Update technician passwords error:", error);
-
         res.status(500).json({
             success: false,
             message: "Failed to update technician passwords.",
@@ -1300,148 +986,95 @@ app.put("/api/technicians/update-passwords", async (req, res) => {
         });
     }
 });
-// ================= SINGLE TECHNICIAN API =================
 
 app.get("/api/technicians/:id", async (req, res) => {
     try {
-
-        const technicianId = req.params.id;
-
-        const [technicians] = await db.query(`
-            SELECT
-                t.id,
-                t.full_name,
-                t.phone,
-                t.email,
-                t.specialization,
-                t.experience,
-                t.status,
-                t.created_at,
-
-                (
-                    SELECT COUNT(*)
-                    FROM bookings b
-                    WHERE b.technician_id = t.id
-                ) AS assigned_jobs,
-
-                (
-                    SELECT ROUND(AVG(r.rating), 1)
-                    FROM reviews r
-                    WHERE r.technician_id = t.id
-                ) AS rating
-
-            FROM technicians t
-            WHERE t.id = ?
-        `, [technicianId]);
-
-        if (technicians.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Technician not found."
-            });
+        const tId = toObjectId(req.params.id);
+        const technician = await Technician.findById(tId);
+        if (!technician) {
+            return res.status(404).json({ success: false, message: "Technician not found." });
         }
+
+        const [assigned_jobs, reviewAgg] = await Promise.all([
+            Booking.countDocuments({ technician_id: tId }),
+            Review.aggregate([
+                { $match: { technician_id: tId } },
+                { $group: { _id: null, avgRating: { $avg: "$rating" } } }
+            ])
+        ]);
 
         res.json({
             success: true,
-            technician: technicians[0]
+            technician: {
+                id: technician._id,
+                full_name: technician.full_name,
+                phone: technician.phone,
+                email: technician.email,
+                specialization: technician.specialization,
+                experience: technician.experience,
+                status: technician.status,
+                created_at: technician.created_at,
+                assigned_jobs,
+                rating: reviewAgg[0] ? Math.round(reviewAgg[0].avgRating * 10) / 10 : 5.0
+            }
         });
-
     } catch (error) {
-
         console.error("Single technician API error:", error);
-
         res.status(500).json({
             success: false,
             message: "Failed to load technician details.",
             error: error.message
         });
-
     }
 });
 
-// ================= UPDATE TECHNICIAN API =================
-
 app.put("/api/technicians/:id", async (req, res) => {
     try {
-        const technicianId = req.params.id;
+        const tId = toObjectId(req.params.id);
+        const { full_name, phone, email, specialization, experience } = req.body;
 
-        const {
-            full_name,
-            phone,
-            email,
-            specialization,
-            experience
-        } = req.body;
-
-        if (
-            !full_name?.trim() ||
-            !phone?.trim() ||
-            !email?.trim() ||
-            !specialization?.trim()
-        ) {
+        if (!full_name?.trim() || !phone?.trim() || !email?.trim() || !specialization?.trim()) {
             return res.status(400).json({
                 success: false,
                 message: "Name, phone, email and specialization are required."
             });
         }
 
-        const [result] = await db.query(
-            `UPDATE technicians
-             SET full_name = ?,
-                 phone = ?,
-                 email = ?,
-                 specialization = ?,
-                 experience = ?
-             WHERE id = ?`,
-            [
-                full_name.trim(),
-                phone.trim(),
-                email.trim(),
-                specialization.trim(),
-                Math.max(0, Number(experience) || 0),
-                technicianId
-            ]
+        const updated = await Technician.findByIdAndUpdate(
+            tId,
+            {
+                full_name: full_name.trim(),
+                phone: phone.trim(),
+                email: email.trim().toLowerCase(),
+                specialization: specialization.trim(),
+                experience: Math.max(0, Number(experience) || 0)
+            },
+            { new: true }
         );
 
-        if (result.affectedRows === 0) {
-            const [existing] = await db.query(
-                "SELECT id FROM technicians WHERE id = ?",
-                [technicianId]
-            );
-
-            if (existing.length === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Technician not found."
-                });
-            }
+        if (!updated) {
+            return res.status(404).json({ success: false, message: "Technician not found." });
         }
 
-        const [rows] = await db.query(
-            `SELECT id, full_name, phone, email, specialization,
-                    experience, status
-             FROM technicians
-             WHERE id = ?`,
-            [technicianId]
-        );
-
-        return res.json({
+        res.json({
             success: true,
             message: "Technician updated successfully.",
-            technician: rows[0]
+            technician: {
+                id: updated._id,
+                full_name: updated.full_name,
+                phone: updated.phone,
+                email: updated.email,
+                specialization: updated.specialization,
+                experience: updated.experience,
+                status: updated.status
+            }
         });
-
     } catch (error) {
         console.error("Update technician API error:", error);
-
-        if (error.code === "ER_DUP_ENTRY") {
-            return res.status(409).json({
-                success: false,
-                message: "This email is already registered."
-            });
+        if (error.code === 11000) {
+            return res.status(409).json({ success: false, message: "This email is already registered." });
         }
-
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Failed to update technician.",
             error: error.message
@@ -1449,21 +1082,9 @@ app.put("/api/technicians/:id", async (req, res) => {
     }
 });
 
-
-// ================= ADD TECHNICIAN API =================
-
 app.post("/api/technicians", async (req, res) => {
     try {
-
-        const {
-            full_name,
-            phone,
-            email,
-            specialization,
-            experience,
-            status,
-            password
-        } = req.body;
+        const { full_name, phone, email, specialization, experience, status, password } = req.body;
 
         if (!full_name || !phone || !email || !specialization) {
             return res.status(400).json({
@@ -1472,308 +1093,109 @@ app.post("/api/technicians", async (req, res) => {
             });
         }
 
-        const allowedStatuses = [
-            "Available",
-            "Busy",
-            "Inactive"
-        ];
-
+        const allowedStatuses = ["Available", "Busy", "Inactive"];
         const technicianStatus = status || "Available";
 
         if (!allowedStatuses.includes(technicianStatus)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid technician status."
-            });
+            return res.status(400).json({ success: false, message: "Invalid technician status." });
         }
 
-       const technicianPassword = await bcrypt.hash(
-    password || "123456",
-    10
-);
+        const normalizedEmail = email.trim().toLowerCase();
+        const existing = await Technician.findOne({ email: normalizedEmail });
+        if (existing) {
+            return res.status(409).json({ success: false, message: "This email is already registered." });
+        }
 
-        const [result] = await db.query(`
-            INSERT INTO technicians
-            (
-                full_name,
-                phone,
-                email,
-                specialization,
-                experience,
-                status,
-                password
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `, [
-            full_name,
-            phone,
-            email,
-            specialization,
-            Number(experience) || 0,
-            technicianStatus,
-            technicianPassword
-        ]);
+        const hashedPassword = await bcrypt.hash(password || "123456", 10);
+        const newTech = await Technician.create({
+            full_name: full_name.trim(),
+            phone: phone.trim(),
+            email: normalizedEmail,
+            specialization: specialization.trim(),
+            experience: Number(experience) || 0,
+            status: technicianStatus,
+            password: hashedPassword
+        });
 
         res.status(201).json({
             success: true,
             message: "Technician added successfully.",
-            technicianId: result.insertId
+            technicianId: newTech._id
         });
-
     } catch (error) {
-
         console.error("Add technician API error:", error);
-
-        if (error.code === "ER_DUP_ENTRY") {
-            return res.status(409).json({
-                success: false,
-                message: "This email is already registered."
-            });
-        }
-
         res.status(500).json({
             success: false,
             message: "Failed to add technician.",
             error: error.message
         });
-
     }
 });
-// ================= GET ADMIN BOOKINGS API =================
 
-app.get("/api/admin/bookings", async (req, res) => {
-
-    try {
-
-        const [bookings] = await db.query(`
-            SELECT
-                b.id,
-                b.booking_id,
-                c.full_name AS customer_name,
-                c.phone AS customer_phone,
-                c.email AS customer_email,
-                s.service_name,
-                COALESCE(t.full_name, 'Not Assigned') AS technician_name,
-                b.ac_type,
-                b.address,
-                b.preferred_date,
-                b.preferred_time,
-                b.problem_description,
-                b.status,
-                b.total_amount,
-                b.created_at
-            FROM bookings b
-
-            INNER JOIN customers c
-                ON b.customer_id = c.id
-
-            INNER JOIN services s
-                ON b.service_id = s.id
-
-            LEFT JOIN technicians t
-                ON b.technician_id = t.id
-
-            ORDER BY b.created_at DESC
-        `);
-
-
-        res.json({
-
-            success: true,
-
-            data: bookings
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Admin bookings API error:",
-            error
-        );
-
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Failed to load admin bookings.",
-
-            error:
-                error.message
-
-        });
-
-    }
-
-});
-// ==========================================
-// TECHNICIAN DASHBOARD
-// ==========================================
-
+// Technician: Dashboard
 app.get("/api/technicians/:id/dashboard", async (req, res) => {
     try {
-        const technicianId = req.params.id;
-
-        // ==========================================
-        // GET TECHNICIAN DETAILS
-        // ==========================================
-
-        const [technicians] = await db.query(
-            `
-            SELECT
-                id,
-                full_name,
-                phone,
-                email,
-                specialization,
-                experience,
-                status
-            FROM technicians
-            WHERE id = ?
-            `,
-            [technicianId]
-        );
-
-        if (technicians.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Technician not found."
-            });
+        const tId = toObjectId(req.params.id);
+        const technician = await Technician.findById(tId);
+        if (!technician) {
+            return res.status(404).json({ success: false, message: "Technician not found." });
         }
 
-        // ==========================================
-        // GET ASSIGNED BOOKINGS
-        // ==========================================
+        const rawBookings = await Booking.find({ technician_id: tId })
+            .populate("customer_id", "full_name phone email")
+            .populate("service_id", "service_name name")
+            .sort({ created_at: -1 });
 
-        const [bookings] = await db.query(
-            `
-            SELECT
-                b.id,
-                b.booking_id,
-                c.full_name AS customer_name,
-                c.phone AS customer_phone,
-                c.email AS customer_email,
-                b.address,
-                s.service_name,
-                b.ac_type,
-                b.preferred_date,
-                b.preferred_time,
-                b.problem_description,
-                b.status,
-                b.total_amount,
-                b.created_at
-            FROM bookings b
-            INNER JOIN customers c
-                ON b.customer_id = c.id
-            INNER JOIN services s
-                ON b.service_id = s.id
-            WHERE b.technician_id = ?
-            ORDER BY b.created_at DESC
-            `,
-            [technicianId]
-        );
-
-        // ==========================================
-        // JOB STATISTICS
-        // ==========================================
+        const bookings = rawBookings.map(b => ({
+            id: b._id,
+            booking_id: b.booking_id,
+            customer_name: b.customer_id?.full_name || "Unknown",
+            customer_phone: b.customer_id?.phone || "",
+            customer_email: b.customer_id?.email || "",
+            address: b.address,
+            service_name: b.service_id?.service_name || b.service_id?.name || "AC Service",
+            ac_type: b.ac_type,
+            preferred_date: b.preferred_date,
+            preferred_time: b.preferred_time,
+            problem_description: b.problem_description,
+            status: b.status,
+            total_amount: b.total_amount,
+            created_at: b.created_at
+        }));
 
         const totalJobs = bookings.length;
-
-        const pendingJobs = bookings.filter(
-            booking =>
-                booking.status === "Assigned" ||
-                booking.status === "Pending"
-        ).length;
-
-        const inProgressJobs = bookings.filter(
-            booking =>
-                booking.status === "In Progress"
-        ).length;
-
-        const completedJobs = bookings.filter(
-            booking =>
-                booking.status === "Completed"
-        ).length;
-
-        // ==========================================
-        // TOTAL EARNINGS
-        // ==========================================
+        const pendingJobs = bookings.filter(b => b.status === "Assigned" || b.status === "Pending").length;
+        const inProgressJobs = bookings.filter(b => b.status === "In Progress").length;
+        const completedJobs = bookings.filter(b => b.status === "Completed").length;
 
         const totalEarnings = bookings
-            .filter(
-                booking =>
-                    booking.status === "Completed"
-            )
-            .reduce(
-                (total, booking) =>
-                    total +
-                    (Number(booking.total_amount) || 0),
-                0
-            );
+            .filter(b => b.status === "Completed")
+            .reduce((sum, b) => sum + (Number(b.total_amount) || 0), 0);
 
-        // ==========================================
-        // TODAY'S EARNINGS
-        // ==========================================
-
-        const today = new Date()
-            .toISOString()
-            .split("T")[0];
-
+        const today = new Date().toISOString().split("T")[0];
         const todayEarnings = bookings
-            .filter(
-                booking =>
-                    booking.status === "Completed" &&
-                    String(booking.preferred_date)
-                        .substring(0, 10) === today
-            )
-            .reduce(
-                (total, booking) =>
-                    total +
-                    (Number(booking.total_amount) || 0),
-                0
-            );
+            .filter(b => b.status === "Completed" && String(b.preferred_date).substring(0, 10) === today)
+            .reduce((sum, b) => sum + (Number(b.total_amount) || 0), 0);
 
-        // ==========================================
-        // CUSTOMER RATING
-        // ==========================================
+        const reviewAgg = await Review.aggregate([
+            { $match: { technician_id: tId } },
+            { $group: { _id: null, avgRating: { $avg: "$rating" } } }
+        ]);
 
-        const [ratingResult] = await db.query(
-            `
-            SELECT
-                ROUND(AVG(rating), 1) AS average_rating,
-                COUNT(*) AS total_reviews
-            FROM reviews
-            WHERE technician_id = ?
-            `,
-            [technicianId]
-        );
-
-        const customerRating =
-            ratingResult[0].average_rating || 0;
-
-        // ==========================================
-        // SUCCESS RATE
-        // ==========================================
-
-        const successRate =
-            totalJobs > 0
-                ? Math.round(
-                    (completedJobs / totalJobs) * 100
-                )
-                : 0;
-
-        // ==========================================
-        // SEND RESPONSE
-        // ==========================================
+        const customerRating = reviewAgg[0] ? Math.round(reviewAgg[0].avgRating * 10) / 10 : 5.0;
+        const successRate = totalJobs > 0 ? Math.round((completedJobs / totalJobs) * 100) : 0;
 
         res.json({
             success: true,
-
-            technician: technicians[0],
-
+            technician: {
+                id: technician._id,
+                full_name: technician.full_name,
+                phone: technician.phone,
+                email: technician.email,
+                specialization: technician.specialization,
+                experience: technician.experience,
+                status: technician.status
+            },
             stats: {
                 totalJobs,
                 pendingJobs,
@@ -1784,904 +1206,330 @@ app.get("/api/technicians/:id/dashboard", async (req, res) => {
                 customerRating,
                 successRate
             },
-
             bookings
         });
-
     } catch (error) {
-
-        console.error(
-            "Technician dashboard error:",
-            error
-        );
-
+        console.error("Technician dashboard error:", error);
         res.status(500).json({
             success: false,
-            message:
-                "Failed to load technician dashboard.",
-            error:
-                error.message
+            message: "Failed to load technician dashboard.",
+            error: error.message
         });
     }
 });
-// =====================================================
-// TECHNICIAN - CUSTOMERS
-// =====================================================
 
+// Technician: Customers served
 app.get("/api/technicians/:id/customers", async (req, res) => {
-
     try {
+        const tId = toObjectId(req.params.id);
+        const bookings = await Booking.find({ technician_id: tId })
+            .populate("customer_id")
+            .sort({ preferred_date: -1 });
 
-        const technicianId = req.params.id;
+        const customerMap = new Map();
+        for (const b of bookings) {
+            const cust = b.customer_id;
+            if (!cust) continue;
+            const cidStr = String(cust._id);
+            if (!customerMap.has(cidStr)) {
+                customerMap.set(cidStr, {
+                    id: cust._id,
+                    full_name: cust.full_name,
+                    phone: cust.phone,
+                    email: cust.email,
+                    address: cust.address,
+                    total_bookings: 0,
+                    completed_bookings: 0,
+                    last_service: b.preferred_date
+                });
+            }
+            const data = customerMap.get(cidStr);
+            data.total_bookings += 1;
+            if (b.status === "Completed") data.completed_bookings += 1;
+        }
 
-        const [customers] = await db.query(`
-            SELECT
-                c.id,
-                c.full_name,
-                c.phone,
-                c.email,
-                c.address,
-
-                COUNT(b.id) AS total_bookings,
-
-                COUNT(
-                    CASE
-                        WHEN b.status = 'Completed'
-                        THEN 1
-                    END
-                ) AS completed_bookings,
-
-                MAX(b.preferred_date) AS last_service
-
-            FROM bookings b
-
-            INNER JOIN customers c
-                ON b.customer_id = c.id
-
-            WHERE b.technician_id = ?
-
-            GROUP BY
-                c.id,
-                c.full_name,
-                c.phone,
-                c.email,
-                c.address
-
-            ORDER BY last_service DESC
-        `, [technicianId]);
-
-
-        res.json({
-
-            success: true,
-
-            customers: customers
-
-        });
-
+        res.json({ success: true, customers: Array.from(customerMap.values()) });
     } catch (error) {
-
-        console.error(
-            "Technician customers error:",
-            error
-        );
-
+        console.error("Technician customers error:", error);
         res.status(500).json({
-
             success: false,
-
-            message:
-                "Failed to load technician customers.",
-
-            error:
-                error.message
-
+            message: "Failed to load technician customers.",
+            error: error.message
         });
-
     }
-
 });
-// ==========================================
-// TECHNICIAN EARNINGS
-// ==========================================
 
+// Technician: Earnings
 app.get("/api/technicians/:id/earnings", async (req, res) => {
-
     try {
+        const tId = toObjectId(req.params.id);
+        const completedBookings = await Booking.find({
+            technician_id: tId,
+            status: "Completed"
+        })
+            .populate("customer_id", "full_name")
+            .populate("service_id", "service_name name")
+            .sort({ preferred_date: -1 });
 
-        const technicianId = req.params.id;
+        const today = new Date().toISOString().split("T")[0];
+        let total_earnings = 0;
+        let today_earnings = 0;
 
-        const [summary] = await db.query(`
-            SELECT
-                COUNT(
-                    CASE
-                        WHEN status = 'Completed'
-                        THEN 1
-                    END
-                ) AS completed_jobs,
-
-                COALESCE(
-                    SUM(
-                        CASE
-                            WHEN status = 'Completed'
-                            THEN total_amount
-                            ELSE 0
-                        END
-                    ),
-                    0
-                ) AS total_earnings,
-
-                COALESCE(
-                    SUM(
-                        CASE
-                            WHEN status = 'Completed'
-                            AND DATE(preferred_date) = CURDATE()
-                            THEN total_amount
-                            ELSE 0
-                        END
-                    ),
-                    0
-                ) AS today_earnings
-
-            FROM bookings
-            WHERE technician_id = ?
-
-        `, [technicianId]);
-
-
-        const [earnings] = await db.query(`
-            SELECT
-                b.booking_id,
-                c.full_name AS customer_name,
-                s.service_name,
-                b.preferred_date,
-                b.total_amount,
-                b.status
-
-            FROM bookings b
-
-            INNER JOIN customers c
-                ON b.customer_id = c.id
-
-            INNER JOIN services s
-                ON b.service_id = s.id
-
-            WHERE b.technician_id = ?
-            AND b.status = 'Completed'
-
-            ORDER BY b.preferred_date DESC
-
-        `, [technicianId]);
-
+        const earnings = completedBookings.map(b => {
+            const amt = Number(b.total_amount) || 0;
+            total_earnings += amt;
+            if (String(b.preferred_date).substring(0, 10) === today) {
+                today_earnings += amt;
+            }
+            return {
+                booking_id: b.booking_id,
+                customer_name: b.customer_id?.full_name || "Unknown",
+                service_name: b.service_id?.service_name || b.service_id?.name || "AC Service",
+                preferred_date: b.preferred_date,
+                total_amount: amt,
+                status: b.status
+            };
+        });
 
         res.json({
             success: true,
-            summary: summary[0],
-            earnings: earnings
+            summary: {
+                completed_jobs: completedBookings.length,
+                total_earnings,
+                today_earnings
+            },
+            earnings
         });
-
     } catch (error) {
-
         console.error("Technician earnings error:", error);
-
         res.status(500).json({
             success: false,
             message: "Failed to load technician earnings.",
             error: error.message
         });
-
     }
-
 });
-// ==========================================
-// TECHNICIAN REVIEWS
-// ==========================================
 
+// Technician: Reviews
 app.get("/api/technicians/:id/reviews", async (req, res) => {
-
     try {
+        const tId = toObjectId(req.params.id);
+        const reviews = await Review.find({ technician_id: tId })
+            .populate("customer_id", "full_name")
+            .populate("booking_id", "booking_id")
+            .sort({ created_at: -1 });
 
-        const technicianId = req.params.id;
-
-        // ==========================================
-        // REVIEWS
-        // ==========================================
-
-        const [reviews] = await db.query(`
-            SELECT
-                r.id,
-                r.rating,
-                r.comment,
-                r.created_at,
-                c.full_name AS customer_name,
-                b.booking_id,
-                s.service_name
-
-            FROM reviews r
-
-            INNER JOIN customers c
-                ON r.customer_id = c.id
-
-            INNER JOIN bookings b
-                ON r.booking_id = b.id
-
-            INNER JOIN services s
-                ON b.service_id = s.id
-
-            WHERE r.technician_id = ?
-
-            ORDER BY r.created_at DESC
-
-        `, [technicianId]);
-
-
-        // ==========================================
-        // RATING SUMMARY
-        // ==========================================
-
-        const [ratingResult] = await db.query(`
-            SELECT
-                COALESCE(
-                    ROUND(AVG(rating), 1),
-                    0
-                ) AS average_rating,
-
-                COUNT(*) AS total_reviews
-
-            FROM reviews
-
-            WHERE technician_id = ?
-
-        `, [technicianId]);
-
-
-        // ==========================================
-        // RESPONSE
-        // ==========================================
-
-        res.json({
-
-            success: true,
-
-            summary: ratingResult[0],
-
-            reviews: reviews
-
+        let totalScore = 0;
+        const formatted = reviews.map(r => {
+            totalScore += r.rating;
+            return {
+                id: r._id,
+                rating: r.rating,
+                comment: r.comment,
+                created_at: r.created_at,
+                customer_name: r.customer_id?.full_name || "Anonymous",
+                booking_id: r.booking_id?.booking_id || "AC00000",
+                service_name: "AC Service"
+            };
         });
 
-
-    } catch (error) {
-
-        console.error(
-            "Technician reviews error:",
-            error
-        );
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Failed to load technician reviews.",
-
-            error:
-                error.message
-
-        });
-
-    }
-
-});
-// =====================================================
-// TECHNICIAN - REVIEWS
-// =====================================================
-
-app.get("/api/technicians/:id/reviews", async (req, res) => {
-
-    try {
-
-        const technicianId = req.params.id;
-
-
-        const [reviews] = await db.query(`
-            SELECT
-
-                r.id,
-                r.rating,
-                r.comment,
-                r.created_at,
-
-                c.full_name AS customer_name,
-
-                b.booking_id,
-
-                s.service_name
-
-            FROM reviews r
-
-            INNER JOIN customers c
-                ON r.customer_id = c.id
-
-            INNER JOIN bookings b
-                ON r.booking_id = b.id
-
-            INNER JOIN services s
-                ON b.service_id = s.id
-
-            WHERE r.technician_id = ?
-
-            ORDER BY r.created_at DESC
-        `, [technicianId]);
-
-
-        const [ratingResult] = await db.query(`
-            SELECT
-
-                COALESCE(
-                    ROUND(AVG(rating), 1),
-                    0
-                ) AS average_rating,
-
-                COUNT(*) AS total_reviews
-
-            FROM reviews
-
-            WHERE technician_id = ?
-        `, [technicianId]);
-
-
-        res.json({
-
-            success: true,
-
-            summary: ratingResult[0],
-
-            reviews: reviews
-
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Technician reviews error:",
-            error
-        );
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Failed to load technician reviews.",
-
-            error:
-                error.message
-
-        });
-
-    }
-
-});
-// ================= ASSIGN TECHNICIAN TO BOOKING =================
-
-app.put("/api/admin/bookings/:id/assign", async (req, res) => {
-
-    try {
-
-        const bookingId = req.params.id;
-        const { technician_id } = req.body;
-
-        // Check technician ID
-        if (!technician_id) {
-            return res.status(400).json({
-                success: false,
-                message: "Technician is required."
-            });
-        }
-
-        // Check if booking exists
-        const [bookings] = await db.query(
-            `
-            SELECT id, booking_id, status
-            FROM bookings
-            WHERE id = ?
-            `,
-            [bookingId]
-        );
-
-        if (bookings.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Booking not found."
-            });
-        }
-
-        // Check if technician exists
-        const [technicians] = await db.query(
-            `
-            SELECT id, full_name, status
-            FROM technicians
-            WHERE id = ?
-            `,
-            [technician_id]
-        );
-
-        if (technicians.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Technician not found."
-            });
-        }
-
-        // Update booking
-        const [result] = await db.query(
-            `
-            UPDATE bookings
-            SET
-                technician_id = ?,
-                status = 'Assigned'
-            WHERE id = ?
-            `,
-            [technician_id, bookingId]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "Booking could not be updated."
-            });
-        }
+        const total_reviews = reviews.length;
+        const average_rating = total_reviews > 0 ? Math.round((totalScore / total_reviews) * 10) / 10 : 0;
 
         res.json({
             success: true,
-            message: "Technician assigned successfully.",
-            bookingId: bookings[0].booking_id,
-            technician: technicians[0].full_name
+            summary: { average_rating, total_reviews },
+            reviews: formatted
         });
-
     } catch (error) {
-
-        console.error("Assign technician error:", error);
-
+        console.error("Technician reviews error:", error);
         res.status(500).json({
             success: false,
-            message: "Failed to assign technician.",
-            error: error.message
-        });
-
-    }
-
-});
-
-
-app.put("/api/admin/bookings/:id", async (req, res) => {
-    try {
-        const bookingId = req.params.id;
-        const { preferred_date, preferred_time } = req.body;
-
-        if (!preferred_date || !preferred_time) {
-            return res.status(400).json({
-                success: false,
-                message: "Date and time are required."
-            });
-        }
-
-        const [result] = await db.query(
-            `UPDATE bookings
-             SET preferred_date = ?, preferred_time = ?
-             WHERE id = ?`,
-            [preferred_date, preferred_time, bookingId]
-        );
-
-        if (result.affectedRows === 0) {
-            const [check] = await db.query(
-                "SELECT id FROM bookings WHERE id = ?",
-                [bookingId]
-            );
-
-            if (check.length === 0) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Booking not found."
-                });
-            }
-        }
-
-        const [rows] = await db.query(
-            `SELECT booking_id, preferred_date, preferred_time
-             FROM bookings
-             WHERE id = ?`,
-            [bookingId]
-        );
-
-        console.log("Booking after edit:", rows[0]);
-
-        res.json({
-            success: true,
-            message: "Booking date and time saved.",
-            booking: rows[0]
-        });
-
-    } catch (error) {
-        console.error("Edit booking error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to update booking.",
+            message: "Failed to load technician reviews.",
             error: error.message
         });
     }
 });
+
 // =====================================================
-// START SERVER
+// ADMIN: REPORTS & REVIEWS
 // =====================================================
-// ==========================================
-// TECHNICIAN UPDATE BOOKING STATUS
-// ==========================================
-
-app.put("/api/technicians/bookings/:id/status", async (req, res) => {
-    try {
-
-        const bookingId = req.params.id;
-
-        const {
-            status,
-            technician_id
-        } = req.body;
-
-
-        // Allowed status changes
-        const allowedStatuses = [
-            "Accepted",
-            "In Progress",
-            "Completed"
-        ];
-
-
-        if (!allowedStatuses.includes(status)) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Invalid booking status."
-            });
-
-        }
-
-
-        if (!technician_id) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Technician ID is required."
-            });
-
-        }
-
-
-        // Check booking
-        const [bookings] = await db.query(
-            `
-            SELECT
-                id,
-                booking_id,
-                technician_id,
-                status
-            FROM bookings
-            WHERE id = ?
-            `,
-            [bookingId]
-        );
-
-
-        if (bookings.length === 0) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Booking not found."
-            });
-
-        }
-
-
-        const booking = bookings[0];
-
-
-        // Make sure this booking belongs
-        // to the logged-in technician
-
-        if (
-            Number(booking.technician_id) !==
-            Number(technician_id)
-        ) {
-
-            return res.status(403).json({
-                success: false,
-                message: "This booking is not assigned to this technician."
-            });
-
-        }
-
-
-        // Check correct status sequence
-
-        if (
-            status === "Accepted" &&
-            booking.status !== "Assigned"
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Only an assigned job can be accepted."
-            });
-
-        }
-
-
-        if (
-            status === "In Progress" &&
-            booking.status !== "Accepted"
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Job must be accepted before starting."
-            });
-
-        }
-
-
-        if (
-            status === "Completed" &&
-            booking.status !== "In Progress"
-        ) {
-
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Job must be in progress before completing."
-            });
-
-        }
-
-
-        // Update booking status
-
-        const [result] = await db.query(
-            `
-            UPDATE bookings
-            SET status = ?
-            WHERE id = ?
-            `,
-            [
-                status,
-                bookingId
-            ]
-        );
-
-
-        if (result.affectedRows === 0) {
-
-            return res.status(400).json({
-                success: false,
-                message: "Booking status could not be updated."
-            });
-
-        }
-
-
-        res.json({
-
-            success: true,
-
-            message:
-                "Booking status updated successfully.",
-
-            bookingId:
-                booking.booking_id,
-
-            status:
-                status
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Technician status update error:",
-            error
-        );
-
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Failed to update booking status.",
-
-            error:
-                error.message
-
-        });
-
-    }
-});
 
 app.get("/api/admin/reports", async (req, res) => {
     try {
-        const [bookingStats] = await db.query(`
-            SELECT
-                COUNT(*) AS totalBookings,
-                SUM(status = 'Pending') AS pendingBookings,
-                SUM(status = 'Assigned') AS assignedBookings,
-                SUM(status = 'Accepted') AS acceptedBookings,
-                SUM(status = 'In Progress') AS inProgressBookings,
-                SUM(status = 'Completed') AS completedBookings,
-                SUM(status = 'Cancelled') AS cancelledBookings
-            FROM bookings
-        `);
+        const [
+            totalBookings,
+            pendingBookings,
+            assignedBookings,
+            acceptedBookings,
+            inProgressBookings,
+            completedBookings,
+            cancelledBookings,
+            allPayments
+        ] = await Promise.all([
+            Booking.countDocuments(),
+            Booking.countDocuments({ status: "Pending" }),
+            Booking.countDocuments({ status: "Assigned" }),
+            Booking.countDocuments({ status: "Accepted" }),
+            Booking.countDocuments({ status: "In Progress" }),
+            Booking.countDocuments({ status: "Completed" }),
+            Booking.countDocuments({ status: "Cancelled" }),
+            Payment.find()
+        ]);
 
-        const [paymentStats] = await db.query(`
-            SELECT
-                COALESCE(SUM(CASE
-                    WHEN payment_status = 'Paid' THEN amount
-                    ELSE 0
-                END), 0) AS totalRevenue,
-                COALESCE(SUM(CASE
-                    WHEN payment_status = 'Pending' THEN amount
-                    ELSE 0
-                END), 0) AS pendingPayments,
-                COALESCE(SUM(CASE
-                    WHEN payment_status = 'Refunded' THEN amount
-                    ELSE 0
-                END), 0) AS refundedAmount,
-                COALESCE(SUM(CASE
-                    WHEN payment_status = 'Paid'
-                    THEN technician_share ELSE 0
-                END), 0) AS technicianShare,
-                COALESCE(SUM(CASE
-                    WHEN payment_status = 'Paid'
-                     AND technician_payout_status = 'Paid'
-                    THEN technician_share ELSE 0
-                END), 0) AS technicianPayoutsRecorded,
-                COALESCE(SUM(CASE
-                    WHEN payment_status = 'Paid'
-                     AND (technician_payout_status IS NULL
-                      OR technician_payout_status <> 'Paid')
-                    THEN technician_share ELSE 0
-                END), 0) AS technicianPayoutsPending,
-                COALESCE(SUM(CASE
-                    WHEN payment_status = 'Paid'
-                    THEN owner_share ELSE 0
-                END), 0) AS ownerShare
-            FROM payments
-        `);
+        let totalRevenue = 0;
+        let pendingPayments = 0;
+        let refundedAmount = 0;
+        let technicianShare = 0;
+        let technicianPayoutsRecorded = 0;
+        let technicianPayoutsPending = 0;
+        let ownerShare = 0;
+
+        for (const p of allPayments) {
+            if (p.payment_status === "Paid") {
+                totalRevenue += p.amount;
+                technicianShare += p.technician_share || 0;
+                ownerShare += p.owner_share || 0;
+                if (p.technician_payout_status === "Paid") {
+                    technicianPayoutsRecorded += p.technician_share || 0;
+                } else {
+                    technicianPayoutsPending += p.technician_share || 0;
+                }
+            } else if (p.payment_status === "Pending") {
+                pendingPayments += p.amount;
+            } else if (p.payment_status === "Refunded") {
+                refundedAmount += p.amount;
+            }
+        }
 
         res.json({
             success: true,
-            bookings: bookingStats[0],
-            payments: paymentStats[0]
+            bookings: {
+                totalBookings,
+                pendingBookings,
+                assignedBookings,
+                acceptedBookings,
+                inProgressBookings,
+                completedBookings,
+                cancelledBookings
+            },
+            payments: {
+                totalRevenue,
+                pendingPayments,
+                refundedAmount,
+                technicianShare,
+                technicianPayoutsRecorded,
+                technicianPayoutsPending,
+                ownerShare
+            }
         });
     } catch (error) {
         console.error("Reports API error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to load reports."
-        });
+        res.status(500).json({ success: false, message: "Failed to load reports." });
     }
 });
 
 app.get("/api/admin/reviews", async (req, res) => {
     try {
-        const [reviews] = await db.query(`
-            SELECT
-                r.id,
-                r.rating,
-                r.comment,
-                r.created_at,
-                b.booking_id AS booking_reference,
-                c.full_name AS customer_name,
-                c.phone AS customer_phone,
-                s.name AS service_name,
-                t.full_name AS technician_name
-            FROM reviews r
-            INNER JOIN bookings b
-                ON r.booking_id = b.id
-            INNER JOIN customers c
-                ON r.customer_id = c.id
-            LEFT JOIN services s
-                ON b.service_id = s.id
-            LEFT JOIN technicians t
-                ON r.technician_id = t.id
-            ORDER BY r.created_at DESC
-        `);
+        const rawReviews = await Review.find()
+            .populate("customer_id", "full_name phone")
+            .populate("booking_id", "booking_id service_id")
+            .populate("technician_id", "full_name")
+            .sort({ created_at: -1 });
 
-        const [stats] = await db.query(`
-            SELECT
-                COUNT(*) AS totalReviews,
-                COALESCE(ROUND(AVG(rating), 1), 0) AS averageRating,
-                SUM(rating = 5) AS fiveStarReviews,
-                SUM(rating = 4) AS fourStarReviews,
-                SUM(rating = 3) AS threeStarReviews,
-                SUM(rating = 2) AS twoStarReviews,
-                SUM(rating = 1) AS oneStarReviews
-            FROM reviews
-        `);
+        let fiveStar = 0, fourStar = 0, threeStar = 0, twoStar = 0, oneStar = 0;
+        let sumRating = 0;
+
+        const reviews = rawReviews.map(r => {
+            const rate = r.rating;
+            sumRating += rate;
+            if (rate === 5) fiveStar++;
+            else if (rate === 4) fourStar++;
+            else if (rate === 3) threeStar++;
+            else if (rate === 2) twoStar++;
+            else if (rate === 1) oneStar++;
+
+            return {
+                id: r._id,
+                rating: r.rating,
+                comment: r.comment,
+                created_at: r.created_at,
+                booking_reference: r.booking_id?.booking_id || "AC00000",
+                customer_name: r.customer_id?.full_name || "Customer",
+                customer_phone: r.customer_id?.phone || "",
+                service_name: "AC Repair & Care",
+                technician_name: r.technician_id?.full_name || "Technician"
+            };
+        });
+
+        const totalReviews = reviews.length;
+        const averageRating = totalReviews > 0 ? Math.round((sumRating / totalReviews) * 10) / 10 : 0;
 
         res.json({
             success: true,
             reviews,
-            stats: stats[0]
+            stats: {
+                totalReviews,
+                averageRating,
+                fiveStarReviews: fiveStar,
+                fourStarReviews: fourStar,
+                threeStarReviews: threeStar,
+                twoStarReviews: twoStar,
+                oneStarReviews: oneStar
+            }
         });
-
     } catch (error) {
-    console.error("Reviews API error:", error);
-
-    res.status(500).json({
-        success: false,
-        message: error.message
-    });
-}
+        console.error("Reviews API error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
 app.get("/api/admin/reports/monthly-revenue", async (req, res) => {
     try {
-        const [rows] = await db.query(`
-            SELECT
-                DATE_FORMAT(payment_date, '%Y-%m') AS monthKey,
-                DATE_FORMAT(payment_date, '%b') AS monthLabel,
-                COALESCE(SUM(amount), 0) AS revenue
-            FROM payments
-            WHERE payment_status = 'Paid'
-              AND payment_date >= DATE_FORMAT(
-                  DATE_SUB(CURDATE(), INTERVAL 7 MONTH),
-                  '%Y-%m-01'
-              )
-              AND payment_date < DATE_FORMAT(
-                  DATE_ADD(CURDATE(), INTERVAL 1 MONTH),
-                  '%Y-%m-01'
-              )
-            GROUP BY
-                DATE_FORMAT(payment_date, '%Y-%m'),
-                DATE_FORMAT(payment_date, '%b')
-            ORDER BY monthKey ASC
-        `);
+        const sevenMonthsAgo = new Date();
+        sevenMonthsAgo.setMonth(sevenMonthsAgo.getMonth() - 7);
 
-        res.json({
-            success: true,
-            monthlyRevenue: rows
+        const rows = await Payment.aggregate([
+            {
+                $match: {
+                    payment_status: "Paid",
+                    payment_date: { $gte: sevenMonthsAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m", date: "$payment_date" } },
+                    revenue: { $sum: "$amount" }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthlyRevenue = rows.map(r => {
+            const [year, month] = r._id.split("-");
+            return {
+                monthKey: r._id,
+                monthLabel: months[parseInt(month, 10) - 1],
+                revenue: r.revenue
+            };
         });
+
+        res.json({ success: true, monthlyRevenue });
     } catch (error) {
         console.error("Monthly revenue report error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to load monthly revenue."
-        });
+        res.status(500).json({ success: false, message: "Failed to load monthly revenue." });
     }
 });
 
-/* =========================================
-   AC CARE - NOTIFICATIONS API
-   Add above app.listen(...)
-========================================= */
+// =====================================================
+// NOTIFICATIONS APIs
+// =====================================================
 
-// GET all notifications
 app.get("/api/admin/notifications", async (req, res) => {
     try {
-        const [notifications] = await db.query(`
-            SELECT id, title, message, type,
-                   related_booking_id, is_read, created_at
-            FROM notifications
-            ORDER BY created_at DESC
-        `);
-
-        const unreadCount = notifications.filter(
-            n => !n.is_read
-        ).length;
+        const notifications = await Notification.find().sort({ created_at: -1 });
+        const unreadCount = notifications.filter(n => !n.is_read).length;
 
         res.json({
             success: true,
@@ -2690,246 +1538,154 @@ app.get("/api/admin/notifications", async (req, res) => {
         });
     } catch (error) {
         console.error("Load notifications error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to load notifications."
-        });
+        res.status(500).json({ success: false, message: "Failed to load notifications." });
     }
 });
 
-
-// CREATE a notification
 app.post("/api/admin/notifications", async (req, res) => {
     try {
         const { title, message, type, related_booking_id } = req.body;
-
         if (!title || !message) {
-            return res.status(400).json({
-                success: false,
-                message: "Title and message are required."
-            });
+            return res.status(400).json({ success: false, message: "Title and message are required." });
         }
 
-        const [result] = await db.query(
-            `INSERT INTO notifications
-             (title, message, type, related_booking_id)
-             VALUES (?, ?, ?, ?)`,
-            [
-                title.trim(),
-                message.trim(),
-                type || "general",
-                related_booking_id || null
-            ]
-        );
+        const notif = await Notification.create({
+            title: title.trim(),
+            message: message.trim(),
+            type: type || "general",
+            related_booking_id: related_booking_id || null,
+            is_read: false
+        });
 
         res.status(201).json({
             success: true,
             message: "Notification created successfully.",
-            id: result.insertId
+            id: notif._id
         });
     } catch (error) {
         console.error("Create notification error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to create notification."
-        });
+        res.status(500).json({ success: false, message: "Failed to create notification." });
     }
 });
 
-
-// MARK a notification as read
 app.put("/api/admin/notifications/:id/read", async (req, res) => {
     try {
-        const [result] = await db.query(
-            "UPDATE notifications SET is_read = TRUE WHERE id = ?",
-            [req.params.id]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Notification not found."
-            });
+        const nId = toObjectId(req.params.id);
+        const updated = await Notification.findByIdAndUpdate(nId, { $set: { is_read: true } });
+        if (!updated) {
+            return res.status(404).json({ success: false, message: "Notification not found." });
         }
-
-        res.json({
-            success: true,
-            message: "Notification marked as read."
-        });
+        res.json({ success: true, message: "Notification marked as read." });
     } catch (error) {
         console.error("Mark notification read error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to update notification."
-        });
+        res.status(500).json({ success: false, message: "Failed to update notification." });
     }
 });
 
-
-// DELETE a notification
 app.delete("/api/admin/notifications/:id", async (req, res) => {
     try {
-        const [result] = await db.query(
-            "DELETE FROM notifications WHERE id = ?",
-            [req.params.id]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Notification not found."
-            });
+        const nId = toObjectId(req.params.id);
+        const deleted = await Notification.findByIdAndDelete(nId);
+        if (!deleted) {
+            return res.status(404).json({ success: false, message: "Notification not found." });
         }
-
-        res.json({
-            success: true,
-            message: "Notification deleted successfully."
-        });
+        res.json({ success: true, message: "Notification deleted successfully." });
     } catch (error) {
         console.error("Delete notification error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to delete notification."
-        });
+        res.status(500).json({ success: false, message: "Failed to delete notification." });
     }
 });
 
-  // ================= TEST CUSTOMERS ROUTE =================
+// =====================================================
+// PAYMENTS APIs
+// =====================================================
 
-app.get("/api/test-customers", (req, res) => {
-    res.json({
-        success: true,
-        message: "Customers route is working"
-    });
-});
-
-/* =========================================
-   AC CARE - PAYMENT APIs
-   Insert above the START SERVER section
-========================================= */
-
-// 1. ADMIN: GET ALL PAYMENTS
 app.get("/api/admin/payments", async (req, res) => {
     try {
-        const [payments] = await db.query(`
-            SELECT
-                p.id AS payment_id,
-                p.booking_id AS database_booking_id,
-                b.booking_id,
-                c.full_name AS customer_name,
-                s.service_name,
-                t.full_name AS technician_name,
-                p.amount,
-                p.payment_method,
-                p.payment_status,
-                p.transaction_id,
-                p.payment_date,
-                p.collected_by,
-                p.technician_share,
-                p.owner_share,
-                p.technician_payout_status,
-                p.technician_payout_date,
-                p.payout_reference
-            FROM payments p
-            INNER JOIN bookings b ON p.booking_id = b.id
-            INNER JOIN customers c ON b.customer_id = c.id
-            INNER JOIN services s ON b.service_id = s.id
-            LEFT JOIN technicians t ON b.technician_id = t.id
-            ORDER BY p.id DESC
-        `);
+        const payments = await Payment.find()
+            .populate({
+                path: "booking_id",
+                populate: [
+                    { path: "customer_id", select: "full_name" },
+                    { path: "service_id", select: "service_name name" },
+                    { path: "technician_id", select: "full_name" }
+                ]
+            })
+            .sort({ created_at: -1 });
 
-        res.json({ success: true, payments });
+        const formatted = payments.map(p => {
+            const b = p.booking_id;
+            return {
+                payment_id: p._id,
+                database_booking_id: b?._id,
+                booking_id: b?.booking_id || "AC00000",
+                customer_name: b?.customer_id?.full_name || "Unknown",
+                service_name: b?.service_id?.service_name || b?.service_id?.name || "AC Service",
+                technician_name: b?.technician_id?.full_name || "Not Assigned",
+                amount: p.amount,
+                payment_method: p.payment_method,
+                payment_status: p.payment_status,
+                transaction_id: p.transaction_id,
+                payment_date: p.payment_date,
+                collected_by: p.collected_by,
+                technician_share: p.technician_share,
+                owner_share: p.owner_share,
+                technician_payout_status: p.technician_payout_status,
+                technician_payout_date: p.technician_payout_date,
+                payout_reference: p.payout_reference
+            };
+        });
+
+        res.json({ success: true, payments: formatted });
     } catch (error) {
         console.error("Load payments error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to load payments."
-        });
+        res.status(500).json({ success: false, message: "Failed to load payments." });
     }
 });
 
-
-// 2. CREATE A PENDING PAYMENT
-// bookingId must be the numeric bookings.id, not "AC20914".
 app.post("/api/payments", async (req, res) => {
     const { bookingId, paymentMethod } = req.body;
-
     const allowedMethods = ["Cash", "UPI", "Card", "Online"];
 
-    if (!Number.isInteger(Number(bookingId)) ||
-        Number(bookingId) <= 0 ||
-        !allowedMethods.includes(paymentMethod)) {
+    if (!bookingId || !allowedMethods.includes(paymentMethod)) {
         return res.status(400).json({
             success: false,
             message: "Valid booking ID and payment method are required."
         });
     }
 
-    let connection;
-
     try {
-        connection = await db.getConnection();
-        await connection.beginTransaction();
-
-        const [bookings] = await connection.query(
-            `SELECT id, total_amount, status
-             FROM bookings
-             WHERE id = ?
-             FOR UPDATE`,
-            [Number(bookingId)]
-        );
-
-        if (!bookings.length) {
-            await connection.rollback();
-            return res.status(404).json({
-                success: false,
-                message: "Booking not found."
-            });
+        const bQuery = mongoose.isValidObjectId(bookingId) ? { _id: bookingId } : { booking_id: bookingId };
+        const booking = await Booking.findOne(bQuery);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found." });
         }
 
-        const booking = bookings[0];
         const split = calculatePaymentSplit(booking.total_amount);
-
         if (split.totalAmount <= 0) {
-            await connection.rollback();
-            return res.status(400).json({
-                success: false,
-                message: "Booking amount must be greater than zero."
-            });
+            return res.status(400).json({ success: false, message: "Booking amount must be greater than zero." });
         }
 
-        // Prevent creating another payment while one is pending
-        const [existing] = await connection.query(
-            `SELECT id FROM payments
-             WHERE booking_id = ?
-               AND payment_status = 'Pending'
-             LIMIT 1`,
-            [booking.id]
-        );
-
-        if (existing.length) {
-            await connection.rollback();
+        const existing = await Payment.findOne({
+            booking_id: booking._id,
+            payment_status: "Pending"
+        });
+        if (existing) {
             return res.status(409).json({
                 success: false,
                 message: "A pending payment already exists for this booking."
             });
         }
 
-        const [result] = await connection.query(
-            `INSERT INTO payments
-             (booking_id, amount, payment_method, payment_status,
-              technician_share, owner_share, technician_payout_status)
-             VALUES (?, ?, ?, 'Pending', ?, ?, 'Not Due')`,
-            [
-                booking.id,
-                split.totalAmount,
-                paymentMethod,
-                split.technicianShare,
-                split.ownerShare
-            ]
-        );
-
-        await connection.commit();
+        const payment = await Payment.create({
+            booking_id: booking._id,
+            amount: split.totalAmount,
+            payment_method: paymentMethod,
+            payment_status: "Pending",
+            technician_share: split.technicianShare,
+            owner_share: split.ownerShare,
+            technician_payout_status: "Not Due"
+        });
 
         res.status(201).json({
             success: true,
@@ -2937,8 +1693,8 @@ app.post("/api/payments", async (req, res) => {
                 ? "Cash payment recorded as pending."
                 : "Payment created. Online payment requires gateway verification.",
             payment: {
-                id: result.insertId,
-                bookingId: booking.id,
+                id: payment._id,
+                bookingId: booking._id,
                 amount: split.totalAmount,
                 paymentMethod,
                 paymentStatus: "Pending",
@@ -2947,119 +1703,53 @@ app.post("/api/payments", async (req, res) => {
             }
         });
     } catch (error) {
-        if (connection) await connection.rollback();
         console.error("Create payment error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to create payment."
-        });
-    } finally {
-        if (connection) connection.release();
+        res.status(500).json({ success: false, message: "Failed to create payment." });
     }
 });
 
-
-// 3. ADMIN: CONFIRM CASH RECEIVED BY OWNER OR ADMIN
 app.put("/api/admin/payments/:id/confirm-cash", async (req, res) => {
     const { collectedBy } = req.body;
-
     if (!["Owner", "Admin"].includes(collectedBy)) {
-        return res.status(400).json({
-            success: false,
-            message: "collectedBy must be Owner or Admin."
-        });
+        return res.status(400).json({ success: false, message: "collectedBy must be Owner or Admin." });
     }
 
-    let connection;
-
     try {
-        connection = await db.getConnection();
-        await connection.beginTransaction();
-
-        const [payments] = await connection.query(
-            `SELECT id, payment_method, payment_status
-             FROM payments
-             WHERE id = ?
-             FOR UPDATE`,
-            [req.params.id]
-        );
-
-        if (!payments.length) {
-            await connection.rollback();
-            return res.status(404).json({
-                success: false,
-                message: "Payment not found."
-            });
+        const pId = toObjectId(req.params.id);
+        const payment = await Payment.findById(pId);
+        if (!payment) {
+            return res.status(404).json({ success: false, message: "Payment not found." });
         }
 
-        const payment = payments[0];
-
-        if (payment.payment_method !== "Cash" ||
-            payment.payment_status !== "Pending") {
-            await connection.rollback();
+        if (payment.payment_method !== "Cash" || payment.payment_status !== "Pending") {
             return res.status(400).json({
                 success: false,
                 message: "Only pending cash payments can be confirmed here."
             });
         }
 
-        await connection.query(
-            `UPDATE payments
-             SET payment_status = 'Paid',
-                 collected_by = ?
-             WHERE id = ?`,
-            [collectedBy, payment.id]
-        );
+        payment.payment_status = "Paid";
+        payment.collected_by = collectedBy;
+        await payment.save();
 
-        await connection.commit();
-
-        res.json({
-            success: true,
-            message: "Cash payment confirmed."
-        });
+        res.json({ success: true, message: "Cash payment confirmed." });
     } catch (error) {
-        if (connection) await connection.rollback();
         console.error("Confirm cash error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to confirm cash payment."
-        });
-    } finally {
-        if (connection) connection.release();
+        res.status(500).json({ success: false, message: "Failed to confirm cash payment." });
     }
 });
 
-
-// 4. ADMIN: RECORD TECHNICIAN PAYOUT
 app.put("/api/admin/payments/:id/payout", async (req, res) => {
     const { payoutReference } = req.body;
 
-    let connection;
-
     try {
-        connection = await db.getConnection();
-        await connection.beginTransaction();
-
-        const [payments] = await connection.query(
-            `SELECT id, payment_status, technician_payout_status
-             FROM payments
-             WHERE id = ?
-             FOR UPDATE`,
-            [req.params.id]
-        );
-
-        if (!payments.length) {
-            await connection.rollback();
-            return res.status(404).json({
-                success: false,
-                message: "Payment not found."
-            });
+        const pId = toObjectId(req.params.id);
+        const payment = await Payment.findById(pId);
+        if (!payment) {
+            return res.status(404).json({ success: false, message: "Payment not found." });
         }
 
-        const payment = payments[0];
-
         if (payment.payment_status !== "Paid") {
-            await connection.rollback();
             return res.status(400).json({
                 success: false,
                 message: "Payment must be confirmed before technician payout."
@@ -3067,269 +1757,108 @@ app.put("/api/admin/payments/:id/payout", async (req, res) => {
         }
 
         if (payment.technician_payout_status === "Paid") {
-            await connection.rollback();
             return res.status(409).json({
                 success: false,
                 message: "Technician payout has already been recorded."
             });
         }
 
-        await connection.query(
-            `UPDATE payments
-             SET technician_payout_status = 'Paid',
-                 technician_payout_date = NOW(),
-                 payout_reference = ?
-             WHERE id = ?`,
-            [payoutReference || null, payment.id]
-        );
+        payment.technician_payout_status = "Paid";
+        payment.technician_payout_date = new Date();
+        payment.payout_reference = payoutReference || null;
+        await payment.save();
 
-        await connection.commit();
-
-        res.json({
-            success: true,
-            message: "Technician payout recorded."
-        });
+        res.json({ success: true, message: "Technician payout recorded." });
     } catch (error) {
-        if (connection) await connection.rollback();
         console.error("Technician payout error:", error);
-        res.status(500).json({
-            success: false,
-            message: "Failed to record technician payout."
-        });
-    } finally {
-        if (connection) connection.release();
+        res.status(500).json({ success: false, message: "Failed to record technician payout." });
     }
 });
 
-/* =========================================
-   CUSTOMER - SUBMIT UPI PAYMENT REFERENCE
-   Payment stays Pending until admin verifies it.
-========================================= */
-
 app.post("/api/customer/payments/upi-reference", async (req, res) => {
     const { bookingId, customerId, transactionReference } = req.body;
-
     const reference = String(transactionReference || "").trim();
 
-    if (
-        !Number.isInteger(Number(bookingId)) ||
-        Number(bookingId) <= 0 ||
-        !Number.isInteger(Number(customerId)) ||
-        Number(customerId) <= 0 ||
-        reference.length < 6 ||
-        reference.length > 100
-    ) {
+    if (!bookingId || !customerId || reference.length < 6 || reference.length > 100) {
         return res.status(400).json({
             success: false,
             message: "Please provide valid booking details and transaction reference."
         });
     }
 
-    let connection;
-
     try {
-        connection = await db.getConnection();
-        await connection.beginTransaction();
+        const bQuery = mongoose.isValidObjectId(bookingId) ? { _id: bookingId } : { booking_id: bookingId };
+        const booking = await Booking.findOne({
+            ...bQuery,
+            customer_id: customerId,
+            status: "Completed"
+        });
 
-        // Confirm that this booking belongs to the supplied customer
-        // and that the service is completed.
-        const [bookings] = await connection.query(
-            `SELECT id, total_amount
-             FROM bookings
-             WHERE id = ?
-               AND customer_id = ?
-               AND status = 'Completed'
-             FOR UPDATE`,
-            [Number(bookingId), Number(customerId)]
-        );
-
-        if (bookings.length === 0) {
-            await connection.rollback();
+        if (!booking) {
             return res.status(404).json({
                 success: false,
                 message: "Completed booking not found for this customer."
             });
         }
 
-        // Find an existing pending UPI payment, if any.
-        const [payments] = await connection.query(
-            `SELECT id, payment_status
-             FROM payments
-             WHERE booking_id = ?
-               AND payment_method = 'UPI'
-             ORDER BY id DESC
-             LIMIT 1
-             FOR UPDATE`,
-            [Number(bookingId)]
-        );
+        let payment = await Payment.findOne({
+            booking_id: booking._id,
+            payment_method: "UPI"
+        }).sort({ created_at: -1 });
 
-        let paymentId;
-
-        if (payments.length > 0) {
-            const payment = payments[0];
-
+        if (payment) {
             if (payment.payment_status !== "Pending") {
-                await connection.rollback();
                 return res.status(409).json({
                     success: false,
                     message: "This payment is already processed. Contact the administrator if you need help."
                 });
             }
-
-            // Update the pending UPI payment with the reference.
-            await connection.query(
-                `UPDATE payments
-                 SET transaction_id = ?
-                 WHERE id = ?`,
-                [reference, payment.id]
-            );
-
-            paymentId = payment.id;
+            payment.transaction_id = reference;
+            await payment.save();
         } else {
-            const split = calculatePaymentSplit(
-                bookings[0].total_amount
-            );
-
-            const [result] = await connection.query(
-                `INSERT INTO payments
-                 (booking_id, amount, payment_method, payment_status,
-                  transaction_id, technician_share, owner_share,
-                  technician_payout_status)
-                 VALUES (?, ?, 'UPI', 'Pending', ?, ?, ?, 'Not Due')`,
-                [
-                    Number(bookingId),
-                    split.totalAmount,
-                    reference,
-                    split.technicianShare,
-                    split.ownerShare
-                ]
-            );
-
-            paymentId = result.insertId;
+            const split = calculatePaymentSplit(booking.total_amount);
+            payment = await Payment.create({
+                booking_id: booking._id,
+                amount: split.totalAmount,
+                payment_method: "UPI",
+                payment_status: "Pending",
+                transaction_id: reference,
+                technician_share: split.technicianShare,
+                owner_share: split.ownerShare,
+                technician_payout_status: "Not Due"
+            });
         }
 
-        await connection.commit();
-
-        return res.status(201).json({
+        res.status(201).json({
             success: true,
             message: "UPI reference submitted. Payment is awaiting administrator verification.",
             payment: {
-                id: paymentId,
-                bookingId: Number(bookingId),
+                id: payment._id,
+                bookingId: booking._id,
                 paymentStatus: "Pending"
             }
         });
-
     } catch (error) {
-        if (connection) {
-            await connection.rollback();
-        }
-
         console.error("UPI reference submission error:", error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Could not submit the UPI reference."
-        });
-
-    } finally {
-        if (connection) {
-            connection.release();
-        }
+        res.status(500).json({ success: false, message: "Could not submit the UPI reference." });
     }
 });
 
-// =====================================
-// ADMIN TODAY'S JOBS API
-// =====================================
+// =====================================================
+// AUTH: FORGOT & RESET PASSWORD
+// =====================================================
 
-app.get("/api/admin/todays-jobs", async (req, res) => {
-    try {
-        const [jobs] = await db.query(`
-            SELECT
-                b.id,
-                b.booking_id,
-                c.full_name AS customer_name,
-                s.service_name,
-                COALESCE(t.full_name, 'Not Assigned') AS technician_name,
-                b.address,
-                b.preferred_date,
-                b.preferred_time,
-                b.status
-            FROM bookings b
-            INNER JOIN customers c
-                ON b.customer_id = c.id
-            INNER JOIN services s
-                ON b.service_id = s.id
-            LEFT JOIN technicians t
-                ON b.technician_id = t.id
-            WHERE b.preferred_date >= CURDATE()
-              AND b.preferred_date < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
-              AND b.status NOT IN ('Completed', 'Cancelled')
-            ORDER BY b.preferred_time ASC
-        `);
-
-        res.json({
-            success: true,
-            jobs: jobs
-        });
-
-    } catch (error) {
-        console.error("Today's jobs API error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to load today's jobs",
-            error: error.message
-        });
-    }
-});
-
-/* =========================================
-   ADMIN DASHBOARD: BOOKINGS OVERVIEW
-========================================= */
-
-app.get("/api/admin/bookings-overview", async (req, res) => {
-    try {
-        const [rows] = await db.query(`
-            SELECT
-                COUNT(*) AS totalBookings,
-                SUM(status = 'Completed') AS completedBookings,
-                SUM(status = 'Pending') AS pendingBookings,
-                SUM(status = 'Cancelled') AS cancelledBookings,
-                SUM(status = 'Assigned') AS assignedBookings,
-                SUM(status = 'Accepted') AS acceptedBookings,
-                SUM(status = 'In Progress') AS inProgressBookings
-            FROM bookings
-        `);
-
-        res.json({
-            success: true,
-            overview: rows[0]
-        });
-    } catch (error) {
-        console.error("Bookings overview API error:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Failed to load bookings overview."
-        });
-    }
-});
-
-const RESET_ACCOUNT_TABLES = {
-    customer: "customers",
-    technician: "technicians",
-    admin: "admins"
+const MODEL_ROLES = {
+    customer: Customer,
+    technician: Technician,
+    admin: Admin
 };
 
-// Request a password-reset email
 app.post("/api/auth/forgot-password", async (req, res) => {
     const email = String(req.body.email || "").trim().toLowerCase();
     const role = String(req.body.role || "").trim().toLowerCase();
 
-    if (!["customer", "technician", "admin"].includes(role) ||
-        !email || email.length > 254) {
+    if (!["customer", "technician", "admin"].includes(role) || !email || email.length > 254) {
         return res.status(400).json({
             success: false,
             message: "Please provide a valid email and account type."
@@ -3337,62 +1866,42 @@ app.post("/api/auth/forgot-password", async (req, res) => {
     }
 
     try {
-        const table = RESET_ACCOUNT_TABLES[role];
+        const Model = MODEL_ROLES[role];
+        const user = await Model.findOne({ email });
+        const message = "If an account exists for that email, a reset link will be sent.";
 
-        const [users] = await db.query(
-            `SELECT id, email FROM ${table} WHERE LOWER(email) = ? LIMIT 1`,
-            [email]
-        );
-
-        // Use the same response whether the account exists or not.
-        const message =
-            "If an account exists for that email, a reset link will be sent.";
-
-        if (users.length === 0) {
+        if (!user) {
             return res.json({ success: true, message });
         }
 
-        const user = users[0];
-
-        // Allow at most one reset email per account per minute.
-        const [recent] = await db.query(
-            `SELECT id FROM password_reset_tokens
-             WHERE role = ? AND user_id = ?
-             AND created_at > DATE_SUB(NOW(), INTERVAL 1 MINUTE)
-             LIMIT 1`,
-            [role, user.id]
-        );
-
-        if (recent.length > 0) {
+        // Throttle 1 email per minute
+        const oneMinAgo = new Date(Date.now() - 60 * 1000);
+        const recent = await PasswordResetToken.findOne({
+            role,
+            user_id: user._id,
+            created_at: { $gt: oneMinAgo }
+        });
+        if (recent) {
             return res.json({ success: true, message });
         }
 
         const token = crypto.randomBytes(32).toString("hex");
-        const tokenHash = crypto
-            .createHash("sha256")
-            .update(token)
-            .digest("hex");
+        const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
-        await db.query(
-            `DELETE FROM password_reset_tokens
-             WHERE role = ? AND user_id = ? AND used_at IS NULL`,
-            [role, user.id]
-        );
+        await PasswordResetToken.deleteMany({ role, user_id: user._id, used_at: null });
+        await PasswordResetToken.create({
+            role,
+            user_id: user._id,
+            token_hash: tokenHash,
+            expires_at: new Date(Date.now() + 15 * 60 * 1000)
+        });
 
-        await db.query(
-            `INSERT INTO password_reset_tokens
-             (role, user_id, token_hash, expires_at)
-             VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 15 MINUTE))`,
-            [role, user.id, tokenHash]
-        );
-
-        const resetUrl = new URL(process.env.FRONTEND_RESET_URL);
+        const resetUrl = new URL(process.env.FRONTEND_RESET_URL || "http://127.0.0.1:5500/reset-password.html");
         resetUrl.searchParams.set("token", token);
         resetUrl.searchParams.set("role", role);
 
-        const response = await fetch(
-            "https://api.brevo.com/v3/smtp/email",
-            {
+        if (process.env.BREVO_API_KEY) {
+            const response = await fetch("https://api.brevo.com/v3/smtp/email", {
                 method: "POST",
                 headers: {
                     "api-key": process.env.BREVO_API_KEY,
@@ -3401,7 +1910,7 @@ app.post("/api/auth/forgot-password", async (req, res) => {
                 },
                 body: JSON.stringify({
                     sender: {
-                        email: process.env.BREVO_SENDER_EMAIL,
+                        email: process.env.BREVO_SENDER_EMAIL || "kunalg8828@gmail.com",
                         name: "AC CARE"
                     },
                     to: [{ email: user.email }],
@@ -3410,8 +1919,7 @@ app.post("/api/auth/forgot-password", async (req, res) => {
                         <div style="font-family:Arial,sans-serif">
                           <h2>AC CARE Password Reset</h2>
                           <p>We received a request to reset your password.</p>
-                          <p>This link expires in 15 minutes and can only be
-                          used once.</p>
+                          <p>This link expires in 15 minutes and can only be used once.</p>
                           <p><a href="${resetUrl.toString()}"
                              style="background:#1769e0;color:white;
                              padding:12px 20px;text-decoration:none;
@@ -3419,32 +1927,27 @@ app.post("/api/auth/forgot-password", async (req, res) => {
                           <p>If you did not request this, ignore this email.</p>
                         </div>`
                 })
-            }
-        );
-
-        if (!response.ok) {
-            await db.query(
-                `DELETE FROM password_reset_tokens WHERE token_hash = ?`,
-                [tokenHash]
-            );
-            console.error("Brevo email request failed:", response.status);
-            return res.status(502).json({
-                success: false,
-                message: "Unable to send the reset email right now."
             });
+
+            if (!response.ok) {
+                await PasswordResetToken.deleteOne({ token_hash: tokenHash });
+                console.error("Brevo email request failed with status:", response.status);
+                return res.status(502).json({
+                    success: false,
+                    message: "Unable to send the reset email right now."
+                });
+            }
+        } else {
+            console.log("ℹ️ Password Reset Link (Brevo disabled):", resetUrl.toString());
         }
 
-        return res.json({ success: true, message });
+        res.json({ success: true, message });
     } catch (error) {
         console.error("Forgot-password error:", error.message);
-        return res.status(500).json({
-            success: false,
-            message: "Unable to process the request right now."
-        });
+        res.status(500).json({ success: false, message: "Unable to process the request right now." });
     }
 });
 
-// Complete a password reset
 app.post("/api/auth/reset-password", async (req, res) => {
     const role = String(req.body.role || "").trim().toLowerCase();
     const token = String(req.body.token || "");
@@ -3459,82 +1962,49 @@ app.post("/api/auth/reset-password", async (req, res) => {
         });
     }
 
-    const tokenHash = crypto
-        .createHash("sha256")
-        .update(token)
-        .digest("hex");
-
-    let connection;
-
     try {
-        connection = await db.getConnection();
-        await connection.beginTransaction();
+        const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+        const resetToken = await PasswordResetToken.findOne({
+            role,
+            token_hash: tokenHash,
+            used_at: null,
+            expires_at: { $gt: new Date() }
+        });
 
-        const [tokens] = await connection.query(
-            `SELECT id, user_id FROM password_reset_tokens
-             WHERE role = ? AND token_hash = ?
-             AND used_at IS NULL AND expires_at > NOW()
-             LIMIT 1 FOR UPDATE`,
-            [role, tokenHash]
-        );
-
-        if (tokens.length === 0) {
-            await connection.rollback();
+        if (!resetToken) {
             return res.status(400).json({
                 success: false,
                 message: "This reset link is invalid, expired, or already used."
             });
         }
 
-        const reset = tokens[0];
+        const Model = MODEL_ROLES[role];
         const hashedPassword = await bcrypt.hash(newPassword, 10);
-        const table = RESET_ACCOUNT_TABLES[role];
+        await Model.findByIdAndUpdate(resetToken.user_id, { password: hashedPassword });
 
-        const [updateResult] = await connection.query(
-            `UPDATE ${table} SET password = ? WHERE id = ?`,
-            [hashedPassword, reset.user_id]
-        );
+        resetToken.used_at = new Date();
+        await resetToken.save();
 
-        if (updateResult.affectedRows !== 1) {
-            await connection.rollback();
-            return res.status(400).json({
-                success: false,
-                message: "The account could not be updated."
-            });
-        }
-
-        await connection.query(
-            `UPDATE password_reset_tokens
-             SET used_at = NOW()
-             WHERE role = ? AND user_id = ? AND used_at IS NULL`,
-            [role, reset.user_id]
-        );
-
-        await connection.commit();
-
-        return res.json({
+        res.json({
             success: true,
             message: "Password reset successfully. You can now log in."
         });
     } catch (error) {
-        if (connection) await connection.rollback();
         console.error("Reset-password error:", error.message);
-        return res.status(500).json({
-            success: false,
-            message: "Unable to reset the password right now."
-        });
-    } finally {
-        if (connection) connection.release();
+        res.status(500).json({ success: false, message: "Unable to reset the password right now." });
     }
 });
 
-
-// ================= START SERVER =================
-
+// =====================================================
+// START SERVER
+// =====================================================
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`AC CARE Server running on http://localhost:${PORT}`);
+connectDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`🚀 AC CARE Server running on http://localhost:${PORT}`);
+    });
+}).catch(err => {
+    console.error("Server startup failed due to database connection error:", err.message);
 });
-

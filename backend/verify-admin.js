@@ -1,9 +1,9 @@
-
 require("dotenv").config();
-
-const mysql = require("mysql2/promise");
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const readline = require("readline");
+
+const Admin = require("./models/Admin");
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -11,23 +11,13 @@ const rl = readline.createInterface({
 });
 
 async function verifyAdmin() {
-    let connection;
-
     try {
-        connection = await mysql.createConnection({
-            host: process.env.DB_HOST || "localhost",
-            user: process.env.DB_USER || "root",
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME || "ac_care",
-            port: Number(process.env.DB_PORT || 3306)
-        });
+        const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/ac_care";
+        await mongoose.connect(uri);
 
-        const [rows] = await connection.execute(
-            "SELECT email, password FROM admins WHERE email = ?",
-            ["admin@accare.com"]
-        );
+        const admin = await Admin.findOne({ email: "admin@accare.com" });
 
-        if (rows.length === 0) {
+        if (!admin) {
             console.log("Admin account was not found.");
             return;
         }
@@ -36,29 +26,20 @@ async function verifyAdmin() {
 
         rl.question("Enter your original admin password: ", async (password) => {
             try {
-                const matches = await bcrypt.compare(
-                    password,
-                    rows[0].password
-                );
-
-                console.log(
-                    matches
-                        ? "PASSWORD MATCHES the database hash."
-                        : "PASSWORD DOES NOT MATCH the database hash."
-                );
+                const matches = await bcrypt.compare(password, admin.password);
+                console.log(matches ? "PASSWORD MATCHES the database hash." : "PASSWORD DOES NOT MATCH the database hash.");
             } catch (error) {
                 console.error("Verification failed:", error.message);
             } finally {
                 rl.close();
-                await connection.end();
+                await mongoose.disconnect();
             }
         });
 
     } catch (error) {
         console.error("Database check failed:", error.message);
-
-        if (connection) await connection.end();
         rl.close();
+        await mongoose.disconnect();
     }
 }
 
