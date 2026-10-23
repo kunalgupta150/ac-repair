@@ -844,7 +844,7 @@ async function loadCustomers() {
     try {
 
         const response = await fetch(
-            "http://localhost:5000/api/admin/customers"
+            "/api/admin/customers"
         );
 
         const result = await response.json();
@@ -1130,7 +1130,7 @@ async function viewCustomer(id) {
     try {
 
         const response = await fetch(
-            `http://localhost:5000/api/admin/customers/${id}`
+            `/api/admin/customers/${id}`
         );
 
         const result = await response.json();
@@ -1569,7 +1569,7 @@ async function editCustomer(id) {
             try {
 
                 const response = await fetch(
-                    `http://localhost:5000/api/admin/customers/${id}`,
+                    `/api/admin/customers/${id}`,
                     {
                         method: "PUT",
 

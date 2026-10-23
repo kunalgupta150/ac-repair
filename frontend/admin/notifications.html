@@ -815,7 +815,7 @@
         console.log("AC CARE Notifications JavaScript loaded");
 
 const NOTIFICATIONS_API =
-    "http://localhost:5000/api/admin/notifications";
+    "/api/admin/notifications";
 
 let allNotifications = [];
 let activeFilter = "all";
@@ -1088,7 +1088,7 @@ window.addEventListener("error", function (event) {
 async function updateSidebarNotifications() {
     try {
         const response = await fetch(
-            "http://localhost:5000/api/admin/notifications"
+            "/api/admin/notifications"
         );
 
         const data = await response.json();

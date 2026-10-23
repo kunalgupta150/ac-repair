@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     const response =
                         await fetch(
-                            "http://localhost:5000/api/customers/register",
+                            "/api/customers/register",
                             {
                                 method: "POST",
 
@@ -178,7 +178,7 @@ if (loginForm) {
 
                     const response =
                         await fetch(
-                            "http://localhost:5000/api/technicians/login",
+                            "/api/technicians/login",
                             {
                                 method: "POST",
 
@@ -272,7 +272,7 @@ if (loginForm) {
 
                     const response =
                         await fetch(
-                            "http://localhost:5000/api/customers/login",
+                            "/api/customers/login",
                             {
                                 method: "POST",
 
@@ -347,7 +347,7 @@ if (loginForm) {
             if (loginRole === "admin") {
                 try {
                     const response = await fetch(
-                        "http://localhost:5000/api/admin/login",
+                        "/api/admin/login",
                         {
                             method: "POST",
                             headers: {
@@ -508,7 +508,7 @@ if (loginForm) {
 
                     const response =
                         await fetch(
-                            "http://localhost:5000/api/bookings",
+                            "/api/bookings",
                             {
                                 method: "POST",
 
@@ -674,7 +674,7 @@ async function loadCustomerUPIPayments() {
 
     try {
         const response = await fetch(
-            `http://localhost:5000/api/bookings/customer/${encodeURIComponent(customer.id)}`
+            `/api/bookings/customer/${encodeURIComponent(customer.id)}`
         );
 
         const result = await response.json();
@@ -783,7 +783,7 @@ async function loadCustomerUPIPayments() {
 
                 try {
                     const response = await fetch(
-                        "http://localhost:5000/api/customer/payments/upi-reference",
+                        "/api/customer/payments/upi-reference",
                         {
                             method: "POST",
                             headers: {
@@ -1025,7 +1025,7 @@ async function loadCustomerDashboard() {
 
         const response =
             await fetch(
-                `http://localhost:5000/api/customer/dashboard/${customer.id}`
+                `/api/customer/dashboard/${customer.id}`
             );
 
 
@@ -1192,7 +1192,7 @@ async function loadCustomerBookings() {
 
         const response =
             await fetch(
-                `http://localhost:5000/api/bookings/customer/${customer.id}`
+                `/api/bookings/customer/${customer.id}`
             );
 
 
@@ -1745,7 +1745,7 @@ async function loadMonthlyRevenue() {
 
     try {
         const response = await fetch(
-            `http://localhost:5000/api/admin/reports/monthly-revenue?year=${year}`
+            `/api/admin/reports/monthly-revenue?year=${year}`
         );
 
         const result = await response.json();
@@ -1877,7 +1877,7 @@ async function loadTodaysJobs() {
 
     try {
         const response = await fetch(
-            "http://localhost:5000/api/admin/todays-jobs"
+            "/api/admin/todays-jobs"
         );
 
         const result = await response.json();
@@ -1971,7 +1971,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/auth/forgot-password",
+                "/api/auth/forgot-password",
                 {
                     method: "POST",
                     headers: {
@@ -2042,7 +2042,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/auth/forgot-password",
+                "/api/auth/forgot-password",
                 {
                     method: "POST",
                     headers: {

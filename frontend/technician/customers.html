@@ -449,7 +449,7 @@ async function loadTechnicianInformation() {
 
         const response =
             await fetch(
-                `http://localhost:5000/api/technicians/${technicianId}`
+                `/api/technicians/${technicianId}`
             );
 
 
@@ -527,7 +527,7 @@ async function loadCustomers() {
 
         const response =
             await fetch(
-                `http://localhost:5000/api/technicians/${technicianId}/customers`
+                `/api/technicians/${technicianId}/customers`
             );
 
 

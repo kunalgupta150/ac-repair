@@ -949,7 +949,7 @@
     <!-- JAVASCRIPT -->
 
     <script>
-        const PAYMENTS_API = "http://localhost:5000/api/admin/payments";
+        const PAYMENTS_API = "/api/admin/payments";
         let allPayments = [];
 
         function escapeHTML(value) {
@@ -1156,7 +1156,7 @@ const actionButton = isPendingCash
             }
 
             try {
-                const response = await fetch("http://localhost:5000/api/admin/payments/" + encodeURIComponent(id) + "/confirm-cash", {
+                const response = await fetch("/api/admin/payments/" + encodeURIComponent(id) + "/confirm-cash", {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ collectedBy: "Admin" })
@@ -1224,7 +1224,7 @@ async function recordTechnicianPayout(id) {
 
     try {
         const response = await fetch(
-            "http://localhost:5000/api/admin/payments/" +
+            "/api/admin/payments/" +
             encodeURIComponent(id) + "/payout",
             {
                 method: "PUT",

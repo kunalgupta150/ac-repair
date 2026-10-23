@@ -991,7 +991,7 @@ async function loadTechnicians() {
 
     try {
 
-        const response = await fetch("http://localhost:5000/api/technicians");
+        const response = await fetch("/api/technicians");
         const result = await response.json();
 
         if (!result.success) {
@@ -1178,7 +1178,7 @@ const techniciansTableBody = document.getElementById("techniciansTableBody");
 
 async function loadTechnicians() {
     try {
-        const response = await fetch("http://localhost:5000/api/technicians");
+        const response = await fetch("/api/technicians");
         const result = await response.json();
 
         if (!result.success) {
@@ -1286,7 +1286,7 @@ async function viewTechnician(id) {
     try {
 
         const response = await fetch(
-            `http://localhost:5000/api/technicians/${id}`
+            `/api/technicians/${id}`
         );
 
         const result = await response.json();
@@ -1361,7 +1361,7 @@ async function editTechnician(id) {
     try {
 
         const response = await fetch(
-            `http://localhost:5000/api/technicians/${id}`
+            `/api/technicians/${id}`
         );
 
         const result = await response.json();
@@ -1437,7 +1437,7 @@ document.getElementById("editTechnicianForm")
         try {
 
             const response = await fetch(
-                `http://localhost:5000/api/technicians/${id}`,
+                `/api/technicians/${id}`,
                 {
                     method: "PUT",
 
@@ -1803,7 +1803,7 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
 
             const response = await fetch(
-                "http://localhost:5000/api/technicians",
+                "/api/technicians",
                 {
                     method: "POST",
                     headers: {

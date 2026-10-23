@@ -838,7 +838,7 @@ async function loadReviews() {
 
     try {
         const response = await fetch(
-            "http://localhost:5000/api/admin/reviews"
+            "/api/admin/reviews"
         );
 
         const data = await response.json();

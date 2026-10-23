@@ -1048,7 +1048,7 @@ async function updateJobStatus(newStatus) {
 
         const response =
             await fetch(
-                `http://localhost:5000/api/technicians/bookings/${currentBooking.id}/status`,
+                `/api/technicians/bookings/${currentBooking.id}/status`,
                 {
                     method: "PUT",
 

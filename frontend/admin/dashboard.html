@@ -652,7 +652,7 @@
 async function loadDashboardStats() {
     try {
         const response = await fetch(
-            "http://localhost:5000/api/dashboard/stats"
+            "/api/dashboard/stats"
         );
 
         const result = await response.json();
@@ -691,7 +691,7 @@ async function loadAdminRecentBookings() {
     try {
 
         const response = await fetch(
-            "http://localhost:5000/api/admin/recent-bookings"
+            "/api/admin/recent-bookings"
         );
 
         const result = await response.json();
@@ -816,7 +816,7 @@ loadAdminRecentBookings();
 async function updateNotificationBadges() {
     try {
         const response = await fetch(
-            "http://localhost:5000/api/admin/notifications"
+            "/api/admin/notifications"
         );
 
         const result = await response.json();

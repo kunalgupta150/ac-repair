@@ -1207,7 +1207,7 @@ async function loadBookings() {
 
         const response =
             await fetch(
-                "http://localhost:5000/api/admin/bookings"
+                "/api/admin/bookings"
             );
 
         const result =
@@ -1922,7 +1922,7 @@ async function editBooking(id) {
 
     try {
         const response = await fetch(
-            `http://localhost:5000/api/admin/bookings/${booking.id}`,
+            `/api/admin/bookings/${booking.id}`,
             {
                 method: "PUT",
                 headers: {
@@ -2020,7 +2020,7 @@ async function openAssignTechnicianModal(bookingId) {
     try {
 
         const response = await fetch(
-            "http://localhost:5000/api/technicians"
+            "/api/technicians"
         );
 
         const result = await response.json();
@@ -2092,7 +2092,7 @@ async function saveTechnicianAssignment() {
     try {
 
         const response = await fetch(
-            `http://localhost:5000/api/admin/bookings/${bookingId}/assign`,
+            `/api/admin/bookings/${bookingId}/assign`,
             {
                 method: "PUT",
 

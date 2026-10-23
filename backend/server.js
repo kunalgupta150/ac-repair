@@ -7,6 +7,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const path = require("path");
 require("dotenv").config();
 
 const { connectDB } = require("./db");
@@ -91,8 +92,10 @@ app.use(express.json());
 // =====================================================
 
 app.get("/", (req, res) => {
-    res.json({ message: "AC CARE Backend is running successfully with MongoDB!" });
+    res.sendFile(path.join(__dirname, "..", "frontend", "index.html"));
 });
+
+app.use(express.static(path.join(__dirname, "..", "frontend")));
 
 app.get("/api/test-db", (req, res) => {
     const isConnected = mongoose.connection.readyState === 1;

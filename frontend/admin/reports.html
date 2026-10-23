@@ -1595,7 +1595,7 @@
 async function loadReports() {
     try {
         const response = await fetch(
-            "http://localhost:5000/api/admin/reports"
+            "/api/admin/reports"
         );
 
         const data = await response.json();
@@ -1638,7 +1638,7 @@ async function loadMonthlyRevenue() {
 
     try {
         const response = await fetch(
-            "http://localhost:5000/api/admin/reports/monthly-revenue"
+            "/api/admin/reports/monthly-revenue"
         );
 
         const data = await response.json();

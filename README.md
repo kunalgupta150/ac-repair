@@ -47,40 +47,48 @@ ac-repair/
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v16 or higher)
-- [MySQL](https://www.mysql.com/) Server (v8.0 or higher)
+- [Node.js](https://nodejs.org/) (v20 or higher)
+- [MongoDB Atlas](https://www.mongodb.com/atlas) or a local MongoDB server
 
-### Backend Setup
+### Local Setup
 
-1. Open a terminal and navigate to the `backend` directory:
+1. Open a terminal in the repository and install backend dependencies:
    ```bash
    cd backend
-   ```
-
-2. Install dependencies:
-   ```bash
    npm install
    ```
 
-3. Configure environment variables:
-   - Copy `.env.example` to `.env`:
-     ```bash
-     cp .env.example .env
-     ```
-   - Update the database credentials (`DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_PORT`) and Brevo API details in `.env`.
-
-4. Start the backend server:
+2. Configure environment variables by copying `.env.example` to `.env`, then set `MONGODB_URI` and any Brevo email settings:
    ```bash
-   node server.js
+   cp .env.example .env
    ```
-   The backend will start on `http://localhost:5000`.
 
-### Frontend Setup
+3. Start the app from the `backend` directory:
+   ```bash
+   npm start
+   ```
+   The frontend and API are both available at `http://localhost:5000`.
 
-1. Open the `frontend` folder using any local HTTP server (such as VS Code Live Server or `npx serve frontend`).
-2. Navigate to `http://127.0.0.1:5500` (or the respective port configured) to access the application.
+### Deploy to Render (one service)
+
+Create one **Web Service** connected to this repository. Leave **Root Directory** blank.
+
+| Render setting | Value |
+|---|---|
+| Build Command | `cd backend && npm ci` |
+| Start Command | `cd backend && npm start` |
+
+Add these environment variables in Render:
+
+| Key | Value |
+|---|---|
+| `MONGODB_URI` | Your MongoDB Atlas connection string |
+| `BREVO_API_KEY` | Your Brevo API key |
+| `BREVO_SENDER_EMAIL` | Your verified Brevo sender email |
+| `FRONTEND_RESET_URL` | `https://YOUR-SERVICE-NAME.onrender.com/reset-password.html` |
+
+Render provides `PORT` automatically; do not add it yourself. Replace the example service URL with the URL Render assigns to your Web Service.
 
 ## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
-
